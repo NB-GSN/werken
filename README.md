@@ -15,3 +15,10 @@ Online: https://nb-gsn.github.io/werken/
 
 - **Advents-Tanne zum Aufhängen** – Holzdreieck in 4 Streifen, versetzt, mit Ablagen für LED-Kerzen
 - **Rentier aus Ästen** – Zweige, Jutegarn, Heißkleber
+
+## Papier-Werkstatt (für Groß und Klein)
+
+- **Masu-Schachtel mit Deckel** – Rechner: Schachtelgröße → Papiergröße
+- **Fensterstern aus Transparentpapier** – 8 oder 16 Drachen, Rechner: Durchmesser → Quadrate
+- **Schneeflocken schneiden** – 60°-Falttrick, Musterideen
+- **Stern aus Brottüten** – 7–12 Tüten, T-Klebemuster

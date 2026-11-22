@@ -38,6 +38,10 @@ h2.sec.jun{color:var(--green)}
 h2.sec span{font-size:13px;background:var(--green);color:#fff;border-radius:99px;padding:3px 10px;vertical-align:middle;margin-left:6px;font-weight:600}
 .pcard.jun .thumb{background:#2c3a2f}
 .pcard.jun .tag{background:var(--green-l);color:var(--green)}
+h2.sec.pap{color:#3b5b8a}
+h2.sec.pap span{background:#3b5b8a}
+.pcard.pap .thumb{background:#2c3a4a}
+.pcard.pap .tag{background:#e3ebf5;color:#3b5b8a}
 .safe{background:#fff4d6;border-left:4px solid #d9a400;padding:10px 12px;border-radius:8px;margin:10px 0;font-size:14.5px}
 .tag{font-size:12.5px;background:var(--accent-l);color:var(--accent);border-radius:99px;padding:2px 10px}
 .sizebar{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:4px 0 12px}
@@ -129,8 +133,8 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':
 
 /* ---------------- Speicher ---------------- */
 const STORE = 'werkstatt-v1';
-let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, done: {}, buy: {}, step: {tanne: 0, stern: 0, latte: 0, advent: 0, rentier: 0}};
-try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) { const d = JSON.parse(JSON.stringify(state)); state = Object.assign(state, s); for (const k of ['tanne', 'stern', 'latte', 'advent', 'rentier']) state[k] = Object.assign({}, d[k], s[k]); state.step = Object.assign({tanne: 0, stern: 0, latte: 0, advent: 0, rentier: 0}, s.step); } } catch (e) {}
+let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, masu: {H: 80}, fenster: {H: 300, lagen: '2'}, flocke: {H: 150}, tuete: {H: 280, n: '10'}, done: {}, buy: {}, step: {}};
+try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) { const d = JSON.parse(JSON.stringify(state)); state = Object.assign(state, s); for (const k of ['tanne', 'stern', 'latte', 'advent', 'rentier', 'masu', 'fenster', 'flocke', 'tuete']) state[k] = Object.assign({}, d[k], s[k]); state.step = Object.assign({}, s.step); } } catch (e) {}
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
 
 /* ---------------- Zuschnittplan (Stangen aufteilen) ---------------- */
@@ -860,7 +864,264 @@ const rentier = {
   }
 };
 
-const PROJECTS = {tanne, stern, latte, advent, rentier};
+/* ================= PAPIER ================= */
+const fitsA4 = a => Math.floor(210 / a) * Math.floor(297 / a);
+const pnote = `<div class="safe"><b>Für Groß und Klein:</b> Kinder ab ca. 6 Jahren schaffen das mit etwas Hilfe beim Messen und Schneiden. Scharfes Falten mit dem Fingernagel oder einem Falzbein macht den Unterschied!</div>`;
+
+/* ---- Masu-Schachtel ---- */
+function masuCalc(B) {
+  const a = B * 2 * Math.SQRT2, lid = (B + 3) * 2 * Math.SQRT2;
+  return {B, a, lid, h: B / 2, perA4: fitsA4(a), lidA4: fitsA4(lid)};
+}
+function masuSVG(c, labels = true) {
+  if (!labels) {
+    // kleine Schachtel mit Deckel, isometrisch
+    const box = (x, y, w, h, col, top) => `<polygon points="${x},${y} ${x + w},${y - w * 0.5} ${x + 2 * w},${y} ${x + w},${y + w * 0.5}" fill="${top}"/><polygon points="${x},${y} ${x + w},${y + w * 0.5} ${x + w},${y + w * 0.5 + h} ${x},${y + h}" fill="${col}"/><polygon points="${x + w},${y + w * 0.5} ${x + 2 * w},${y} ${x + 2 * w},${y + h} ${x + w},${y + w * 0.5 + h}" fill="${col}" opacity=".8"/>`;
+    return `<svg viewBox="0 0 340 260" role="img" aria-label="Masu-Schachtel">${box(70, 150, 100, 60, '#c0504d', '#e9a19f')}${box(110, 70, 88, 34, '#e8c15a', '#f6dd94')}</svg>`;
+  }
+  const S = 300, o0 = 20, cx = o0 + S / 2, d = S / Math.SQRT2;
+  let g = `<rect x="${o0}" y="${o0}" width="${S}" height="${S}" fill="#fdf3e3" stroke="#a8743f" stroke-width="1.5"/>`;
+  g += `<line x1="${o0}" y1="${o0}" x2="${o0 + S}" y2="${o0 + S}" stroke="#cdbfa9" stroke-dasharray="5 4"/><line x1="${o0 + S}" y1="${o0}" x2="${o0}" y2="${o0 + S}" stroke="#cdbfa9" stroke-dasharray="5 4"/>`;
+  g += `<g transform="rotate(45 ${cx} ${cx})"><rect x="${cx - d / 2}" y="${cx - d / 2}" width="${d}" height="${d}" fill="none" stroke="#9b4a1f" stroke-width="1.8"/>`;
+  g += `<rect x="${cx - d / 4}" y="${cx - d / 4}" width="${d / 2}" height="${d / 2}" fill="#9b4a1f" fill-opacity=".15" stroke="#9b4a1f" stroke-width="1.8"/>`;
+  for (const k of [-1, 1]) g += `<line x1="${cx + k * d / 4}" y1="${cx - d / 2}" x2="${cx + k * d / 4}" y2="${cx + d / 2}" stroke="#3d6b4a" stroke-width="1.4"/><line x1="${cx - d / 2}" y1="${cx + k * d / 4}" x2="${cx + d / 2}" y2="${cx + k * d / 4}" stroke="#3d6b4a" stroke-width="1.4"/>`;
+  g += `</g>`;
+  g += badge(cx, cx, 1) + badge(cx + d / 2 * 0.5 + 6, cx - d / 2 * 0.5 + 6, 2) + badge(o0 + 22, o0 + 22, 3);
+  g += `<text x="${cx}" y="${o0 + S + 26}" text-anchor="middle" font-size="16" font-weight="700" fill="#2b2118">Quadrat ${fmt(c.a / 10, 1)} × ${fmt(c.a / 10, 1)} cm</text>`;
+  return `<svg viewBox="0 0 340 360" role="img" aria-label="Faltmuster Masu-Schachtel">${g}</svg>`;
+}
+const masu = {
+  id: 'masu', paper: true, title: 'Masu-Schachtel mit Deckel',
+  teaser: 'Japanische Faltschachtel aus einem einzigen Quadrat – ganz ohne Kleber. Perfekt als Geschenkverpackung.',
+  tags: ['für alle', 'ohne Kleber', '15 Minuten'],
+  presets: [50, 80, 100], range: [30, 200], sizeLabel: 'Seitenlänge der Schachtel',
+  calc: () => masuCalc(state.masu.H), thumb: () => masuSVG(masuCalc(80), false), sizeExtra: () => '',
+  ziel(c) {
+    return `<div class="panel"><h3>Was falte ich?</h3>
+      <p>Eine quadratische Schachtel, die nur durch Falten hält. Mit einem zweiten, minimal größeren Blatt faltest du den passenden Deckel. Gib oben die gewünschte Größe ein – die Seite rechnet aus, wie groß dein Papier sein muss.</p>
+      <div class="facts"><div class="fact"><b>${fmt(c.B / 10, 1)} cm</b><span>Schachtel innen</span></div><div class="fact"><b>${fmt(c.h / 10, 1)} cm</b><span>hoch</span></div><div class="fact"><b>${fmt(c.a / 10, 1)} cm</b><span>Papier Schachtel</span></div><div class="fact"><b>${fmt(c.lid / 10, 1)} cm</b><span>Papier Deckel</span></div></div>
+      <div class="drawing">${masuSVG(c)}${legend(['<b>Boden</b> – wird so groß wie deine Schachtel', '<b>Wandfalze</b> (grün): Kanten zur Mittellinie', '<b>Ecken</b> zur Mitte falten (rote Linie)'])}</div>${pnote}</div>`;
+  },
+  material(c) {
+    return {wood: [`Papier Schachtel: Quadrat <b>${fmt(c.a / 10, 1)} cm</b>${c.perA4 ? ` – passt ${c.perA4}× auf A4` : ' – größer als A4, Geschenk- oder Tonpapier nehmen'}`, `Papier Deckel: Quadrat <b>${fmt(c.lid / 10, 1)} cm</b>${c.lidA4 ? ` – passt ${c.lidA4}× auf A4` : ' – größer als A4'}`],
+      small: ['Etwas festeres Papier (80–120 g/m²): Origami-, Geschenk- oder Musterpapier', 'optional: Masking Tape, Schleife, Anhänger'],
+      tools: ['Lineal und Bleistift', 'Schere oder Papierschneider', 'Falzbein (oder Fingernagel / Löffelrücken)'], extra: ''};
+  },
+  zuschnitt(c) {
+    return `<div class="panel"><h3>Papiermaße</h3>${partsTable([['Schachtel', 1, `Quadrat <b>${fmt(c.a)} × ${fmt(c.a)}</b> mm`, 'genau quadratisch!'], ['Deckel', 1, `Quadrat <b>${fmt(c.lid)} × ${fmt(c.lid)}</b> mm`, '3 mm größere Schachtel → passt locker drüber']])}
+      <div class="note"><b>Die Formel:</b> Papier = Schachtel × 2 × √2 ≈ Schachtel × 2,83. Höhe = halbe Seitenlänge. Eine schöne Aufgabe für den Matheunterricht!</div></div>`;
+  },
+  winkel() {
+    return `<div class="panel"><h3>Falten und Winkel</h3>
+      <div class="anglecard"><div class="badge alt"><b>45°</b><span>Diagonale</span></div><div>Die beiden Diagonalen zeigen dir die Mitte. Jede Ecke wird genau dorthin gefaltet.</div></div>
+      <div class="anglecard"><div class="badge"><b>90°</b><span>Wände</span></div><div>Die Wände werden senkrecht aufgestellt. Wenn alle Falze scharf sind, stehen sie von allein.</div></div>
+      <div class="note">Je genauer das Quadrat, desto schöner die Schachtel. Tipp: Die Ecken immer zuerst genau aufeinanderlegen, dann von der Mitte nach außen falzen.</div></div>`;
+  },
+  steps(c) {
+    return [
+      {t: 'Quadrat zuschneiden', b: `<p>Schachtel: <b>${fmt(c.a)} × ${fmt(c.a)} mm</b>. Deckel: <b>${fmt(c.lid)} × ${fmt(c.lid)} mm</b>. Die schöne Seite liegt beim Falten unten.</p>`},
+      {t: 'Diagonalen falten', b: `<p>Beide Diagonalen falten und wieder öffnen. Wo sie sich kreuzen, ist die Mitte.</p>`},
+      {t: 'Ecken zur Mitte', b: `<p>Alle vier Ecken zur Mitte falten – wie ein Briefumschlag. Liegen lassen.</p>`},
+      {t: 'Kanten zur Mittellinie', b: `<p>Obere und untere Kante zur waagerechten Mittellinie falten, scharf falzen, öffnen. Dann linke und rechte Kante zur senkrechten Mittellinie, öffnen. Jetzt siehst du in der Mitte das Quadrat für den Boden.</p>`},
+      {t: 'Zwei Ecken öffnen', b: `<p>Die linke und die rechte Ecke wieder aufklappen. Oben und unten bleiben eingefaltet.</p>`},
+      {t: 'Lange Wände aufstellen', b: `<p>Die Kanten oben und unten an den Falzen hochklappen, sodass zwei Wände senkrecht stehen.</p>`},
+      {t: 'Schachtel schließen', b: `<p>Die offene linke Seite: Die Seitenteile an den Falzen nach innen drücken, die Ecke darüber in die Schachtel klappen, bis die Spitze im Boden liegt. Rechts genauso. Fertig!</p>`},
+      {t: 'Deckel falten', b: `<p>Mit dem größeren Quadrat alles noch einmal falten – der Deckel passt genau über die Schachtel.</p>`}
+    ];
+  }
+};
+
+/* ---- Fensterstern ---- */
+function fensterCalc(D, lagen) {
+  const a = D / (2 * Math.SQRT2);
+  const n = 8 * (+lagen);
+  return {D, a, lagen: +lagen, n, perA4: fitsA4(a), sheets: Math.ceil(n / Math.max(1, fitsA4(a)))};
+}
+function fensterSVG(c, labels = true) {
+  const R = 150, cx = 170, cy = 170, a = R / Math.SQRT2;
+  const kite = (rot, col, sc) => `<polygon points="0,0 ${a * sc},${0.4142 * a * sc} ${R * sc},0 ${a * sc},${-0.4142 * a * sc}" transform="translate(${cx} ${cy}) rotate(${rot})" fill="${col}" fill-opacity="${labels ? .55 : .7}" stroke="${labels ? '#b8862f' : '#fff3c4'}" stroke-width="1"/>`;
+  const cols = ['#f6c453', '#f08a3c', '#f6c453', '#e9643f'];
+  let g = '';
+  if (c.lagen > 1) for (let k = 0; k < 8; k++) g += kite(22.5 + k * 45, '#f2a65a', 0.82);
+  for (let k = 0; k < 8; k++) g += kite(k * 45 - 90, cols[k % 4], 1);
+  let vb = '0 0 340 340';
+  if (labels) {
+    g += badge(cx + 0.6 * R, cy - 0.06 * R, 1) + badge(cx + 0.12 * R, cy + 0.1 * R, 2);
+    g += `<text x="${cx}" y="${cy + R + 30}" text-anchor="middle" font-size="16" font-weight="700" fill="#2b2118">Ø ${fmt(c.D / 10)} cm · ${c.n} Quadrate à ${fmt(c.a / 10, 1)} cm</text>`;
+    vb = '0 0 340 360';
+  }
+  return `<svg viewBox="${vb}" role="img" aria-label="Fensterstern">${g}</svg>`;
+}
+function kiteFoldSVG() {
+  const S = 120, x0 = 30, y0 = 20;
+  const sq = `<rect x="${x0}" y="${y0}" width="${S}" height="${S}" fill="#fdf3e3" stroke="#a8743f"/><line x1="${x0}" y1="${y0 + S}" x2="${x0 + S}" y2="${y0}" stroke="#9b4a1f" stroke-dasharray="5 4"/>`;
+  const k = 0.4142 * S;
+  const kite = `<polygon points="${200},${y0 + S} ${200 + S},${y0 + S - k} ${200 + S},${y0} ${200 + k},${y0}" fill="#f6c453" fill-opacity=".6" stroke="#b8862f"/><line x1="200" y1="${y0 + S}" x2="${200 + S}" y2="${y0}" stroke="#9b4a1f" stroke-dasharray="5 4"/>`;
+  return `<svg viewBox="0 0 340 170" role="img" aria-label="Quadrat zum Drachen falten">${sq}${kite}<text x="${x0 + S / 2}" y="160" text-anchor="middle" font-size="14" fill="#2b2118">1. Diagonale falten</text><text x="${200 + S / 2}" y="160" text-anchor="middle" font-size="14" fill="#2b2118">2. Kanten zur Diagonale</text></svg>`;
+}
+const fenster = {
+  id: 'fenster', paper: true, title: 'Fensterstern aus Transparentpapier',
+  teaser: 'Acht gefaltete Drachen ergeben einen leuchtenden Stern fürs Fenster. Mit zwei Lagen wird er noch schöner.',
+  tags: ['für alle', 'ab 6 mit Hilfe', '30 Minuten'],
+  presets: [200, 300, 400], range: [100, 800], sizeLabel: 'Durchmesser des Sterns',
+  calc: () => fensterCalc(state.fenster.H, state.fenster.lagen), thumb: () => fensterSVG(fensterCalc(300, 2), false),
+  sizeExtra() { return `<label class="custom">Lagen <select data-k="lagen"><option value="1" ${state.fenster.lagen === '1' ? 'selected' : ''}>1 Lage (8 Zacken)</option><option value="2" ${state.fenster.lagen === '2' ? 'selected' : ''}>2 Lagen (16 Zacken)</option></select></label>`; },
+  ziel(c) {
+    return `<div class="panel"><h3>Was falte ich?</h3>
+      <p>Jedes Quadrat wird zu einem schmalen „Drachen“ gefaltet. ${c.n} Drachen legst du mit der Spitze in die Mitte – im Licht leuchten die übereinanderliegenden Schichten in verschiedenen Tönen.</p>
+      <div class="facts"><div class="fact"><b>${fmt(c.D / 10)} cm</b><span>Durchmesser</span></div><div class="fact"><b>${c.n}</b><span>Quadrate</span></div><div class="fact"><b>${fmt(c.a / 10, 1)} cm</b><span>Seitenlänge</span></div><div class="fact"><b>${c.sheets} Blatt</b><span>A4-Transparentpapier</span></div></div>
+      <div class="drawing">${fensterSVG(c)}${legend(['<b>Drachen</b> – ein gefaltetes Quadrat', '<b>Spitze 45°</b> – 8 Spitzen × 45° = 360°, der Kreis ist genau voll'])}</div>${pnote}</div>`;
+  },
+  material(c) {
+    return {wood: [`Transparentpapier (Drachenpapier) in 2–3 Farben: <b>${c.sheets} Blatt A4</b> (${c.perA4} Quadrate pro Blatt)`],
+      small: ['Klebestift (nur kleine Tupfer – Kleber scheint durch!)', 'Klebefilm oder Fensterkleber zum Aufhängen'],
+      tools: ['Lineal, Bleistift, Geodreieck', 'Schere oder Papierschneider', 'Falzbein'], extra: ''};
+  },
+  zuschnitt(c) {
+    return `<div class="panel"><h3>Papiermaße</h3>${partsTable([['Quadrat', c.n, `<b>${fmt(c.a)} × ${fmt(c.a)}</b> mm`, c.lagen > 1 ? 'je 8 pro Lage, gern in 2 Farben' : '2 Farben abwechselnd sieht toll aus']])}
+      <div class="drawing">${kiteFoldSVG()}</div>
+      <div class="note"><b>Die Formel:</b> Ein Drache ist so lang wie die Diagonale des Quadrats (Seite × √2). Der Stern ist zwei Drachen breit: Durchmesser = Seite × 2 × √2.</div></div>`;
+  },
+  winkel(c) {
+    return `<div class="panel"><h3>Falten und Winkel</h3>
+      <div class="anglecard"><div class="badge alt"><b>45°</b><span>Spitze</span></div><div>Wenn du beide Kanten zur Diagonale faltest, wird aus der 90°-Ecke eine 45°-Spitze. 8 × 45° = 360° – darum passen genau 8 Drachen in den Kreis.</div></div>
+      <div class="anglecard"><div class="badge"><b>22,5°</b><span>2. Lage</span></div><div>Die zweite Lage legst du genau zwischen die Drachen der ersten – um 22,5° gedreht.</div></div>
+      <div class="note">Tipp: Auf ein Blatt Papier einen Kreis mit 8 Linien im 45°-Abstand zeichnen (Geodreieck). Das ist deine Legeschablone.</div></div>`;
+  },
+  steps(c) {
+    return [
+      {t: 'Quadrate schneiden', b: `<p>${c.n} Quadrate mit <b>${fmt(c.a)} mm</b> Seitenlänge. Am schnellsten: mehrere Blätter übereinander mit dem Papierschneider.</p>`},
+      {t: 'Diagonale falten', b: `<p>Jedes Quadrat einmal diagonal falten und wieder öffnen.</p>`},
+      {t: 'Drachen falten', b: `<p>Von einer Ecke aus die beiden Kanten an die Diagonale legen und falzen. Fertig ist der Drachen mit einer spitzen und einer stumpfen Ecke.</p>`},
+      {t: 'Schablone zeichnen', b: `<p>Einen Kreis mit Ø ${fmt(c.D / 10)} cm zeichnen und mit dem Geodreieck 8 Linien im 45°-Abstand durch die Mitte.</p>`},
+      {t: 'Erste Lage legen', b: `<p>Die Drachen mit der Spitze genau in die Mitte und entlang der Linien legen. Jeden Drachen mit einem kleinen Klebetupfer am vorherigen festkleben.</p>`},
+      ...(c.lagen > 1 ? [{t: 'Zweite Lage', b: `<p>Die zweiten 8 Drachen zwischen die ersten legen (um 22,5° gedreht) und dahinter kleben.</p>`}] : []),
+      {t: 'Ans Fenster', b: `<p>Mit kleinen Klebestreifen ans Fenster – Sonne oder Straßenlaterne bringen ihn zum Leuchten.</p>`}
+    ];
+  }
+};
+
+/* ---- Schneeflocke ---- */
+function flockeCalc(A) { return {A, D: A * 0.95, perA4: fitsA4(A)}; }
+function flockeSVG(c, labels = true) {
+  const cx = 170, cy = 170, R = 140, col = labels ? '#5b8bb8' : '#dfeefa';
+  const arm = `<path d="M0 0 L0 ${-R}" stroke="${col}" stroke-width="7" stroke-linecap="round"/>` +
+    [0.35, 0.6, 0.82].map((f, i) => { const l = [42, 34, 20][i]; return `<path d="M0 ${-R * f} l${l * 0.866} ${-l * 0.5} M0 ${-R * f} l${-l * 0.866} ${-l * 0.5}" stroke="${col}" stroke-width="5" stroke-linecap="round"/>`; }).join('') +
+    `<polygon points="0,${-R * 0.2} 8,${-R * 0.27} 0,${-R * 0.34} -8,${-R * 0.27}" fill="${labels ? '#fff' : '#2c3a4a'}"/>`;
+  let g = '';
+  for (let k = 0; k < 6; k++) g += `<g transform="translate(${cx} ${cy}) rotate(${k * 60})">${arm}</g>`;
+  g += `<circle cx="${cx}" cy="${cy}" r="14" fill="${col}"/>`;
+  let vb = '0 0 340 340';
+  if (labels) { g += badge(cx + 34, cy - R * 0.92, 1) + badge(cx + 70, cy - 44, 2); vb = '0 0 340 340'; }
+  return `<svg viewBox="${vb}" role="img" aria-label="Papier-Schneeflocke">${g}</svg>`;
+}
+function flockeFoldSVG() {
+  const t = (x, y, pts, txt) => `<g transform="translate(${x} ${y})"><polygon points="${pts}" fill="#eef4fa" stroke="#5b8bb8" stroke-width="1.3"/><text x="40" y="96" text-anchor="middle" font-size="12.5" fill="#2b2118">${txt}</text></g>`;
+  return `<svg viewBox="0 0 340 110" role="img" aria-label="Faltschritte Schneeflocke">
+    ${t(0, 0, '0,0 80,0 80,80 0,80', 'Quadrat')}${t(88, 0, '0,80 80,80 40,40', 'Dreieck')}${t(176, 0, '40,80 0,10 80,10', 'Drittel (60°)')}${t(264, 0, '40,80 40,10 80,10', 'halbiert (30°)')}</svg>`;
+}
+const flocke = {
+  id: 'flocke', paper: true, title: 'Schneeflocken schneiden',
+  teaser: 'Sechszackige Schneeflocken – wie in echt. Mit dem 60°-Falttrick wird jede Flocke einzigartig.',
+  tags: ['für alle', 'ab 6 Jahren', '10 Minuten pro Flocke'],
+  presets: [150, 210], range: [80, 500], sizeLabel: 'Seitenlänge des Papierquadrats',
+  calc: () => flockeCalc(state.flocke.H), thumb: () => flockeSVG(flockeCalc(150), false), sizeExtra: () => '',
+  ziel(c) {
+    return `<div class="panel"><h3>Was schneide ich?</h3>
+      <p>Echte Schneeflocken haben immer <b>6 Arme</b>. Mit einem besonderen Falttrick (in Drittel, also 60°) bekommt auch deine Papierflocke 6 gleiche Arme. Was du in das gefaltete Papier schneidest, taucht sechsmal (genauer: zwölfmal gespiegelt) wieder auf.</p>
+      <div class="facts"><div class="fact"><b>${fmt(c.A / 10, 1)} cm</b><span>Quadrat</span></div><div class="fact"><b>ca. ${fmt(c.D / 10)} cm</b><span>Flocke</span></div><div class="fact"><b>6 Arme</b><span>wie in echt</span></div><div class="fact"><b>${c.perA4 || '–'}</b><span>Quadrate pro A4</span></div></div>
+      <div class="drawing">${flockeSVG(c)}${legend(['<b>Arme:</b> entstehen durch die 60°-Faltung', '<b>Muster:</b> Dreiecke, Zacken und Bögen an den Kanten einschneiden'])}</div>${pnote}</div>`;
+  },
+  material(c) {
+    return {wood: [`Dünnes Papier: Kopierpapier, Butterbrotpapier oder Transparentpapier – Quadrate <b>${fmt(c.A / 10, 1)} cm</b>`],
+      small: ['Faden oder Nylonschnur zum Aufhängen', 'optional: Glitzer, Fensterkleber'],
+      tools: ['Gute, spitze Schere (Bastelschere)', 'Geodreieck', 'Bleistift', 'dickes Buch zum Pressen'], extra: ''};
+  },
+  zuschnitt(c) {
+    return `<div class="panel"><h3>Papier und Faltschritte</h3>${partsTable([['Quadrat', 1, `<b>${fmt(c.A)} × ${fmt(c.A)}</b> mm`, 'aus A4: ein Quadrat 210 × 210 abschneiden']])}
+      <div class="drawing">${flockeFoldSVG()}</div>
+      <h4>Muster-Ideen</h4><ul><li><b>Spitzen:</b> Oben schräg abschneiden → spitze Arme. Gerade → kantig, im Bogen → rund.</li><li><b>Dreiecke</b> in beide langen Kanten schneiden – nie ganz durch!</li><li><b>Tannen:</b> kleine Treppenstufen an der offenen Kante.</li><li><b>Herzen</b> oder Kreise in die Mitte des Keils.</li></ul></div>`;
+  },
+  winkel() {
+    return `<div class="panel"><h3>Falten und Winkel</h3>
+      <div class="anglecard"><div class="badge alt"><b>60°</b><span>Drittel</span></div><div>Der Trick: Das Dreieck wird vom Mittelpunkt der langen Kante aus in <b>Drittel</b> gefaltet. 3 × 60° = 180° – der halbe Kreis. Mit dem Geodreieck kannst du die 60° vorher anzeichnen.</div></div>
+      <div class="anglecard"><div class="badge"><b>30°</b><span>Keil</span></div><div>Danach noch einmal halbieren. Der fertige Keil hat 30° – 12 Keile ergeben 360°.</div></div>
+      <div class="warn">Die Faltkanten nie ganz durchschneiden, sonst fällt die Flocke auseinander!</div></div>`;
+  },
+  steps(c) {
+    return [
+      {t: 'Quadrat schneiden', b: `<p>Ein Quadrat ${fmt(c.A)} × ${fmt(c.A)} mm. Aus A4: eine Ecke diagonal an die gegenüberliegende Kante falten und den Streifen abschneiden.</p>`},
+      {t: 'Zum Dreieck falten', b: `<p>Diagonal falten. Die geschlossene, lange Kante zeigt zu dir.</p>`},
+      {t: 'Mitte markieren', b: `<p>Die Mitte der langen Kante mit einem kleinen Knick markieren.</p>`},
+      {t: 'In Drittel falten', b: `<p>Von der Mitte aus mit dem Geodreieck zwei 60°-Linien zeichnen. Die rechte Spitze nach vorne auf die linke Linie falten, die linke Spitze nach hinten. Kanten genau übereinander legen.</p>`},
+      {t: 'Halbieren', b: `<p>Den Keil noch einmal der Länge nach halbieren. Überstehende Spitzen oben gerade abschneiden.</p>`},
+      {t: 'Muster schneiden', b: `<p>Form der Spitze schneiden, dann Dreiecke, Zacken und Bögen in die Kanten. Faltkanten nie ganz durchschneiden.</p>`},
+      {t: 'Auffalten und pressen', b: `<p>Ganz vorsichtig auffalten, über Nacht in einem dicken Buch pressen. Ans Fenster kleben oder an einem Faden aufhängen.</p>`}
+    ];
+  }
+};
+
+/* ---- Brottüten-Stern ---- */
+function tueteCalc(L, n) { return {L, n: +n, D: 2 * L * 0.92, ang: 360 / +n}; }
+function tueteSVG(c, labels = true) {
+  const cx = 170, cy = 170, R = 150, n = c.n, half = Math.tan(Math.PI / n) * R * 0.95;
+  const kraft = labels ? '#c9a172' : '#d4ab7a', line = labels ? '#9c7647' : '#f2d7ae';
+  let g = '';
+  for (let k = 0; k < n; k++) {
+    const rot = k * 360 / n;
+    g += `<g transform="translate(${cx} ${cy}) rotate(${rot})"><polygon points="0,0 ${half * 0.55},${-R * 0.72} 0,${-R} ${-half * 0.55},${-R * 0.72}" fill="${kraft}" stroke="${line}" stroke-width="1"/><polygon points="0,${-R * 0.42} 7,${-R * 0.5} 0,${-R * 0.58} -7,${-R * 0.5}" fill="${labels ? '#fffdf9' : '#2f2620'}"/><circle cx="0" cy="${-R * 0.25}" r="4" fill="${labels ? '#fffdf9' : '#2f2620'}"/></g>`;
+  }
+  let vb = '0 0 340 340';
+  if (labels) { g += badge(cx + 18, cy - R + 8, 1) + badge(cx + 30, cy - R * 0.5, 2); g += `<text x="${cx}" y="${cy + R + 30}" text-anchor="middle" font-size="16" font-weight="700" fill="#2b2118">Ø ca. ${fmt(c.D / 10)} cm · ${n} Tüten</text>`; vb = '0 0 340 360'; }
+  return `<svg viewBox="${vb}" role="img" aria-label="Brottüten-Stern">${g}</svg>`;
+}
+function glueSVG() {
+  return `<svg viewBox="0 0 340 200" role="img" aria-label="Klebemuster">
+    <rect x="110" y="10" width="120" height="170" fill="#c9a172" stroke="#9c7647"/><rect x="110" y="150" width="120" height="30" fill="#b48a5c" stroke="#9c7647"/>
+    <rect x="114" y="160" width="112" height="12" fill="#3d6b4a" opacity=".75"/><rect x="164" y="20" width="12" height="140" fill="#3d6b4a" opacity=".75"/>
+    <text x="250" y="170" font-size="13" fill="#2b2118">Boden (unten)</text><text x="250" y="90" font-size="13" fill="#2b2118">Kleber als „T“</text><text x="20" y="30" font-size="13" fill="#2b2118">offen (oben)</text></svg>`;
+}
+const tuete = {
+  id: 'tuete', paper: true, title: 'Stern aus Brottüten',
+  teaser: 'Aus einfachen Brottüten wird ein großer, luftiger Stern – mit Klebestift, Schere und ein paar Ausschnitten.',
+  tags: ['für alle', 'ab 8 Jahren', '30 Minuten'],
+  presets: [240, 280, 350], range: [150, 500], sizeLabel: 'Länge der Brottüte',
+  calc: () => tueteCalc(state.tuete.H, state.tuete.n), thumb: () => tueteSVG(tueteCalc(280, 10), false),
+  sizeExtra() { return `<label class="custom">Tüten <select data-k="n">${[7, 8, 10, 12].map(v => `<option ${+state.tuete.n === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>`; },
+  ziel(c) {
+    return `<div class="panel"><h3>Was bastle ich?</h3>
+      <p>${c.n} Brottüten werden mit einem T aus Kleber aufeinandergeklebt, oben spitz zugeschnitten und mit kleinen Mustern versehen. Dann fächerst du den Stapel auf und klebst die erste und letzte Tüte zusammen – fertig ist ein großer Stern.</p>
+      <div class="facts"><div class="fact"><b>ca. ${fmt(c.D / 10)} cm</b><span>Durchmesser</span></div><div class="fact"><b>${c.n}</b><span>Tüten</span></div><div class="fact"><b>${fmt(c.ang, 1).replace(',0', '')}°</b><span>pro Zacke</span></div><div class="fact"><b>0 €</b><span>fast – Tüten vom Bäcker</span></div></div>
+      <div class="drawing">${tueteSVG(c)}${legend(['<b>Spitze:</b> oben schräg zugeschnitten', '<b>Muster:</b> Rauten, Kreise, Herzen in die Seiten schneiden oder stanzen'])}</div>${pnote}</div>`;
+  },
+  material(c) {
+    return {wood: [`<b>${c.n} Brottüten</b> mit Boden-Falte, ca. ${fmt(c.L / 10)} cm lang (braun oder weiß)`],
+      small: ['Klebestift (kräftig)', 'Faden oder Garn zum Aufhängen', 'optional: Motivstanzer, Locher'],
+      tools: ['Schere', 'Lineal, Bleistift', 'Wäscheklammern oder ein Buch zum Andrücken'], extra: ''};
+  },
+  zuschnitt(c) {
+    return `<div class="panel"><h3>Kleben und Schneiden</h3><div class="drawing">${glueSVG()}</div>
+      <p>Kleber als <b>„T“</b>: ein Streifen quer über den Boden, einer senkrecht durch die Mitte. Die nächste Tüte genau deckungsgleich drauf – Boden auf Boden.</p>
+      <h4>Schnittmuster für die Spitze</h4><ul><li><b>Spitz:</b> oben von beiden Seiten schräg zur Mitte schneiden.</li><li><b>Zackig:</b> zwei kleine Spitzen nebeneinander.</li><li><b>Rund:</b> einen Bogen schneiden.</li><li>Muster an den Seiten: Rauten, Halbkreise, Herzen – <b>immer durch alle Lagen auf einmal</b>.</li></ul></div>`;
+  },
+  winkel(c) {
+    return `<div class="panel"><h3>Winkel</h3>
+      <div class="anglecard"><div class="badge alt"><b>${fmt(c.ang, 1).replace(',0', '')}°</b><span>pro Tüte</span></div><div>${c.n} Tüten teilen sich den Kreis: 360° : ${c.n} = ${fmt(c.ang, 1)}°. Mehr Tüten → mehr, schmalere Zacken.</div></div>
+      <div class="anglecard"><div class="badge"><b>T</b><span>Kleber</span></div><div>Der T-Kleber sorgt dafür, dass sich der Stapel beim Auffächern zu Zacken öffnet. Abwechselndes Kleben ist hier nicht nötig.</div></div></div>`;
+  },
+  steps(c) {
+    return [
+      {t: 'Erste Tüte vorbereiten', b: `<p>Tüte flach mit der Boden-Falte nach oben hinlegen. Kleber als „T“ auftragen: quer über den Boden, senkrecht durch die Mitte.</p>`},
+      {t: 'Stapeln', b: `<p>Die nächste Tüte genau deckungsgleich draufdrücken. Wieder T-Kleber. So weiter, bis alle ${c.n} Tüten aufeinander kleben (auf die letzte kein Kleber).</p>`},
+      {t: 'Trocknen lassen', b: `<p>Ein Buch drauflegen und 10 Minuten warten.</p>`},
+      {t: 'Spitze schneiden', b: `<p>Am offenen Ende die Spitze einschneiden – durch alle Lagen. Am besten vorher mit Bleistift aufzeichnen.</p>`},
+      {t: 'Muster schneiden', b: `<p>Seitlich kleine Formen einschneiden: Rauten, Kreise, Herzen. Mutig sein – die Muster machen den Stern lebendig.</p>`},
+      {t: 'Auffächern', b: `<p>Vorsichtig aufklappen wie einen Fächer, erste und letzte Tüte zusammenkleben. Faden durch eine Zacke – aufhängen!</p>`}
+    ];
+  }
+};
+
+const PROJECTS = {tanne, stern, latte, advent, rentier, masu, fenster, flocke, tuete};
 const TABS = [['ziel', 'Was möchte ich?'], ['material', 'Was brauche ich?'], ['zuschnitt', 'Zuschnitt'], ['winkel', 'Winkel'], ['anleitung', 'Schritt für Schritt']];
 
 /* ---------------- Rendering ---------------- */
@@ -876,11 +1137,12 @@ function render() {
     back.hidden = true;
     document.getElementById('htitle').textContent = 'Werkstatt';
     document.getElementById('hsub').textContent = 'Holzprojekte Schritt für Schritt';
-    const card = p => `<a class="pcard${p.junior ? ' jun' : ''}" href="#/${p.id}/ziel"><div class="thumb">${p.thumb()}</div><div class="body"><h3>${p.title}</h3><p>${p.teaser}</p><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div></div></a>`;
+    const card = p => `<a class="pcard${p.junior ? ' jun' : ''}${p.paper ? ' pap' : ''}" href="#/${p.id}/ziel"><div class="thumb">${p.thumb()}</div><div class="body"><h3>${p.title}</h3><p>${p.teaser}</p><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div></div></a>`;
     const all = Object.values(PROJECTS);
     app.innerHTML = `<div class="hero"><h2>Was baust du heute?</h2><p>Projekt wählen, Größe einstellen – Materialliste, Zuschnitt, Winkel und Anleitung rechnen sich automatisch.</p></div>
-      <h2 class="sec">Werkstatt</h2><div class="cards">${all.filter(p => !p.junior).map(card).join('')}</div>
-      <h2 class="sec jun">Junior-Werkstatt <span>ab 10 Jahren</span></h2><p class="muted small">Einfache Projekte zum Selbermachen – Sägen, Bohren und Heißkleben zusammen mit einem Erwachsenen.</p><div class="cards">${all.filter(p => p.junior).map(card).join('')}</div>`;
+      <h2 class="sec">Werkstatt</h2><div class="cards">${all.filter(p => !p.junior && !p.paper).map(card).join('')}</div>
+      <h2 class="sec jun">Junior-Werkstatt <span>ab 10 Jahren</span></h2><p class="muted small">Einfache Projekte zum Selbermachen – Sägen, Bohren und Heißkleben zusammen mit einem Erwachsenen.</p><div class="cards">${all.filter(p => p.junior).map(card).join('')}</div>
+      <h2 class="sec pap">Papier-Werkstatt <span>für Groß und Klein</span></h2><p class="muted small">Falten, schneiden, kleben – ohne Werkstatt, am Küchentisch.</p><div class="cards">${all.filter(p => p.paper).map(card).join('')}</div>`;
     return;
   }
   const p = PROJECTS[pid], st = state[pid], c = p.calc();
@@ -908,7 +1170,7 @@ function renderTab(p, tab, c) {
     const buy = state.buy[key] || [];
     const list = (arr, off) => arr.map((t, i) => `<label class="check ${buy.includes(off + i) ? 'done' : ''}"><input type="checkbox" data-buy="${off + i}" ${buy.includes(off + i) ? 'checked' : ''}><span>${t}</span></label>`).join('');
     return `<div class="panel"><h3>Einkaufs- und Werkzeugliste</h3><p class="small muted">Zum Abhaken – wird auf diesem Gerät gespeichert.</p>
-      <h4>Holz</h4>${list(mat.wood, 0)}${mat.extra}
+      <h4>${p.paper ? "Papier" : p.id === "rentier" ? "Äste" : "Holz"}</h4>${list(mat.wood, 0)}${mat.extra}
       <h4>Kleinteile</h4>${list(mat.small, 100)}
       <h4>Werkzeug</h4>${list(mat.tools, 200)}</div>` + nextLink;
   }
