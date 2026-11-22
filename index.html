@@ -123,8 +123,8 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':
 
 /* ---------------- Speicher ---------------- */
 const STORE = 'werkstatt-v1';
-let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, done: {}, buy: {}, step: {tanne: 0, stern: 0}};
-try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) state = Object.assign(state, s); } catch (e) {}
+let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, done: {}, buy: {}, step: {tanne: 0, stern: 0, latte: 0}};
+try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) { const d = JSON.parse(JSON.stringify(state)); state = Object.assign(state, s); for (const k of ['tanne', 'stern', 'latte']) state[k] = Object.assign({}, d[k], s[k]); state.step = Object.assign({tanne: 0, stern: 0, latte: 0}, s.step); } } catch (e) {}
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
 
 /* ---------------- Zuschnittplan (Stangen aufteilen) ---------------- */
@@ -494,7 +494,150 @@ const stern = {
   }
 };
 
-const PROJECTS = {tanne, stern};
+/* ================= PROJEKT: LATTEN-TANNE ================= */
+function latteCalc(H, form, sizeSel) {
+  const big = sizeSel === 'gross' || (sizeSel === 'auto' && H >= 90 * 10);
+  const b = big ? 48 : 38, e = big ? 24 : 18, w = big ? 44 : 28;
+  const alpha = +form, cot = 1 / Math.tan(alpha * DEG), cut = 90 - alpha;
+  const g = Math.round(0.6 * b);
+  const S = H - w;                       // Stamm steht auf dem Fuß
+  const n = Math.max(3, Math.floor((0.8 * S + g) / (b + g)));
+  const a0 = 0.75 * w / cot;              // virtuelle Spitze über dem Stamm
+  const slats = Array.from({length: n}, (_, i) => {
+    const top = 2 * (a0 + i * (b + g)) * cot;
+    return {i, top, bot: top + 2 * b * cot};
+  });
+  const crown = n * b + (n - 1) * g;
+  const F = Math.max(300, 0.4 * H);
+  const c = {H, alpha, cot, cut, b, e, w, g, S, n, a0, slats, crown, bare: S - crown, F, big, sizeSel};
+  c.width = slats[n - 1].bot;
+  c.screw = big ? '4 × 60 mm' : '3,5 × 40 mm';
+  c.lights = slats.reduce((s, x) => s + x.bot, 0) * 1.1 + crown;
+  c.stock = 2400;
+  c.pieces = slats.map(x => ({short: String(x.i + 1), name: 'Latte ' + (x.i + 1), n: 1, len: x.bot}));
+  c.trunk = [{short: 'St', name: 'Stamm', n: 1, len: S}, {short: 'F', name: 'Fuß', n: 1, len: F}, {short: 'F', name: 'Fuß', n: 1, len: F}];
+  c.woodSlats = slats.reduce((s, x) => s + x.bot, 0);
+  c.woodTrunk = S + 2 * F;
+  return c;
+}
+function latteSVG(c, labels = true) {
+  const s = 470 / c.H, cx = 170, floor = 30 + c.H * s;
+  const X = x => (cx + x * s).toFixed(1), Y = y => (floor - y * s).toFixed(1);
+  const wood = labels ? '#e7c89f' : '#d9a066', dark = labels ? '#d2a96f' : '#c98f55', st = labels ? '#a8743f' : '#f0c890';
+  let o = `<rect x="${X(-c.w / 2)}" y="${Y(c.H)}" width="${(c.w * s).toFixed(1)}" height="${(c.S * s).toFixed(1)}" fill="${dark}" stroke="${st}" stroke-width="1.2"/>`;
+  o += `<rect x="${X(-c.F / 2)}" y="${Y(c.w)}" width="${(c.F * s).toFixed(1)}" height="${(c.w * s).toFixed(1)}" fill="${wood}" stroke="${st}" stroke-width="1.2"/>`;
+  o += `<rect x="${X(-c.w / 2)}" y="${Y(c.w)}" width="${(c.w * s).toFixed(1)}" height="${(c.w * s).toFixed(1)}" fill="${dark}" stroke="${st}" stroke-width="1.2"/>`;
+  let zig = '';
+  c.slats.forEach((x, i) => {
+    const yt = c.H - i * (c.b + c.g), yb = yt - c.b;
+    o += `<path d="M${X(-x.top / 2)} ${Y(yt)} L${X(x.top / 2)} ${Y(yt)} L${X(x.bot / 2)} ${Y(yb)} L${X(-x.bot / 2)} ${Y(yb)}Z" fill="${wood}" stroke="${st}" stroke-width="1.2" stroke-linejoin="round"/>`;
+    const side = i % 2 ? -1 : 1;
+    zig += (zig ? 'L' : 'M') + X(side * (x.bot / 2 - 12)) + ' ' + Y(yb + c.b * 0.35) + ' ';
+  });
+  o += `<path d="${zig}" fill="none" stroke="#e8a317" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"/>`;
+  let vb = `0 0 340 ${(floor + 14).toFixed(0)}`;
+  if (labels) {
+    const k = Math.min(2, c.n - 1), x = c.slats[k], yt = c.H - k * (c.b + c.g);
+    o += badge(+X(x.bot / 2) + 18, +Y(yt - c.b / 2), 1);
+    const k2 = Math.min(4, c.n - 2), yg = c.H - k2 * (c.b + c.g) - c.b - c.g / 2;
+    o += badge(+X(-c.slats[k2 + 1].bot / 2) - 18, +Y(yg), 2);
+    o += badge(+X(c.w / 2) + 18, +Y(c.w + c.bare / 2), 3);
+    o += badge(+X(c.F / 2) + 18, +Y(c.w / 2), 4);
+    const half = Math.max(c.width, c.F) / 2 * s;
+    const x0 = cx - half - 34;
+    o += `<line x1="${x0}" y1="${Y(c.H)}" x2="${x0}" y2="${floor}" stroke="#2b2118"/><line x1="${x0 - 6}" y1="${Y(c.H)}" x2="${x0 + 6}" y2="${Y(c.H)}" stroke="#2b2118"/><line x1="${x0 - 6}" y1="${floor}" x2="${x0 + 6}" y2="${floor}" stroke="#2b2118"/>`;
+    o += `<text transform="translate(${x0 - 10} ${(+Y(c.H) + floor) / 2}) rotate(-90)" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(c.H / 10)} cm</text>`;
+    const bw = c.width / 2;
+    o += `<line x1="${X(-bw)}" y1="${floor + 16}" x2="${X(bw)}" y2="${floor + 16}" stroke="#2b2118"/>`;
+    o += `<text x="${cx}" y="${floor + 40}" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(c.width / 10)} cm</text>`;
+    vb = `${(x0 - 36).toFixed(0)} 0 ${(2 * (cx - x0 + 36)).toFixed(0)} ${(floor + 52).toFixed(0)}`;
+  }
+  return `<svg viewBox="${vb}" role="img" aria-label="Latten-Tanne ${fmt(c.H / 10)} cm">${o}</svg>`;
+}
+const LATTE_LEGEND = c => legend([`<b>Latten-Enden:</b> parallel zur Außenlinie · Säge ${fmt(c.cut, 1).replace(',0', '')}°, gegengleich (Trapez)`, `<b>Abstand:</b> ${c.g} mm – mit einem Abstandsklotz ganz leicht`, `<b>Stamm:</b> ${c.w} × ${c.w} mm, Latten von hinten verschraubt`, `<b>Kreuzfuß:</b> zwei Hölzer, in der Mitte überblattet`]);
+const cutTxt = c => fmt(c.cut, 1).replace(',0', '') + '°';
+
+const latte = {
+  id: 'latte',
+  title: 'Latten-Tanne zum Hinstellen',
+  teaser: 'Waagerechte Latten, nach unten immer länger, auf einem Stamm mit Kreuzfuß. Einfach, wirkungsvoll – ideal mit Kindern.',
+  tags: ['Säge 15° oder 22,5°', 'Dachlatten', 'mit Kindern'],
+  presets: [1500, 1000, 600],
+  range: [400, 2000],
+  calc: () => latteCalc(state.latte.H, state.latte.form, state.latte.size),
+  thumb: () => latteSVG(latteCalc(1500, '75', 'auto'), false),
+  sizeExtra() {
+    return `<label class="custom">Form <select data-k="form"><option value="75" ${state.latte.form === '75' ? 'selected' : ''}>schlank (Säge 15°)</option><option value="67.5" ${state.latte.form === '67.5' ? 'selected' : ''}>breit (Säge 22,5°)</option></select></label>
+      <label class="custom">Holz <select data-k="size"><option value="auto" ${state.latte.size === 'auto' ? 'selected' : ''}>automatisch</option><option value="gross" ${state.latte.size === 'gross' ? 'selected' : ''}>Latte 24 × 48</option><option value="klein" ${state.latte.size === 'klein' ? 'selected' : ''}>Leiste 18 × 38</option></select></label>`;
+  },
+  ziel(c) {
+    return `<div class="panel"><h3>Was baue ich?</h3>
+      <p>Eine Tanne aus <b>${c.n} waagerechten Latten</b>, die nach unten gleichmäßig länger werden. Die Enden sind schräg geschnitten, so ergibt sich eine saubere Tannen-Silhouette. Die Latten sitzen vorne auf einem Stamm, der in einem <b>Kreuzfuß</b> steht. Drinnen, im Eingang oder auf der Terrasse – mit Lichterkette, Anhängern oder einem kleinen Holzstern oben drauf.</p>
+      <div class="facts">
+        <div class="fact"><b>${fmt(c.H / 10)} cm</b><span>Höhe gesamt</span></div>
+        <div class="fact"><b>${fmt(c.width / 10)} cm</b><span>Breite unten</span></div>
+        <div class="fact"><b>${c.n} Latten</b><span>${c.e} × ${c.b} mm</span></div>
+        <div class="fact"><b>${cutTxt(c)}</b><span>einzige Sägeeinstellung</span></div>
+      </div>
+      <div class="drawing">${latteSVG(c)}${LATTE_LEGEND(c)}</div>
+      <div class="note">Perfekt für Kinder: Lauter gerade Teile, eine Sägeeinstellung, und mit dem Abstandsklotz wird alles automatisch gleichmäßig. Die Kinder können die Latten selbst auflegen und schrauben.</div>
+    </div>`;
+  },
+  material(c) {
+    return {
+      wood: [
+        `${c.big ? 'Dachlatte' : 'Leiste'} <b>${c.e} × ${c.b} mm</b> (sägerau wirkt rustikal, gehobelt feiner): <b>${m(c.woodSlats)}</b> → <b>${cutPlan(c.pieces, c.stock).length} × 2,40 m</b>`,
+        `Kantholz <b>${c.w} × ${c.w} mm</b> für Stamm und Fuß: <b>${m(c.woodTrunk)}</b> → <b>${cutPlan(c.trunk, c.stock).length} × 2,40 m</b>`
+      ],
+      small: [`Holzleim (D3 für draußen)`, `${c.n * 2} Holzschrauben <b>${c.screw}</b> (Latten von hinten)`, `2 Holzschrauben ${c.big ? '5 × 80' : '4 × 50'} mm und 4 kleine Stahlwinkel (Stamm auf Fuß)`, `Reststück ${c.g} mm breit als Abstandsklotz`, `LED-Lichterkette ca. <b>${m(c.lights)}</b> oder kleine Haken für Anhänger`, `optional: Holzlasur/Farbe, Mini-Holzstern für oben`],
+      tools: [`Kapp- und Gehrungssäge (${cutTxt(c)})`, 'Feinsäge oder Japansäge und Stechbeitel (Überblattung)', 'Akkuschrauber, Holzbohrer 3 mm, Senker', 'Zollstock, Bleistift, Anschlagwinkel', 'Schleifpapier K80 und K120'],
+      extra: ''
+    };
+  },
+  zuschnitt(c) {
+    const rows = c.slats.map(x => [`Latte ${x.i + 1}${x.i === 0 ? ' (oben)' : x.i === c.n - 1 ? ' (unten)' : ''}`, 1, `oben <b>${fmt(x.top)}</b> · unten <b>${fmt(x.bot)}</b>`, `beide Enden ${cutTxt(c)}, gegengleich`]);
+    rows.push(['Stamm', 1, `<b>${fmt(c.S)}</b>`, 'gerade']);
+    rows.push(['Fuß', 2, `<b>${fmt(c.F)}</b>`, `gerade · Überblattung ${c.w} mm breit, ${fmt(c.w / 2)} mm tief`]);
+    return `<div class="panel"><h3>Zuschnittliste · Latten-Tanne ${fmt(c.H / 10)} cm</h3>
+      <p class="small muted">Maße in mm. Latten: oben = kurze Kante, unten = lange Kante.</p>
+      ${partsTable(rows)}
+      <div class="facts">
+        <div class="fact"><b>${c.g} mm</b><span>Abstand zwischen den Latten</span></div>
+        <div class="fact"><b>${fmt(2 * (c.b + c.g) * c.cot)} mm</b><span>jede Latte länger als die darüber</span></div>
+        <div class="fact"><b>${fmt(c.bare / 10)} cm</b><span>freier Stamm unten</span></div>
+      </div>
+      <h4>Latten auf Stangen à 2,40 m</h4><div class="drawing">${planHTML(cutPlan(c.pieces, c.stock), c.stock)}</div>
+      <h4>Stamm und Fuß</h4><div class="drawing">${planHTML(cutPlan(c.trunk, c.stock), c.stock)}</div>
+      <p class="small muted">Tipp: Längste Latte zuerst sägen – verschnittene Stücke werden einfach weiter oben verwendet.</p>
+    </div>`;
+  },
+  winkel(c) {
+    const x = c.slats[c.n - 1];
+    return `<div class="panel"><h3>Die Winkel</h3>
+      <div class="anglecard"><div class="badge"><b>${cutTxt(c)}</b><span>Kappsäge</span></div><div><b>Latten-Enden:</b> Beide Enden ${cutTxt(c)}, aber <b>gegengleich</b> – jede Latte ist ein Trapez, unten länger als oben. Die schrägen Enden liegen alle auf einer Linie (${fmt(c.alpha, 1).replace(',0', '')}° zur Waagerechten).</div></div>
+      <div class="anglecard"><div class="badge alt"><b>90°</b><span>Überblattung</span></div><div><b>Kreuzfuß:</b> In beide Fußhölzer mittig eine Aussparung sägen: ${c.w} mm breit, ${fmt(c.w / 2)} mm tief (halbe Holzstärke). Dann passen sie bündig ineinander.</div></div>
+      <h4>Unterste Latte (Beispiel)</h4>
+      <div class="drawing">${pieceSVG({title: 'Latte', outer: x.top, inner: x.bot, off: -c.b * c.cot, thick: c.b, outerLabel: 'oben', innerLabel: 'unten', left: 'Säge ' + cutTxt(c), right: 'gegengleich ' + cutTxt(c)})}</div>
+      <div class="warn"><b>Gegengleich sägen:</b> Nach dem ersten Schnitt die Säge auf die andere Seite schwenken (oder die Latte umdrehen) – sonst entsteht ein Parallelogramm.</div>
+      <div class="note">Trick: Erst alle Latten an einem Ende schräg schneiden. Dann auf der <b>langen Kante</b> messen und das zweite Ende schneiden.</div>
+    </div>`;
+  },
+  steps(c) {
+    return [
+      {t: 'Stamm und Fuß sägen', b: `<ul><li>Stamm <b>${fmt(c.S)} mm</b>, zwei Fußhölzer je <b>${fmt(c.F)} mm</b>, alles gerade.</li><li>Auf dem Stamm oben beginnend eine Mittellinie ziehen.</li></ul>`},
+      {t: 'Kreuzfuß überblatten', b: `<ul><li>Auf beiden Fußhölzern mittig die Holzbreite anzeichnen (${c.w} mm) und die halbe Höhe (${fmt(c.w / 2)} mm).</li><li>Die beiden Außenlinien bis zur Tiefe einsägen, dazwischen mehrere Schnitte, dann mit dem Stechbeitel ausräumen.</li><li>Probestecken – die Hölzer sollen bündig und stramm ineinander sitzen. Verleimen.</li></ul>`},
+      {t: 'Abstandsklotz machen', b: `<p>Ein Reststück auf <b>${c.g} mm</b> Breite sägen. Mit diesem Klotz zwischen den Latten werden alle Abstände automatisch gleich.</p>`},
+      {t: 'Latten sägen', b: `<ul><li>Säge auf <b>${cutTxt(c)}</b>. Probeschnitt.</li><li>${c.n} Latten nach Zuschnittliste: erstes Ende schräg, dann auf der langen Kante messen, zweites Ende <b>gegengleich</b>.</li><li>Die Latten von 1 (oben) bis ${c.n} (unten) mit Bleistift hinten nummerieren und auf jeder die Mitte markieren.</li></ul>`},
+      {t: 'Latten befestigen', b: `<ul><li>Stamm flach auf den Tisch, Latten mit der Vorderseite nach unten davor legen – geht am einfachsten umgekehrt: Latten mit der Schauseite auf den Tisch, Stamm hinten drauf.</li><li>Latte 1 bündig mit dem Stamm-Ende, dann Abstandsklotz, Latte 2 usw. Mittelmarkierung immer auf die Mittellinie.</li><li>Je Latte ein Tropfen Leim und 1–2 Schrauben <b>${c.screw}</b> von hinten durch den Stamm (vorbohren, damit nichts spaltet).</li></ul>`},
+      {t: 'Kontrolle', b: `<p>Lineal oder Latte an die schrägen Enden halten: Sie müssen auf beiden Seiten eine gerade Linie bilden. Kleine Ausreißer mit Schleifpapier angleichen.</p>`},
+      {t: 'Auf den Fuß setzen', b: `<p>Stamm mittig auf das Kreuz stellen, von unten mit 2 Schrauben fixieren und mit 4 kleinen Stahlwinkeln rundum aussteifen. Draußen zusätzlich mit Heringen sichern.</p>`},
+      {t: 'Schleifen und Oberfläche', b: `<p>Kanten brechen. Für draußen lasieren – Weiß, Grün oder Natur sieht alles gut aus. Sägeraue Latten nur leicht anschleifen, das wirkt schön rustikal.</p>`},
+      {t: 'Schmücken', b: `<p>Lichterkette im Zickzack über die Latten führen (ca. ${m(c.lights)}) oder unter jede Latte zwei kleine Haken für Anhänger schrauben. Oben passt ein Mini-Holzstern aus dem Stern-Projekt.</p>`}
+    ];
+  }
+};
+
+const PROJECTS = {tanne, stern, latte};
 const TABS = [['ziel', 'Was möchte ich?'], ['material', 'Was brauche ich?'], ['zuschnitt', 'Zuschnitt'], ['winkel', 'Winkel'], ['anleitung', 'Schritt für Schritt']];
 
 /* ---------------- Rendering ---------------- */
