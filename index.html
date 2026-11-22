@@ -6,6 +6,8 @@
 <title>Werkstatt – Holzprojekte Schritt für Schritt</title>
 <meta name="description" content="Werkanleitungen mit Größenrechner: Holz-Tannen mit Lichterkette und Holzstern-Rahmen.">
 <style>
+@font-face{font-family:'Dancing Script';src:url(fonts/dancing-script-latin-400-normal.woff2) format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Dancing Script';src:url(fonts/dancing-script-latin-700-normal.woff2) format('woff2');font-weight:700;font-display:swap}
 :root{
   --bg:#f5efe6; --card:#fffdf9; --ink:#2b2118; --muted:#6f6254; --line:#e3d8c8;
   --wood:#d9b07c; --wood-d:#a8743f; --accent:#9b4a1f; --accent-l:#f3e1d2; --green:#3d6b4a; --green-l:#e3efe5;
@@ -112,12 +114,59 @@ table.parts td:first-child{width:34%}
 .next{display:block;text-align:right;margin-top:6px}
 footer{max-width:860px;margin:0 auto;padding:0 16px 30px;color:var(--muted);font-size:12.5px}
 @media print{header,nav.tabs,.sizebar .chips,.btns,.stepnav{display:none}.panel{break-inside:avoid}}
+
+.pcard .thumb{padding:0;height:auto;aspect-ratio:340/220;display:block;background:#2f2620}
+.pcard .thumb svg{width:100%;height:100%;display:block}
+.heroimg{border-radius:var(--r);overflow:hidden;margin:0 0 12px;border:1px solid var(--line);aspect-ratio:340/220;background:#2f2620}
+.heroimg svg{width:100%;height:100%;display:block}
+h4.ch{margin:16px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.cattiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 6px}
+.cattile{border:0;padding:0;border-radius:14px;overflow:hidden;cursor:pointer;background:var(--card);text-align:left;box-shadow:0 1px 0 var(--line);font:inherit;color:inherit}
+.cattile .ct-img{aspect-ratio:1/1;overflow:hidden}
+.cattile .ct-img svg{width:100%;height:100%;display:block}
+.cattile .ct-body{padding:8px 10px 10px}
+.cattile b{display:block;font-size:16px}
+.cattile span{font-size:12px;color:var(--muted)}
+.catsec{scroll-margin-top:60px}
+h2.sec{font-size:24px;margin:30px 4px 2px}
+h2.sec.cat-holz{color:#9b4a1f} h2.sec.cat-papier{color:#3b5b8a} h2.sec.cat-mal{color:#7b3f8c}
+.pcard.cat-papier .tag{background:#e3ebf5;color:#3b5b8a}
+.pcard.cat-mal .tag{background:#f0e4f4;color:#7b3f8c}
+.jbadge{display:inline-block;font-size:12px;font-weight:700;background:var(--green);color:#fff;border-radius:99px;padding:2px 10px;margin-bottom:6px}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="g-wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5ddb3"/><stop offset=".55" stop-color="#e8c08a"/><stop offset="1" stop-color="#d7a669"/></linearGradient>
+  <linearGradient id="g-dougl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4c9a2"/><stop offset=".5" stop-color="#e3a477"/><stop offset="1" stop-color="#cc8556"/></linearGradient>
+  <linearGradient id="g-oak" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#efd8ad"/><stop offset=".6" stop-color="#ddb985"/><stop offset="1" stop-color="#c9a26c"/></linearGradient>
+  <linearGradient id="g-ply" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8e8c6"/><stop offset="1" stop-color="#ead09f"/></linearGradient>
+  <linearGradient id="g-side" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d3ac74"/><stop offset="1" stop-color="#b98c57"/></linearGradient>
+  <linearGradient id="g-night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#141c2b"/><stop offset="1" stop-color="#2e3b55"/></linearGradient>
+  <linearGradient id="g-dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d2840"/><stop offset=".7" stop-color="#4b5a7c"/><stop offset="1" stop-color="#8a8fa8"/></linearGradient>
+  <linearGradient id="g-wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#faf6ef"/><stop offset="1" stop-color="#ece1d0"/></linearGradient>
+  <linearGradient id="g-floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9bf98"/><stop offset="1" stop-color="#bf9d70"/></linearGradient>
+  <linearGradient id="g-table" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a87447"/><stop offset="1" stop-color="#7f5431"/></linearGradient>
+  <linearGradient id="g-cream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf5ea"/><stop offset="1" stop-color="#efe3cf"/></linearGradient>
+  <linearGradient id="g-ice" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5f8fc4"/><stop offset="1" stop-color="#20385e"/></linearGradient>
+  <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fa9d8"/><stop offset="1" stop-color="#dcebf8"/></linearGradient>
+  <linearGradient id="g-candle" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fffdf6"/><stop offset="1" stop-color="#eee3cc"/></linearGradient>
+  <radialGradient id="g-halo"><stop offset="0" stop-color="#ffd98a" stop-opacity=".9"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g-snow" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#ffffff"/><stop offset=".7" stop-color="#f3f7fc"/><stop offset="1" stop-color="#c9d9ec"/></radialGradient>
+  <pattern id="p-dots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.8" fill="#fff" opacity=".85"/></pattern>
+  <pattern id="p-stripes" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="3" height="8" fill="#fff" opacity=".35"/></pattern>
+  <filter id="f-sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="1.5" dy="3" stdDeviation="2.4" flood-color="#2b1a0c" flood-opacity=".28"/></filter>
+  <filter id="f-sh2" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0b1a33" flood-opacity=".45"/></filter>
+  <filter id="f-glow" x="-300%" y="-300%" width="700%" height="700%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="f-softglow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="f-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+  <filter id="f-wc" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="f-wc2" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="f-noise" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .45  0 0 0 0 .4  0 0 0 0 .35  0 0 0 .1 0"/></filter>
+</defs></svg>
 <header>
   <button class="back" id="back" aria-label="Zurück" hidden>←</button>
-  <div><h1 id="htitle">Werkstatt</h1><div class="sub" id="hsub">Holzprojekte Schritt für Schritt</div></div>
+  <div><h1 id="htitle">Werkstatt</h1><div class="sub" id="hsub">Holz · Papier · Malerei</div></div>
 </header>
 <main id="app"></main>
 <footer>Maße in mm, gemessen entlang der Kante. Vor dem Zusägen immer einen Probeschnitt an einem Reststück machen.</footer>
@@ -130,11 +179,71 @@ const mm = x => fmt(x) + ' mm';
 const cm = x => fmt(x / 10, x < 1000 ? 0 : 0) + ' cm';
 const m = x => fmt(x / 1000, 1) + ' m';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ================= GRAFIK-HELFER ================= */
+const P2 = p => p.map(q => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' ');
+const lerp2 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+const rng = seed => () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const f1 = v => (+v).toFixed(1);
+// Holzteil mit Verlauf, Maserung und Lichtkante. p = 4 Punkte, p0-p1 und p3-p2 sind die Längskanten
+function woodPoly(p, tone = 'wood', sw = 1) {
+  const st = {dougl: '#a2603a', oak: '#9c7442', ply: '#b38a55', wood: '#9a6a36', bark: '#4a3220'}[tone] || '#9a6a36';
+  let s = `<polygon points="${P2(p)}" fill="url(#g-${tone})" stroke="${st}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+  const L = Math.max(Math.hypot(p[1][0] - p[0][0], p[1][1] - p[0][1]), Math.hypot(p[2][0] - p[3][0], p[2][1] - p[3][1]));
+  if (L > 12) for (const f of [0.26, 0.48, 0.7]) {
+    const a = lerp2(p[0], p[3], f), b = lerp2(p[1], p[2], f);
+    const s0 = lerp2(a, b, 0.06 + 0.14 * f), s1 = lerp2(a, b, 0.9 - 0.12 * f), mid = lerp2(s0, s1, 0.5);
+    const nx = -(s1[1] - s0[1]), ny = s1[0] - s0[0], nl = Math.hypot(nx, ny) || 1, wob = (f - 0.48) * Math.min(4, L / 30);
+    s += `<path d="M${f1(s0[0])} ${f1(s0[1])} Q${f1(mid[0] + nx / nl * wob)} ${f1(mid[1] + ny / nl * wob)} ${f1(s1[0])} ${f1(s1[1])}" fill="none" stroke="#6b3f1c" stroke-opacity=".22" stroke-width=".8" stroke-linecap="round"/>`;
+  }
+  s += `<line x1="${f1(p[0][0])}" y1="${f1(p[0][1])}" x2="${f1(p[1][0])}" y2="${f1(p[1][1])}" stroke="#fff" stroke-opacity=".45" stroke-width=".9"/>`;
+  return s;
+}
+function sampleLine(poly, step) {
+  const out = []; let carry = 0;
+  for (let i = 0; i < poly.length - 1; i++) {
+    const a = poly[i], b = poly[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    let t = carry; while (t < L) { out.push(lerp2(a, b, t / L)); t += step; } carry = t - L;
+  }
+  return out;
+}
+const glowDots = (pts, r = 1.8, col = '#ffd877') => `<g filter="url(#f-glow)">${pts.map(q => `<circle cx="${f1(q[0])}" cy="${f1(q[1])}" r="${r}" fill="${col}"/>`).join('')}</g>`;
+const wire = pts => `<polyline points="${P2(pts)}" fill="none" stroke="#2a2a22" stroke-opacity=".45" stroke-width=".7"/>`;
+function starShape(cx, cy, R, col = '#f6c453', rot = 0) {
+  const pts = Array.from({length: 10}, (_, k) => { const a = (rot - 90 + 36 * k) * DEG, r = k % 2 ? R * 0.42 : R; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; });
+  return `<polygon points="${P2(pts)}" fill="${col}" stroke="#c98d1c" stroke-width=".6"/>`;
+}
+function snowDots(W, H, n, seed, col = '#fff', op = .8) {
+  const r = rng(seed); let o = '';
+  for (let i = 0; i < n; i++) o += `<circle cx="${f1(r() * W)}" cy="${f1(r() * H)}" r="${f1(0.5 + 1.6 * r() ** 2)}" fill="${col}" opacity="${(op * (0.4 + 0.6 * r())).toFixed(2)}"/>`;
+  return o;
+}
+const sceneNight = (W = 340, H = 220, floorY = 196) => `<rect width="${W}" height="${H}" fill="url(#g-night)"/>${snowDots(W, floorY - 20, 40, 11, '#fff', .55)}<rect y="${floorY}" width="${W}" height="${H - floorY}" fill="#3a2c22"/><rect y="${floorY}" width="${W}" height="2" fill="#5a4636"/>`;
+const sceneWall = (W = 340, H = 220, floorY = 184) => `<rect width="${W}" height="${H}" fill="url(#g-wall)"/><rect y="${floorY}" width="${W}" height="${H - floorY}" fill="url(#g-floor)"/><rect y="${floorY}" width="${W}" height="3" fill="#fff" opacity=".5"/>`;
+const halo = (cx, cy, rx, ry, op = .45) => `<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(rx)}" ry="${f1(ry)}" fill="url(#g-halo)" opacity="${op}"/>`;
+const floorShadow = (cx, y, rx) => `<ellipse cx="${f1(cx)}" cy="${f1(y)}" rx="${f1(rx)}" ry="${f1(rx * 0.12)}" fill="#000" opacity=".22" filter="url(#f-blur)"/>`;
+function cone(x, y, r) {
+  let o = `<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${f1(r * 0.75)}" ry="${f1(r)}" fill="#6b4425"/>`;
+  for (let i = 0; i < 4; i++) for (let j = -1; j <= 1; j++) o += `<ellipse cx="${f1(x + j * r * 0.38)}" cy="${f1(y - r * 0.6 + i * r * 0.42)}" rx="${f1(r * 0.22)}" ry="${f1(r * 0.15)}" fill="#8a5a33" stroke="#4a2c15" stroke-width=".4"/>`;
+  return o;
+}
+function branch(x, y, len, ang, seed) {
+  const r = rng(seed); let o = '';
+  const ex = x + len * Math.cos(ang * DEG), ey = y + len * Math.sin(ang * DEG);
+  o += `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(ex)}" y2="${f1(ey)}" stroke="#5a3d22" stroke-width="1.2"/>`;
+  for (let i = 0; i < 26; i++) {
+    const t = i / 26, px = x + (ex - x) * t, py = y + (ey - y) * t, side = i % 2 ? 1 : -1, nl = (7 + 5 * r()) * (1 - t * 0.4);
+    const a = (ang + side * (55 + 15 * r())) * DEG;
+    o += `<line x1="${f1(px)}" y1="${f1(py)}" x2="${f1(px + nl * Math.cos(a))}" y2="${f1(py + nl * Math.sin(a))}" stroke="${r() > .5 ? '#2f6b3a' : '#3f8a4b'}" stroke-width="1.1" stroke-linecap="round"/>`;
+  }
+  return o;
+}
+const heroSVG = (inner, label) => `<svg viewBox="0 0 340 220" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${esc(label)}">${inner}</svg>`;
+
 
 /* ---------------- Speicher ---------------- */
 const STORE = 'werkstatt-v1';
-let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, masu: {H: 80}, fenster: {H: 300, lagen: '2'}, flocke: {H: 150}, tuete: {H: 280, n: '10'}, done: {}, buy: {}, step: {}};
-try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) { const d = JSON.parse(JSON.stringify(state)); state = Object.assign(state, s); for (const k of ['tanne', 'stern', 'latte', 'advent', 'rentier', 'masu', 'fenster', 'flocke', 'tuete']) state[k] = Object.assign({}, d[k], s[k]); state.step = Object.assign({}, s.step); } } catch (e) {}
+let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, masu: {H: 80}, fenster: {H: 300, lagen: '2'}, flocke: {H: 150}, tuete: {H: 280, n: '10'}, aqtanne: {H: 105}, schnee: {H: 105}, wichtel: {H: 145}, kette: {H: 145}, done: {}, buy: {}, step: {}};
+try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) { const d = JSON.parse(JSON.stringify(state)); state = Object.assign(state, s); for (const k of Object.keys(d)) if (d[k] && typeof d[k] === 'object' && 'H' in d[k]) state[k] = Object.assign({}, d[k], s[k]); state.step = Object.assign({}, s.step); } } catch (e) {}
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
 
 /* ---------------- Zuschnittplan (Stangen aufteilen) ---------------- */
@@ -177,9 +286,9 @@ function pieceSVG(o) {
   const s = (W - padL - padR) / span;
   const th = Math.max(o.thick * s, 34);
   const X = x => padL + (x - minX) * s, y0 = 40, y1 = y0 + th;
-  const pts = `${X(0)},${y0} ${X(o.outer)},${y0} ${X(o.off + o.inner)},${y1} ${X(o.off)},${y1}`;
+  const poly = woodPoly([[X(0), y0], [X(o.outer), y0], [X(o.off + o.inner), y1], [X(o.off), y1]], o.tone || 'wood', 1.5);
   return `<svg viewBox="0 0 ${W} ${y1 + 72}" role="img" aria-label="${esc(o.title)}">
-    <polygon points="${pts}" fill="#e7c89f" stroke="#a8743f" stroke-width="1.5"/>
+    <g filter="url(#f-sh)">${poly}</g>
     <line x1="${X(0)}" y1="${y0 - 12}" x2="${X(o.outer)}" y2="${y0 - 12}" stroke="#2b2118" stroke-width="1"/>
     <line x1="${X(0)}" y1="${y0 - 17}" x2="${X(0)}" y2="${y0 - 7}" stroke="#2b2118"/><line x1="${X(o.outer)}" y1="${y0 - 17}" x2="${X(o.outer)}" y2="${y0 - 7}" stroke="#2b2118"/>
     <text x="${(X(0) + X(o.outer)) / 2}" y="${y0 - 19}" text-anchor="middle" font-size="19" font-weight="700" fill="#2b2118">${esc(o.outerLabel)}: ${fmt(o.outer)}</text>
@@ -230,48 +339,67 @@ function tanneCalc(H, wSel) {
   return c;
 }
 
+/* ---- Tanne ---- */
+function tanneArt(c, o) {
+  const {h, w, wh, y1, y2, ovv} = c, ta = Math.tan(67.5 * DEG);
+  const s = o.s, cx = o.cx, floor = o.floor, tone = o.tone || 'dougl';
+  const pt = (x, y) => [cx + x * s, floor - (y + 3 * w) * s];
+  const xT = y => (h - y) / ta, tip = h - wh * ta;
+  const bar = (sg, off, ya, yb) => [pt(sg * (xT(ya) + off), ya), pt(sg * (xT(yb) + off), yb), pt(sg * (xT(yb) + off - wh), yb), pt(sg * (xT(ya) + off - wh), ya)];
+  let g = '';
+  const ct = c.cbTop / 2, cbb = c.cbBot / 2;
+  for (const [L, yt] of [[c.f2, -2 * w], [c.f1, -w]]) g += woodPoly([pt(-L / 2 + w, yt), pt(L / 2 - w, yt), pt(L / 2, yt - w), pt(-L / 2, yt - w)], tone);
+  g += woodPoly([pt(-ct, 0), pt(ct, 0), pt(cbb, -w), pt(-cbb, -w)], tone);
+  for (const sg of [1, -1]) {
+    g += woodPoly(bar(sg, -2 * wh, 0, y2 + ovv), tone);
+    g += woodPoly(bar(sg, -wh, y2, y1 + ovv), tone);
+    g += woodPoly([pt(sg * xT(y1), y1), pt(0, h), pt(0, tip), pt(sg * (xT(y1) - wh), y1)], tone);
+  }
+  const zig = []; let side = 1;
+  for (let y = 40; y < tip; y += 80) { zig.push(pt(side * (c.inner(y) - 4), y)); side = -side; }
+  let lights = '';
+  if (o.lights === 'glow') lights = wire(zig) + glowDots(sampleLine(zig, Math.max(4, 70 * s)), Math.max(1.1, 13 * s));
+  else if (o.lights === 'dash') lights = `<polyline points="${P2(zig)}" fill="none" stroke="#e8a317" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"/>`;
+  const top = pt(0, h);
+  const star = o.star ? `<g filter="url(#f-glow)">${starShape(top[0], top[1] - 7, 9)}</g>` : '';
+  return `<g filter="url(#f-sh)">${g}</g>${lights}${star}`;
+}
 function tanneSVG(c, labels = true) {
-  const {h, w, wh, H, y1, y2, ovv} = c, A = 67.5 * DEG, ta = Math.tan(A);
+  const {h, w, wh, H, y1, y2} = c, ta = Math.tan(67.5 * DEG);
   const s = 470 / H, cx = 170, floor = 30 + H * s;
   const X = x => (cx + x * s).toFixed(1), Y = y => (floor - (y + 3 * w) * s).toFixed(1);
-  const xT = y => (h - y) / ta, tip = h - wh * ta;
-  const bar = (sg, off, y0, yb) => `M${X(sg * (xT(y0) + off))} ${Y(y0)} L${X(sg * (xT(yb) + off))} ${Y(yb)} L${X(sg * (xT(yb) + off - wh))} ${Y(yb)} L${X(sg * (xT(y0) + off - wh))} ${Y(y0)}Z`;
-  let d = '';
-  for (const sg of [1, -1]) {
-    d += bar(sg, -2 * wh, 0, y2 + ovv) + bar(sg, -wh, y2, y1 + ovv);
-    d += `M${X(sg * xT(y1))} ${Y(y1)} L${X(0)} ${Y(h)} L${X(0)} ${Y(tip)} L${X(sg * (xT(y1) - wh))} ${Y(y1)}Z`;
-  }
-  const ct = c.cbTop / 2, cbb = c.cbBot / 2;
-  d += `M${X(-ct)} ${Y(0)} L${X(ct)} ${Y(0)} L${X(cbb)} ${Y(-w)} L${X(-cbb)} ${Y(-w)}Z`;
-  for (const [L, yt] of [[c.f1, -w], [c.f2, -2 * w]]) d += `M${X(-L / 2 + w)} ${Y(yt)} L${X(L / 2 - w)} ${Y(yt)} L${X(L / 2)} ${Y(yt - w)} L${X(-L / 2)} ${Y(yt - w)}Z`;
-  let zig = '', side = 1;
-  for (let y = 40; y < tip; y += 80) {
-    zig += (zig ? 'L' : 'M') + X(side * (c.inner(y) - 4)) + ' ' + Y(y) + ' ';
-    side = -side;
-  }
-  const lights = `<path d="${zig}" fill="none" stroke="#e8a317" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"/>`;
-  const fill = labels ? '#e7c89f' : '#d9a066', stroke = labels ? '#a8743f' : '#f0c890';
-  let lab = '', svgW = 340, svgH = floor + 20, vx = 0;
-  if (labels) {
-    const cbb2 = c.cbBot / 2 * s;
-    vx = cx - cbb2 - 70; svgW = 2 * cbb2 + 140; svgH = floor + 50;
-    const yv = v => +Y(v);
-    lab += badge(+X(0) + 20, yv(h) + 6, 1);
-    lab += badge(+X(xT(y1)) + 18, yv(y1) + 8, 2);
-    lab += badge(+X(xT(y2) - wh) + 18, yv(y2) + 8, 2);
-    const ix = +X(xT(0) - 3 * wh), iy = +Y(0), r = 30;
-    lab += `<path d="M${ix - r} ${iy} A${r} ${r} 0 0 1 ${(ix - r * Math.cos(67.5 * DEG)).toFixed(1)} ${(iy - r * Math.sin(67.5 * DEG)).toFixed(1)}" fill="none" stroke="#9b4a1f" stroke-width="2.5"/>`;
-    lab += badge(ix - r - 18, iy - 16, 3);
-    lab += badge(+X(cbb) + 18, yv(-w / 2), 4);
-    lab += badge(+X(c.f2 / 2) + 18, yv(-1.5 * w), 5);
-    const x0 = cx - cbb2 - 40;
-    lab += `<line x1="${x0}" y1="${Y(h)}" x2="${x0}" y2="${floor}" stroke="#2b2118"/><line x1="${x0 - 6}" y1="${Y(h)}" x2="${x0 + 6}" y2="${Y(h)}" stroke="#2b2118"/><line x1="${x0 - 6}" y1="${floor}" x2="${x0 + 6}" y2="${floor}" stroke="#2b2118"/>`;
-    lab += `<text transform="translate(${x0 - 10} ${(+Y(h) + floor) / 2}) rotate(-90)" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(H / 10)} cm</text>`;
-    lab += `<line x1="${X(-cbb)}" y1="${floor + 16}" x2="${X(cbb)}" y2="${floor + 16}" stroke="#2b2118"/><line x1="${X(-cbb)}" y1="${floor + 10}" x2="${X(-cbb)}" y2="${floor + 22}" stroke="#2b2118"/><line x1="${X(cbb)}" y1="${floor + 10}" x2="${X(cbb)}" y2="${floor + 22}" stroke="#2b2118"/>`;
-    lab += `<text x="${cx}" y="${floor + 40}" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(c.cbBot / 10)} cm</text>`;
-  }
-  return `<svg viewBox="${vx} 0 ${svgW} ${svgH}" role="img" aria-label="Holztanne ${fmt(H / 10)} cm"><path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="1.2" stroke-linejoin="round"/>${lights}${lab}</svg>`;
+  const xT = y => (h - y) / ta;
+  const cbb = c.cbBot / 2;
+  let lab = '';
+  const cbb2 = c.cbBot / 2 * s, vx = cx - cbb2 - 70, svgW = 2 * cbb2 + 140, svgH = floor + 50;
+  const yv = v => +Y(v);
+  lab += badge(+X(0) + 20, yv(h) + 6, 1);
+  lab += badge(+X(xT(y1)) + 18, yv(y1) + 8, 2);
+  lab += badge(+X(xT(y2) - wh) + 18, yv(y2) + 8, 2);
+  const ix = +X(xT(0) - 3 * wh), iy = +Y(0), r = 30;
+  lab += `<path d="M${ix - r} ${iy} A${r} ${r} 0 0 1 ${(ix - r * Math.cos(67.5 * DEG)).toFixed(1)} ${(iy - r * Math.sin(67.5 * DEG)).toFixed(1)}" fill="none" stroke="#9b4a1f" stroke-width="2.5"/>`;
+  lab += badge(ix - r - 18, iy - 16, 3);
+  lab += badge(+X(cbb) + 18, yv(-w / 2), 4);
+  lab += badge(+X(c.f2 / 2) + 18, yv(-1.5 * w), 5);
+  const x0 = cx - cbb2 - 40;
+  lab += `<line x1="${x0}" y1="${Y(h)}" x2="${x0}" y2="${floor}" stroke="#2b2118"/><line x1="${x0 - 6}" y1="${Y(h)}" x2="${x0 + 6}" y2="${Y(h)}" stroke="#2b2118"/><line x1="${x0 - 6}" y1="${floor}" x2="${x0 + 6}" y2="${floor}" stroke="#2b2118"/>`;
+  lab += `<text transform="translate(${x0 - 10} ${(+Y(h) + floor) / 2}) rotate(-90)" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(H / 10)} cm</text>`;
+  lab += `<line x1="${X(-cbb)}" y1="${floor + 16}" x2="${X(cbb)}" y2="${floor + 16}" stroke="#2b2118"/><line x1="${X(-cbb)}" y1="${floor + 10}" x2="${X(-cbb)}" y2="${floor + 22}" stroke="#2b2118"/><line x1="${X(cbb)}" y1="${floor + 10}" x2="${X(cbb)}" y2="${floor + 22}" stroke="#2b2118"/>`;
+  lab += `<text x="${cx}" y="${floor + 40}" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(c.cbBot / 10)} cm</text>`;
+  return `<svg viewBox="${vx} 0 ${svgW} ${svgH}" role="img" aria-label="Holztanne ${fmt(H / 10)} cm">${tanneArt(c, {s, cx, floor, lights: 'dash'})}${lab}</svg>`;
 }
+function heroTanne() {
+  const fl = 198, s = 150 / 1200;
+  const t1 = tanneCalc(1200, 'auto'), t2 = tanneCalc(900, 'auto'), t3 = tanneCalc(600, 'auto');
+  let o = sceneNight(340, 220, fl);
+  o += halo(120, 120, 90, 90, .5) + halo(215, 140, 60, 70, .4) + halo(282, 165, 40, 45, .35);
+  o += floorShadow(120, fl + 2, 55) + floorShadow(215, fl + 2, 40) + floorShadow(282, fl + 2, 26);
+  o += tanneArt(t3, {s, cx: 282, floor: fl, lights: 'glow'});
+  o += tanneArt(t2, {s, cx: 215, floor: fl, lights: 'glow'});
+  o += tanneArt(t1, {s, cx: 120, floor: fl, lights: 'glow', star: true});
+  return heroSVG(o, 'Drei Holztannen mit Lichterketten');
+}
+
 const badge = (x, y, n) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="13" fill="#9b4a1f"/><text x="${x.toFixed(1)}" y="${(y + 5.5).toFixed(1)}" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">${n}</text>`;
 const legend = items => `<ol class="legend">${items.map(t => `<li><span>${t}</span></li>`).join('')}</ol>`;
 const TANNE_LEGEND = c => legend(['<b>Spitze:</b> senkrecht – anzeichnen und von Hand sägen', `<b>Ast:</b> unteres Stabende waagerecht · Kappsäge 22,5° – darunter ein Absatz von ${fmt(c.notch)} mm, weil der nächste Stab innen anliegt`, '<b>Seitenneigung 67,5°</b> zur Waagerechten (ergibt sich von selbst)', '<b>Querholz:</b> Enden 22,5°, gegengleich', '<b>Fuß:</b> zwei Lagen, Enden 45°']);
@@ -284,7 +412,7 @@ const tanne = {
   presets: [1200, 900, 600],
   range: [500, 1600],
   calc: () => tanneCalc(state.tanne.H, state.tanne.w),
-  thumb: () => tanneSVG(tanneCalc(1200, 'auto'), false),
+  thumb: () => heroTanne(), cat: 'holz',
   sizeExtra(c) {
     return `<label class="custom">Holz <select data-k="w">
       ${['auto', '28', '34', '44'].map(v => `<option value="${v}" ${String(state.tanne.w) === v ? 'selected' : ''}>${v === 'auto' ? 'automatisch' : v + ' × ' + v + ' mm'}</option>`).join('')}
@@ -403,28 +531,44 @@ function starPts(R, r, cx, cy, s) {
     return [cx + rad * Math.cos(ang) * s, cy - rad * Math.sin(ang) * s];
   });
 }
+/* ---- Stern ---- */
+function sternArt(c, o) {
+  const s = o.s, cx = o.cx, cy = o.cy, tone = o.tone || 'oak';
+  const P = starPts(c.R, c.r, cx, cy, s), Q = starPts(c.Ri, c.ri, cx, cy, s);
+  let g = '';
+  if (o.depth) {
+    const dx = o.depth * 0.8, dy = -o.depth * 0.55, sh = q => [q[0] + dx, q[1] + dy];
+    for (let k = 0; k < 10; k++) { const k2 = (k + 1) % 10; g += `<polygon points="${P2([sh(P[k]), sh(P[k2]), sh(Q[k2]), sh(Q[k])])}" fill="#b78852" stroke="#8a6034" stroke-width=".8"/>`; }
+    for (let k = 0; k < 10; k++) { const k2 = (k + 1) % 10; g += `<polygon points="${P2([P[k], P[k2], sh(P[k2]), sh(P[k])])}" fill="url(#g-side)" stroke="#8a6034" stroke-width=".7"/><polygon points="${P2([Q[k], Q[k2], sh(Q[k2]), sh(Q[k])])}" fill="#c99d65" stroke="#8a6034" stroke-width=".7"/>`; }
+  }
+  for (let k = 0; k < 10; k++) { const k2 = (k + 1) % 10; g += woodPoly([P[k], P[k2], Q[k2], Q[k]], tone); }
+  return {g: `<g filter="url(#f-sh)">${g}</g>`, P, Q};
+}
 function sternSVG(c, labels = true) {
   const s = 300 / c.W, cx = 170, cy = 40 + c.R * s;
-  const P = starPts(c.R, c.r, cx, cy, s), Q = starPts(c.Ri, c.ri, cx, cy, s);
-  const f = p => p[0].toFixed(1) + ',' + p[1].toFixed(1);
-  let polys = '';
-  for (let k = 0; k < 10; k++) {
-    const k2 = (k + 1) % 10;
-    polys += `<polygon points="${f(P[k])} ${f(P[k2])} ${f(Q[k2])} ${f(Q[k])}" fill="${labels ? (k % 2 ? '#e7c89f' : '#dcb886') : (k % 2 ? '#d9a066' : '#c98f55')}" stroke="${labels ? '#a8743f' : '#f0c890'}" stroke-width="1.1" stroke-linejoin="round"/>`;
-  }
+  const {g, P} = sternArt(c, {s, cx, cy});
   const yb = cy + c.R * Math.cos(36 * DEG) * s;
-  let lab = '', vb = `0 0 340 ${(yb + 20).toFixed(0)}`;
-  if (labels) {
-    const out = (p, dist) => { const dx = p[0] - cx, dy = p[1] - cy, L = Math.hypot(dx, dy); return [p[0] + dx / L * dist, p[1] + dy / L * dist]; };
-    const b1 = out(P[0], 22), b2 = out(P[9], 26), mid = [(P[8][0] + P[9][0]) / 2, (P[8][1] + P[9][1]) / 2], b3 = out(mid, 22);
-    lab += badge(b1[0] + 18, b1[1] + 6, 1) + badge(b2[0], b2[1], 2) + badge(b3[0], b3[1], 3);
-    const hw = c.W / 2 * s;
-    lab += `<line x1="${(cx - hw).toFixed(1)}" y1="${(yb + 18).toFixed(1)}" x2="${(cx + hw).toFixed(1)}" y2="${(yb + 18).toFixed(1)}" stroke="#2b2118"/>`;
-    lab += `<text x="${cx}" y="${(yb + 42).toFixed(1)}" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(c.W / 10)} cm breit · ${fmt(c.H / 10)} cm hoch</text>`;
-    vb = `0 0 340 ${(yb + 54).toFixed(0)}`;
-  }
-  return `<svg viewBox="${vb}" role="img" aria-label="Holzstern ${fmt(c.H / 10)} cm">${polys}${lab}</svg>`;
+  const out = (p, dist) => { const dx = p[0] - cx, dy = p[1] - cy, L = Math.hypot(dx, dy); return [p[0] + dx / L * dist, p[1] + dy / L * dist]; };
+  const b1 = out(P[0], 22), b2 = out(P[9], 26), mid = [(P[8][0] + P[9][0]) / 2, (P[8][1] + P[9][1]) / 2], b3 = out(mid, 22);
+  let lab = badge(b1[0] + 18, b1[1] + 6, 1) + badge(b2[0], b2[1], 2) + badge(b3[0], b3[1], 3);
+  const hw = c.W / 2 * s;
+  lab += `<line x1="${(cx - hw).toFixed(1)}" y1="${(yb + 18).toFixed(1)}" x2="${(cx + hw).toFixed(1)}" y2="${(yb + 18).toFixed(1)}" stroke="#2b2118"/>`;
+  lab += `<text x="${cx}" y="${(yb + 42).toFixed(1)}" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(c.W / 10)} cm breit · ${fmt(c.H / 10)} cm hoch</text>`;
+  return `<svg viewBox="0 0 340 ${(yb + 54).toFixed(0)}" role="img" aria-label="Holzstern ${fmt(c.H / 10)} cm">${g}${lab}</svg>`;
 }
+function heroStern() {
+  const fl = 190, c1 = sternCalc(600, 18, 80), c2 = sternCalc(450, 18, 80), s = 0.26;
+  const yb1 = c1.R * Math.cos(36 * DEG) * s, yb2 = c2.R * Math.cos(36 * DEG) * s;
+  let o = sceneWall(340, 220, fl);
+  o += floorShadow(205, fl + 3, 70) + floorShadow(128, fl + 4, 60);
+  o += sternArt(c2, {s, cx: 205, cy: fl - yb2 - 2, depth: 14, tone: 'oak'}).g;
+  o += sternArt(c1, {s, cx: 128, cy: fl - yb1 + 2, depth: 16, tone: 'oak'}).g;
+  o += branch(150, 206, 80, -12, 3) + branch(230, 204, 70, 190, 5) + branch(120, 210, 60, 200, 9);
+  o += cone(196, 198, 8) + cone(240, 200, 7) + cone(110, 204, 7);
+  o += `<circle cx="215" cy="205" r="5" fill="#9a6b3e"/><circle cx="224" cy="207" r="4.5" fill="#a87a4a"/><circle cx="140" cy="209" r="4.5" fill="#9a6b3e"/>`;
+  return heroSVG(o, 'Zwei Holzsterne mit Zapfen und Tannengrün');
+}
+
 const STERN_LEGEND = c => legend([`<b>Zackenspitze 36°:</b> jedes Teil 18° zur Kante – anzeichnen, von Hand oder mit Hilfskeil`, `<b>Innenecke 108°:</b> Säge auf 36°`, `<b>Außenseite</b> je Teil ${fmt(c.a)} mm – alle 10 Teile gleich`]);
 
 const stern = {
@@ -435,7 +579,7 @@ const stern = {
   presets: [600, 450, 300],
   range: [200, 900],
   calc: () => sternCalc(state.stern.H, +state.stern.t, +state.stern.d),
-  thumb: () => sternSVG(sternCalc(600, 18, 80), false),
+  thumb: () => heroStern(), cat: 'holz',
   sizeExtra() {
     return `<label class="custom">Brettstärke <select data-k="t">${[12, 15, 18, 20].map(v => `<option ${+state.stern.t === v ? 'selected' : ''}>${v}</option>`).join('')}</select> mm</label>
       <label class="custom">Tiefe <select data-k="d">${[60, 80, 100, 120].map(v => `<option ${+state.stern.d === v ? 'selected' : ''}>${v}</option>`).join('')}</select> mm</label>`;
@@ -530,40 +674,55 @@ function latteCalc(H, form, sizeSel) {
   c.woodTrunk = S + 2 * F;
   return c;
 }
+/* ---- Latten-Tanne ---- */
+function latteArt(c, o) {
+  const s = o.s, cx = o.cx, floor = o.floor, tone = o.tone || 'wood';
+  const pt = (x, y) => [cx + x * s, floor - y * s];
+  let g = '';
+  g += woodPoly([pt(-c.F / 2, c.w), pt(c.F / 2, c.w), pt(c.F / 2, 0), pt(-c.F / 2, 0)], 'oak');
+  g += woodPoly([pt(-c.w / 2, c.H), pt(-c.w / 2, c.w), pt(c.w / 2, c.w), pt(c.w / 2, c.H)], 'oak');
+  const zig = [];
+  c.slats.forEach((x, i) => {
+    const yt = c.H - i * (c.b + c.g), yb = yt - c.b;
+    g += woodPoly([pt(-x.top / 2, yt), pt(x.top / 2, yt), pt(x.bot / 2, yb), pt(-x.bot / 2, yb)], tone);
+    const side = i % 2 ? -1 : 1;
+    zig.push(pt(side * (x.bot / 2 - 12), yb + c.b * 0.35));
+  });
+  let lights = '';
+  if (o.lights === 'glow') lights = wire(zig) + glowDots(sampleLine(zig, Math.max(4, 60 * s)), Math.max(1.1, 11 * s));
+  else if (o.lights === 'dash') lights = `<polyline points="${P2(zig)}" fill="none" stroke="#e8a317" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"/>`;
+  const top = pt(0, c.H);
+  const star = o.star ? `<g filter="url(#f-glow)">${starShape(top[0], top[1] - 9, 10)}</g>` : '';
+  return `<g filter="url(#f-sh)">${g}</g>${lights}${star}`;
+}
 function latteSVG(c, labels = true) {
   const s = 470 / c.H, cx = 170, floor = 30 + c.H * s;
   const X = x => (cx + x * s).toFixed(1), Y = y => (floor - y * s).toFixed(1);
-  const wood = labels ? '#e7c89f' : '#d9a066', dark = labels ? '#d2a96f' : '#c98f55', st = labels ? '#a8743f' : '#f0c890';
-  let o = `<rect x="${X(-c.w / 2)}" y="${Y(c.H)}" width="${(c.w * s).toFixed(1)}" height="${(c.S * s).toFixed(1)}" fill="${dark}" stroke="${st}" stroke-width="1.2"/>`;
-  o += `<rect x="${X(-c.F / 2)}" y="${Y(c.w)}" width="${(c.F * s).toFixed(1)}" height="${(c.w * s).toFixed(1)}" fill="${wood}" stroke="${st}" stroke-width="1.2"/>`;
-  o += `<rect x="${X(-c.w / 2)}" y="${Y(c.w)}" width="${(c.w * s).toFixed(1)}" height="${(c.w * s).toFixed(1)}" fill="${dark}" stroke="${st}" stroke-width="1.2"/>`;
-  let zig = '';
-  c.slats.forEach((x, i) => {
-    const yt = c.H - i * (c.b + c.g), yb = yt - c.b;
-    o += `<path d="M${X(-x.top / 2)} ${Y(yt)} L${X(x.top / 2)} ${Y(yt)} L${X(x.bot / 2)} ${Y(yb)} L${X(-x.bot / 2)} ${Y(yb)}Z" fill="${wood}" stroke="${st}" stroke-width="1.2" stroke-linejoin="round"/>`;
-    const side = i % 2 ? -1 : 1;
-    zig += (zig ? 'L' : 'M') + X(side * (x.bot / 2 - 12)) + ' ' + Y(yb + c.b * 0.35) + ' ';
-  });
-  o += `<path d="${zig}" fill="none" stroke="#e8a317" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"/>`;
-  let vb = `0 0 340 ${(floor + 14).toFixed(0)}`;
-  if (labels) {
-    const k = Math.min(2, c.n - 1), x = c.slats[k], yt = c.H - k * (c.b + c.g);
-    o += badge(+X(x.bot / 2) + 18, +Y(yt - c.b / 2), 1);
-    const k2 = Math.min(4, c.n - 2), yg = c.H - k2 * (c.b + c.g) - c.b - c.g / 2;
-    o += badge(+X(-c.slats[k2 + 1].bot / 2) - 18, +Y(yg), 2);
-    o += badge(+X(c.w / 2) + 18, +Y(c.w + c.bare / 2), 3);
-    o += badge(+X(c.F / 2) + 18, +Y(c.w / 2), 4);
-    const half = Math.max(c.width, c.F) / 2 * s;
-    const x0 = cx - half - 34;
-    o += `<line x1="${x0}" y1="${Y(c.H)}" x2="${x0}" y2="${floor}" stroke="#2b2118"/><line x1="${x0 - 6}" y1="${Y(c.H)}" x2="${x0 + 6}" y2="${Y(c.H)}" stroke="#2b2118"/><line x1="${x0 - 6}" y1="${floor}" x2="${x0 + 6}" y2="${floor}" stroke="#2b2118"/>`;
-    o += `<text transform="translate(${x0 - 10} ${(+Y(c.H) + floor) / 2}) rotate(-90)" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(c.H / 10)} cm</text>`;
-    const bw = c.width / 2;
-    o += `<line x1="${X(-bw)}" y1="${floor + 16}" x2="${X(bw)}" y2="${floor + 16}" stroke="#2b2118"/>`;
-    o += `<text x="${cx}" y="${floor + 40}" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(c.width / 10)} cm</text>`;
-    vb = `${(x0 - 36).toFixed(0)} 0 ${(2 * (cx - x0 + 36)).toFixed(0)} ${(floor + 52).toFixed(0)}`;
-  }
-  return `<svg viewBox="${vb}" role="img" aria-label="Latten-Tanne ${fmt(c.H / 10)} cm">${o}</svg>`;
+  let o = latteArt(c, {s, cx, floor, lights: 'dash'});
+  const k = Math.min(2, c.n - 1), x = c.slats[k], yt = c.H - k * (c.b + c.g);
+  o += badge(+X(x.bot / 2) + 18, +Y(yt - c.b / 2), 1);
+  const k2 = Math.min(4, c.n - 2), yg = c.H - k2 * (c.b + c.g) - c.b - c.g / 2;
+  o += badge(+X(-c.slats[k2 + 1].bot / 2) - 18, +Y(yg), 2);
+  o += badge(+X(c.w / 2) + 18, +Y(c.w + c.bare / 2), 3);
+  o += badge(+X(c.F / 2) + 18, +Y(c.w / 2), 4);
+  const half = Math.max(c.width, c.F) / 2 * s, x0 = cx - half - 34;
+  o += `<line x1="${x0}" y1="${Y(c.H)}" x2="${x0}" y2="${floor}" stroke="#2b2118"/><line x1="${x0 - 6}" y1="${Y(c.H)}" x2="${x0 + 6}" y2="${Y(c.H)}" stroke="#2b2118"/><line x1="${x0 - 6}" y1="${floor}" x2="${x0 + 6}" y2="${floor}" stroke="#2b2118"/>`;
+  o += `<text transform="translate(${x0 - 10} ${(+Y(c.H) + floor) / 2}) rotate(-90)" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(c.H / 10)} cm</text>`;
+  const bw = c.width / 2;
+  o += `<line x1="${X(-bw)}" y1="${floor + 16}" x2="${X(bw)}" y2="${floor + 16}" stroke="#2b2118"/>`;
+  o += `<text x="${cx}" y="${floor + 40}" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(c.width / 10)} cm</text>`;
+  return `<svg viewBox="${(x0 - 36).toFixed(0)} 0 ${(2 * (cx - x0 + 36)).toFixed(0)} ${(floor + 52).toFixed(0)}" role="img" aria-label="Latten-Tanne ${fmt(c.H / 10)} cm">${o}</svg>`;
 }
+function heroLatte() {
+  const fl = 200, c = latteCalc(1500, '75', 'auto'), s = 165 / 1500;
+  let o = `<rect width="340" height="220" fill="url(#g-dusk)"/>${snowDots(340, 200, 70, 21, '#fff', .8)}`;
+  o += `<path d="M0 196 Q90 186 170 192 T340 190 V220 H0Z" fill="#f4f7fb"/><path d="M0 204 Q120 198 340 206 V220 H0Z" fill="#dfe7f1"/>`;
+  o += halo(170, 120, 95, 100, .45) + floorShadow(170, fl, 45);
+  o += latteArt(c, {s, cx: 170, floor: fl, lights: 'glow', star: true});
+  o += latteArt(latteCalc(900, '75', 'auto'), {s, cx: 268, floor: fl + 4, lights: 'glow'});
+  return heroSVG(o, 'Latten-Tanne mit Lichterkette im Schnee');
+}
+
 const LATTE_LEGEND = c => legend([`<b>Latten-Enden:</b> parallel zur Außenlinie · Säge ${fmt(c.cut, 1).replace(',0', '')}°, gegengleich (Trapez)`, `<b>Abstand:</b> ${c.g} mm – mit einem Abstandsklotz ganz leicht`, `<b>Stamm:</b> ${c.w} × ${c.w} mm, Latten von hinten verschraubt`, `<b>Kreuzfuß:</b> zwei Hölzer, in der Mitte überblattet`]);
 const cutTxt = c => fmt(c.cut, 1).replace(',0', '') + '°';
 
@@ -575,7 +734,7 @@ const latte = {
   presets: [1500, 1000, 600],
   range: [400, 2000],
   calc: () => latteCalc(state.latte.H, state.latte.form, state.latte.size),
-  thumb: () => latteSVG(latteCalc(1500, '75', 'auto'), false),
+  thumb: () => heroLatte(), cat: 'holz',
   sizeExtra() {
     return `<label class="custom">Form <select data-k="form"><option value="75" ${state.latte.form === '75' ? 'selected' : ''}>schlank (Säge 15°)</option><option value="67.5" ${state.latte.form === '67.5' ? 'selected' : ''}>breit (Säge 22,5°)</option></select></label>
       <label class="custom">Holz <select data-k="size"><option value="auto" ${state.latte.size === 'auto' ? 'selected' : ''}>automatisch</option><option value="gross" ${state.latte.size === 'gross' ? 'selected' : ''}>Latte 24 × 48</option><option value="klein" ${state.latte.size === 'klein' ? 'selected' : ''}>Leiste 18 × 38</option></select></label>`;
@@ -659,38 +818,51 @@ function adventCalc(H) {
   return {H, cot, g, hs, W, sh, strips, batten, boardW: Math.ceil(W / 10) * 10 + 10, boardH: Math.ceil(4 * hs / 10) * 10 + 10,
     leiste: strips.reduce((s, x) => s + x.shelf, 0) + batten};
 }
-function adventSVG(c, labels = true) {
-  const s = 300 / (c.W + 2 * c.sh), cx = 170, y0 = 30;
-  const X = x => (cx + x * s).toFixed(1), Y = y => (y0 + y * s).toFixed(1);   // y von der Spitze nach unten
-  const wood = labels ? '#ecd3a6' : '#e0b878', st = labels ? '#b58a52' : '#f0c890';
-  let o = '';
+/* ---- Advents-Tanne ---- */
+function adventArt(c, o) {
+  const s = o.s, cx = o.cx, y0 = o.y0;
+  const pt = (x, y) => [cx + x * s, y0 + y * s];
+  let g = '', front = '';
   const words = ['eins', 'zwei', 'drei', 'vier'];
   c.strips.forEach(x => {
     const yt = x.k * (c.hs + c.g), yb = yt + c.hs;
-    o += `<path d="M${X(x.dx - x.top / 2)} ${Y(yt)} L${X(x.dx + x.top / 2)} ${Y(yt)} L${X(x.dx + x.bot / 2)} ${Y(yb)} L${X(x.dx - x.bot / 2)} ${Y(yb)}Z" fill="${wood}" stroke="${st}" stroke-width="1.2" stroke-linejoin="round"/>`;
+    g += woodPoly([pt(x.dx - x.top / 2, yt), pt(x.dx + x.top / 2, yt), pt(x.dx + x.bot / 2, yb), pt(x.dx - x.bot / 2, yb)], 'ply');
     const sl = x.shelf, sx = x.sx;
-    o += `<rect x="${X(sx - sl / 2)}" y="${Y(yb - 22)}" width="${(sl * s).toFixed(1)}" height="${(22 * s).toFixed(1)}" fill="${labels ? '#d9b07c' : '#c98f55'}" stroke="${st}"/>`;
+    g += woodPoly([pt(sx - sl / 2, yb - 22), pt(sx + sl / 2, yb - 22), pt(sx + sl / 2, yb), pt(sx - sl / 2, yb)], 'oak');
     const cxx = sx + (x.k % 2 ? 0.2 : -0.2) * sl * (x.k ? 1 : 0);
-    o += `<rect x="${X(cxx - 20)}" y="${Y(yb - 22 - 38)}" width="${(40 * s).toFixed(1)}" height="${(38 * s).toFixed(1)}" rx="3" fill="#fffaf0" stroke="#d8cbb4"/>`;
-    o += `<ellipse cx="${X(cxx)}" cy="${Y(yb - 22 - 46)}" rx="${(5 * s).toFixed(1)}" ry="${(9 * s).toFixed(1)}" fill="#f6b73c"/>`;
-    if (labels) o += `<text x="${X(x.dx - (x.k % 2 ? 1 : -1) * x.bot * 0.18 * (x.k ? 1 : 0))}" y="${Y(yt + c.hs * 0.42)}" text-anchor="middle" font-size="${Math.max(11, 15 * Math.min(1, x.bot / 250)).toFixed(0)}" font-style="italic" font-weight="600" fill="#9b4a1f">${words[x.k]}</text>`;
+    const cb = pt(cxx - 20, yb - 60), cw = 40 * s, ch = 38 * s;
+    if (o.green) front += branch(...pt(sx - sl * 0.45, yb - 24), sl * 0.6 * s, -8 + (x.k % 2 ? 6 : -6), 30 + x.k);
+    front += `<rect x="${f1(cb[0])}" y="${f1(cb[1])}" width="${f1(cw)}" height="${f1(ch)}" rx="${f1(4 * s)}" fill="url(#g-candle)" stroke="#e2d6c0" stroke-width=".6"/>`;
+    const fl = pt(cxx, yb - 68);
+    front += `<g filter="url(#f-glow)"><ellipse cx="${f1(fl[0])}" cy="${f1(fl[1])}" rx="${f1(5 * s)}" ry="${f1(10 * s)}" fill="#ffcf55"/></g>`;
+    if (o.words) { const tp = pt(x.dx - (x.k % 2 ? 1 : -1) * x.bot * 0.18 * (x.k ? 1 : 0), yt + c.hs * 0.42); front += `<text x="${f1(tp[0])}" y="${f1(tp[1])}" text-anchor="middle" font-family="${SCRIPT}" font-size="${f1(Math.max(o.minFont || 9, 34 * s * Math.min(1, x.bot / 250) * 2.4))}" font-weight="700" fill="#a0522d">${words[x.k]}</text>`; }
   });
-  const bottom = 4 * c.hs + 3 * c.g;
-  if (labels) o += `<rect x="${X(-25)}" y="${Y(0.5 * c.hs)}" width="${(50 * s).toFixed(1)}" height="${(c.batten * s).toFixed(1)}" fill="none" stroke="#6f6254" stroke-width="1.3" stroke-dasharray="5 4"/>`;
-  let vb = `0 0 340 ${(+Y(bottom) + 16).toFixed(0)}`;
-  if (labels) {
-    o += badge(+X(0) + 20, +Y(0) + 4, 1);
-    const l = c.strips[2];
-    o += badge(+X(l.dx - l.bot / 2) - 16, +Y(2 * (c.hs + c.g) + c.hs * 0.5), 2);
-    const sh3 = c.strips[3];
-    o += badge(+X(sh3.sx - sh3.shelf / 2) - 16, +Y(bottom - 11), 3);
-    o += badge(+X(25) + 16, +Y(c.hs + c.g + c.hs * 0.45), 4);
-    const yb = +Y(bottom) + 18;
-    o += `<line x1="${X(-c.W / 2)}" y1="${yb}" x2="${X(c.W / 2)}" y2="${yb}" stroke="#2b2118"/><text x="${cx}" y="${yb + 22}" text-anchor="middle" font-size="16" font-weight="700" fill="#2b2118">${fmt(c.W / 10)} cm breit · ${fmt(c.H / 10)} cm hoch</text>`;
-    vb = `0 0 340 ${(yb + 34).toFixed(0)}`;
-  }
-  return `<svg viewBox="${vb}" role="img" aria-label="Advents-Tanne">${o}</svg>`;
+  return `<g filter="url(#f-sh)">${g}</g>${front}`;
 }
+function adventSVG(c, labels = true) {
+  const s = 300 / (c.W + 2 * c.sh), cx = 170, y0 = 30;
+  const X = x => (cx + x * s).toFixed(1), Y = y => (y0 + y * s).toFixed(1);
+  let o = adventArt(c, {s, cx, y0, words: true, minFont: 12});
+  const bottom = 4 * c.hs + 3 * c.g;
+  o += `<rect x="${X(-25)}" y="${Y(0.5 * c.hs)}" width="${(50 * s).toFixed(1)}" height="${(c.batten * s).toFixed(1)}" fill="none" stroke="#6f6254" stroke-width="1.3" stroke-dasharray="5 4"/>`;
+  o += badge(+X(0) + 20, +Y(0) + 4, 1);
+  const l = c.strips[2];
+  o += badge(+X(l.dx - l.bot / 2) - 16, +Y(2 * (c.hs + c.g) + c.hs * 0.5), 2);
+  const sh3 = c.strips[3];
+  o += badge(+X(sh3.sx - sh3.shelf / 2) - 16, +Y(bottom - 11), 3);
+  o += badge(+X(25) + 16, +Y(c.hs + c.g + c.hs * 0.45), 4);
+  const yb = +Y(bottom) + 18;
+  o += `<line x1="${X(-c.W / 2)}" y1="${yb}" x2="${X(c.W / 2)}" y2="${yb}" stroke="#2b2118"/><text x="${cx}" y="${yb + 22}" text-anchor="middle" font-size="16" font-weight="700" fill="#2b2118">${fmt(c.W / 10)} cm breit · ${fmt(c.H / 10)} cm hoch</text>`;
+  return `<svg viewBox="0 0 340 ${(yb + 34).toFixed(0)}" role="img" aria-label="Advents-Tanne">${o}</svg>`;
+}
+function heroAdvent() {
+  const c = adventCalc(600), s = 190 / (4 * c.hs + 3 * c.g);
+  let o = `<rect width="340" height="220" fill="url(#g-wall)"/>` + halo(170, 115, 120, 100, .35);
+  o += `<g transform="translate(4 6)" opacity=".18" filter="url(#f-blur)">${adventArt(c, {s, cx: 170, y0: 14})}</g>`;
+  o += adventArt(c, {s, cx: 170, y0: 14, words: true, green: true, minFont: 8});
+  return heroSVG(o, 'Advents-Tanne mit vier LED-Kerzen');
+}
+
 const junNote = `<div class="safe"><b>Sicherheit:</b> Sägen, Bohren und Heißkleben nur zusammen mit einem Erwachsenen. Werkstück immer festspannen – nie in der Hand halten. Schutzbrille auf!</div>`;
 
 const advent = {
@@ -701,7 +873,7 @@ const advent = {
   presets: [600, 450],
   range: [300, 900],
   calc: () => adventCalc(state.advent.H),
-  thumb: () => adventSVG(adventCalc(600), false),
+  thumb: () => heroAdvent(), cat: 'holz',
   sizeExtra: () => '',
   ziel(c) {
     return `<div class="panel"><h3>Was baust du?</h3>
@@ -767,44 +939,60 @@ function rentierCalc(L) {
     {name: 'Schwanz', n: 1, len: r(0.12 * L), dia: d(0.04 * L)}
   ], jute: Math.round(L * 12 / 100) / 10, height: 0.8 * L + 0.5 * L * 0.9 + 0.5 * L};
 }
-function rentierSVG(c, labels = true) {
-  const s = 170 / c.L, x0 = 40, yb = 326;
-  const P = (x, y) => `${(x0 + x * s).toFixed(1)},${(yb - y * s).toFixed(1)}`;
-  const L = c.L, br = labels ? '#7a5434' : '#c98f55', tw = labels ? '#5e3f25' : '#e0b070', jt = '#d8bf8c';
-  const stick = (a, b, w) => `<line x1="${P(...a).split(',')[0]}" y1="${P(...a).split(',')[1]}" x2="${P(...b).split(',')[0]}" y2="${P(...b).split(',')[1]}" stroke="${tw}" stroke-width="${(w * s).toFixed(1)}" stroke-linecap="round"/>`;
+/* ---- Ast-Rentier ---- */
+function rentierArt(c, o) {
+  const s = o.s, x0 = o.x0, yb = o.yb, L = c.L;
+  const P = (x, y) => [x0 + x * s, yb - y * s];
+  const stick = (a, b, wd, col = '#6e4c2f') => { const A = P(...a), B = P(...b); return `<line x1="${f1(A[0])}" y1="${f1(A[1])}" x2="${f1(B[0])}" y2="${f1(B[1])}" stroke="${col}" stroke-width="${f1(wd * s)}" stroke-linecap="round"/><line x1="${f1(A[0])}" y1="${f1(A[1] - wd * s * 0.22)}" x2="${f1(B[0])}" y2="${f1(B[1] - wd * s * 0.22)}" stroke="#a88560" stroke-opacity=".5" stroke-width="${f1(wd * s * 0.18)}" stroke-linecap="round"/>`; };
   const legH = 0.8 * L * Math.cos(15 * DEG);
-  let o = '';
-  // Beine (je ein Paar leicht gespreizt)
-  for (const [bx, sp] of [[0.15 * L, -1], [0.22 * L, 1], [0.78 * L, -1], [0.85 * L, 1]]) o += stick([bx, legH], [bx + sp * 0.8 * L * Math.sin(12 * DEG), 0], 0.05 * L);
-  // Körper
-  o += stick([0, legH + 0.02 * L], [L, legH + 0.02 * L], 0.15 * L);
-  // Schwanz
-  o += stick([0.02 * L, legH + 0.06 * L], [-0.1 * L, legH + 0.12 * L], 0.04 * L);
-  // Hals 65° nach oben vorn
+  let g = '';
+  for (const [bx, sp] of [[0.15 * L, -1], [0.22 * L, 1], [0.78 * L, -1], [0.85 * L, 1]]) g += stick([bx, legH], [bx + sp * 0.8 * L * Math.sin(12 * DEG), 0], 0.05 * L);
+  g += stick([0, legH + 0.02 * L], [L, legH + 0.02 * L], 0.15 * L);
+  g += stick([0.02 * L, legH + 0.06 * L], [-0.1 * L, legH + 0.12 * L], 0.04 * L);
   const nx = L * 0.9, ny = legH + 0.05 * L, hx = nx + 0.5 * L * Math.cos(65 * DEG), hy = ny + 0.5 * L * Math.sin(65 * DEG);
-  o += stick([nx, ny], [hx, hy], 0.08 * L);
-  // Kopf leicht nach unten
+  g += stick([nx, ny], [hx, hy], 0.08 * L);
   const kx = hx + 0.33 * L * Math.cos(-20 * DEG), ky = hy + 0.33 * L * Math.sin(-20 * DEG);
-  o += stick([hx - 0.03 * L, hy + 0.01 * L], [kx, ky], 0.12 * L);
-  // Geweih
   for (const [ang, off] of [[110, 0], [70, 0.05]]) {
     const ax = hx + off * L, ay = hy + 0.04 * L, ex = ax + 0.5 * L * Math.cos(ang * DEG), ey = ay + 0.5 * L * Math.sin(ang * DEG);
-    o += stick([ax, ay], [ex, ey], 0.03 * L);
+    g += stick([ax, ay], [ex, ey], 0.03 * L);
     const mx = ax + 0.25 * L * Math.cos(ang * DEG), my = ay + 0.25 * L * Math.sin(ang * DEG);
-    o += stick([mx, my], [mx + 0.15 * L * Math.cos((ang - 35) * DEG), my + 0.15 * L * Math.sin((ang - 35) * DEG)], 0.025 * L);
+    g += stick([mx, my], [mx + 0.15 * L * Math.cos((ang - 35) * DEG), my + 0.15 * L * Math.sin((ang - 35) * DEG)], 0.025 * L);
   }
+  g += stick([hx - 0.03 * L, hy + 0.01 * L], [kx, ky], 0.12 * L);
   // Jute-Wicklung
-  for (const bx of [0.18 * L, 0.82 * L]) for (let i = -2; i <= 2; i++) o += `<line x1="${P(bx + i * 0.025 * L - 0.04 * L, legH + 0.11 * L).split(',')[0]}" y1="${P(0, legH + 0.11 * L).split(',')[1]}" x2="${P(bx + i * 0.025 * L + 0.04 * L, 0).split(',')[0]}" y2="${P(0, legH - 0.07 * L).split(',')[1]}" stroke="${jt}" stroke-width="2.2"/>`;
-  // Ohr + Nase
-  o += `<ellipse cx="${P(hx + 0.02 * L, hy).split(',')[0]}" cy="${P(0, hy + 0.05 * L).split(',')[1]}" rx="${(0.06 * L * s).toFixed(1)}" ry="${(0.03 * L * s).toFixed(1)}" fill="#e9dcc7" transform="rotate(-30 ${P(hx + 0.02 * L, hy + 0.05 * L).replace(',', ' ')})"/>`;
-  o += `<circle cx="${P(kx, ky).split(',')[0]}" cy="${P(kx, ky).split(',')[1]}" r="${(0.04 * L * s).toFixed(1)}" fill="#c0392b"/>`;
-  let vb = `0 0 340 340`;
-  if (labels) {
-    const B = (x, y, n) => { const [a, b] = P(x, y).split(','); return badge(+a, +b, n); };
-    o += B(0.5 * L, legH + 0.22 * L, 1) + B(0.5 * L, legH * 0.45, 2) + B(nx + 0.05 * L, ny + 0.35 * L, 3) + B(kx + 0.12 * L, ky - 0.1 * L, 4) + B(hx - 0.35 * L, hy + 0.4 * L, 5);
+  for (const bx of [0.18 * L, 0.82 * L]) for (let i = 0; i < 6; i++) {
+    const A = P(bx - 0.07 * L + i * 0.028 * L, legH + 0.1 * L), B = P(bx - 0.03 * L + i * 0.028 * L, legH - 0.06 * L);
+    g += `<line x1="${f1(A[0])}" y1="${f1(A[1])}" x2="${f1(B[0])}" y2="${f1(B[1])}" stroke="#d9bf8a" stroke-width="${f1(Math.max(1.2, 0.018 * L * s))}" stroke-linecap="round"/>`;
   }
-  return `<svg viewBox="${vb}" role="img" aria-label="Ast-Rentier">${o}</svg>`;
+  const E = P(hx + 0.02 * L, hy + 0.05 * L), N = P(kx, ky), Ey = P(hx + 0.12 * L, hy + 0.0 * L);
+  g += `<ellipse cx="${f1(E[0])}" cy="${f1(E[1])}" rx="${f1(0.07 * L * s)}" ry="${f1(0.035 * L * s)}" fill="#e9dcc7" stroke="#cbb89b" stroke-width=".5" transform="rotate(-30 ${f1(E[0])} ${f1(E[1])})"/>`;
+  g += `<circle cx="${f1(Ey[0])}" cy="${f1(Ey[1])}" r="${f1(0.012 * L * s + 0.6)}" fill="#1d1510"/>`;
+  g += `<circle cx="${f1(N[0])}" cy="${f1(N[1])}" r="${f1(0.045 * L * s)}" fill="#d0342c"/><circle cx="${f1(N[0] - 0.012 * L * s)}" cy="${f1(N[1] - 0.015 * L * s)}" r="${f1(0.012 * L * s)}" fill="#fff" opacity=".7"/>`;
+  return {g, top: P(0.5 * L, legH + 0.1 * L)};
 }
+function rentierSVG(c, labels = true) {
+  const s = 170 / c.L, x0 = 40, yb = 326, L = c.L;
+  const {g} = rentierArt(c, {s, x0, yb});
+  const P = (x, y) => [x0 + x * s, yb - y * s];
+  const legH = 0.8 * L * Math.cos(15 * DEG), nx = L * 0.9, ny = legH + 0.05 * L, hx = nx + 0.5 * L * Math.cos(65 * DEG), hy = ny + 0.5 * L * Math.sin(65 * DEG);
+  const kx = hx + 0.33 * L * Math.cos(-20 * DEG), ky = hy + 0.33 * L * Math.sin(-20 * DEG);
+  const B = (x, y, n) => { const q = P(x, y); return badge(q[0], q[1], n); };
+  const lab = B(0.5 * L, legH + 0.22 * L, 1) + B(0.5 * L, legH * 0.45, 2) + B(nx + 0.05 * L, ny + 0.35 * L, 3) + B(kx + 0.12 * L, ky - 0.1 * L, 4) + B(hx - 0.35 * L, hy + 0.4 * L, 5);
+  return `<svg viewBox="0 0 340 340" role="img" aria-label="Ast-Rentier"><g filter="url(#f-sh)">${g}</g>${lab}</svg>`;
+}
+function heroRentier() {
+  const c = rentierCalc(150), s = 0.62;
+  let o = `<rect width="340" height="220" fill="url(#g-cream)"/>`;
+  const r = rng(5);
+  for (let i = 0; i < 14; i++) o += `<circle cx="${f1(r() * 340)}" cy="${f1(r() * 220)}" r="${f1(8 + 22 * r())}" fill="#f2c46b" opacity="${(0.08 + 0.15 * r()).toFixed(2)}" filter="url(#f-blur)"/>`;
+  const {g, top} = rentierArt(c, {s, x0: 110, yb: 196});
+  o += `<line x1="${f1(top[0])}" y1="0" x2="${f1(top[0])}" y2="${f1(top[1])}" stroke="#cbb07a" stroke-width="1.4"/>`;
+  o += `<g filter="url(#f-sh)">${g}</g>`;
+  const {g: g2, top: t2} = rentierArt(rentierCalc(150), {s: 0.38, x0: 32, yb: 150});
+  o += `<line x1="${f1(t2[0])}" y1="0" x2="${f1(t2[0])}" y2="${f1(t2[1])}" stroke="#cbb07a" stroke-width="1.1"/><g filter="url(#f-sh)" opacity=".92">${g2}</g>`;
+  return heroSVG(o, 'Rentiere aus Ästen als Baumschmuck');
+}
+
 const rentier = {
   id: 'rentier', junior: true,
   title: 'Rentier aus Ästen',
@@ -814,7 +1002,7 @@ const rentier = {
   range: [80, 400],
   sizeLabel: 'Körperlänge',
   calc: () => rentierCalc(state.rentier.H),
-  thumb: () => rentierSVG(rentierCalc(150), false),
+  thumb: () => heroRentier(), cat: 'holz',
   sizeExtra: () => '',
   ziel(c) {
     return `<div class="panel"><h3>Was baust du?</h3>
@@ -895,7 +1083,7 @@ const masu = {
   teaser: 'Japanische Faltschachtel aus einem einzigen Quadrat – ganz ohne Kleber. Perfekt als Geschenkverpackung.',
   tags: ['für alle', 'ohne Kleber', '15 Minuten'],
   presets: [50, 80, 100], range: [30, 200], sizeLabel: 'Seitenlänge der Schachtel',
-  calc: () => masuCalc(state.masu.H), thumb: () => masuSVG(masuCalc(80), false), sizeExtra: () => '',
+  calc: () => masuCalc(state.masu.H), thumb: () => heroMasu(), cat: 'papier', sizeExtra: () => '',
   ziel(c) {
     return `<div class="panel"><h3>Was falte ich?</h3>
       <p>Eine quadratische Schachtel, die nur durch Falten hält. Mit einem zweiten, minimal größeren Blatt faltest du den passenden Deckel. Gib oben die gewünschte Größe ein – die Seite rechnet aus, wie groß dein Papier sein muss.</p>
@@ -964,7 +1152,7 @@ const fenster = {
   teaser: 'Acht gefaltete Drachen ergeben einen leuchtenden Stern fürs Fenster. Mit zwei Lagen wird er noch schöner.',
   tags: ['für alle', 'ab 6 mit Hilfe', '30 Minuten'],
   presets: [200, 300, 400], range: [100, 800], sizeLabel: 'Durchmesser des Sterns',
-  calc: () => fensterCalc(state.fenster.H, state.fenster.lagen), thumb: () => fensterSVG(fensterCalc(300, 2), false),
+  calc: () => fensterCalc(state.fenster.H, state.fenster.lagen), thumb: () => heroFenster(), cat: 'papier',
   sizeExtra() { return `<label class="custom">Lagen <select data-k="lagen"><option value="1" ${state.fenster.lagen === '1' ? 'selected' : ''}>1 Lage (8 Zacken)</option><option value="2" ${state.fenster.lagen === '2' ? 'selected' : ''}>2 Lagen (16 Zacken)</option></select></label>`; },
   ziel(c) {
     return `<div class="panel"><h3>Was falte ich?</h3>
@@ -1025,7 +1213,7 @@ const flocke = {
   teaser: 'Sechszackige Schneeflocken – wie in echt. Mit dem 60°-Falttrick wird jede Flocke einzigartig.',
   tags: ['für alle', 'ab 6 Jahren', '10 Minuten pro Flocke'],
   presets: [150, 210], range: [80, 500], sizeLabel: 'Seitenlänge des Papierquadrats',
-  calc: () => flockeCalc(state.flocke.H), thumb: () => flockeSVG(flockeCalc(150), false), sizeExtra: () => '',
+  calc: () => flockeCalc(state.flocke.H), thumb: () => heroFlocke(), cat: 'papier', sizeExtra: () => '',
   ziel(c) {
     return `<div class="panel"><h3>Was schneide ich?</h3>
       <p>Echte Schneeflocken haben immer <b>6 Arme</b>. Mit einem besonderen Falttrick (in Drittel, also 60°) bekommt auch deine Papierflocke 6 gleiche Arme. Was du in das gefaltete Papier schneidest, taucht sechsmal (genauer: zwölfmal gespiegelt) wieder auf.</p>
@@ -1086,7 +1274,7 @@ const tuete = {
   teaser: 'Aus einfachen Brottüten wird ein großer, luftiger Stern – mit Klebestift, Schere und ein paar Ausschnitten.',
   tags: ['für alle', 'ab 8 Jahren', '30 Minuten'],
   presets: [240, 280, 350], range: [150, 500], sizeLabel: 'Länge der Brottüte',
-  calc: () => tueteCalc(state.tuete.H, state.tuete.n), thumb: () => tueteSVG(tueteCalc(280, 10), false),
+  calc: () => tueteCalc(state.tuete.H, state.tuete.n), thumb: () => heroTuete(), cat: 'papier',
   sizeExtra() { return `<label class="custom">Tüten <select data-k="n">${[7, 8, 10, 12].map(v => `<option ${+state.tuete.n === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>`; },
   ziel(c) {
     return `<div class="panel"><h3>Was bastle ich?</h3>
@@ -1121,7 +1309,369 @@ const tuete = {
   }
 };
 
-const PROJECTS = {tanne, stern, latte, advent, rentier, masu, fenster, flocke, tuete};
+/* ---- Papier-Titelbilder ---- */
+function heroMasu() {
+  let o = `<rect width="340" height="220" fill="url(#g-wall)"/><path d="M0 150 L340 130 V220 H0Z" fill="url(#g-table)"/>`;
+  const box = (x, y, w, h, pat, base, dark) => {
+    const top = [[x, y], [x + w, y - w * 0.5], [x + 2 * w, y], [x + w, y + w * 0.5]];
+    const left = [[x, y], [x + w, y + w * 0.5], [x + w, y + w * 0.5 + h], [x, y + h]];
+    const right = [[x + w, y + w * 0.5], [x + 2 * w, y], [x + 2 * w, y + h], [x + w, y + w * 0.5 + h]];
+    return `<polygon points="${P2(left)}" fill="${base}"/><polygon points="${P2(left)}" fill="url(#${pat})"/><polygon points="${P2(right)}" fill="${dark}"/><polygon points="${P2(right)}" fill="url(#${pat})" opacity=".7"/><polygon points="${P2(top)}" fill="${base}"/><polygon points="${P2(top)}" fill="url(#${pat})"/><polygon points="${P2(top)}" fill="#fff" opacity=".18"/>`;
+  };
+  o += `<ellipse cx="150" cy="196" rx="90" ry="14" fill="#000" opacity=".16" filter="url(#f-blur)"/>`;
+  o += `<g filter="url(#f-sh)">${box(70, 140, 80, 46, 'p-dots', '#c0392b', '#962d22')}</g>`;
+  // Schleife
+  o += `<path d="M110 120 L150 140 L190 120" stroke="#f4d27a" stroke-width="5" fill="none"/><path d="M150 140 L150 186" stroke="#e0b94f" stroke-width="5"/>`;
+  o += `<path d="M150 118 q-22 -16 -26 -2 q4 12 26 2 q22 -16 26 -2 q-4 12 -26 2" fill="#f4d27a" stroke="#c99a2e" stroke-width="1"/>`;
+  o += `<g filter="url(#f-sh)">${box(214, 118, 46, 30, 'p-stripes', '#2f7a4a', '#225b37')}</g>`;
+  o += `<g filter="url(#f-sh)" transform="rotate(-14 260 74)">${box(200, 78, 48, 12, 'p-stripes', '#2f7a4a', '#225b37')}</g>`;
+  return heroSVG(o, 'Masu-Schachteln aus Papier');
+}
+function heroFenster() {
+  let o = `<rect width="340" height="220" fill="#5b4636"/><rect x="22" y="14" width="296" height="196" fill="url(#g-night)"/>${snowDots(340, 220, 50, 4, '#fff', .6)}`;
+  o += halo(170, 110, 110, 100, .55);
+  const c = fensterCalc(300, 2), R = 92, cx = 170, cy = 110, a = R / Math.SQRT2;
+  const kite = (rot, col, sc) => `<polygon points="0,0 ${f1(a * sc)},${f1(0.4142 * a * sc)} ${f1(R * sc)},0 ${f1(a * sc)},${f1(-0.4142 * a * sc)}" transform="translate(${cx} ${cy}) rotate(${rot})" fill="${col}" fill-opacity=".62" stroke="#fff6d8" stroke-opacity=".7" stroke-width=".7"/>`;
+  let st = '';
+  for (let k = 0; k < 8; k++) st += kite(22.5 + k * 45, '#f29a4a', 0.8);
+  for (let k = 0; k < 8; k++) st += kite(k * 45 - 90, ['#ffd45c', '#ff9f43', '#ffd45c', '#f26b3a'][k % 4], 1);
+  o += `<g filter="url(#f-softglow)">${st}</g>`;
+  o += `<rect x="22" y="14" width="296" height="196" fill="none" stroke="#6b5442" stroke-width="10"/><rect x="166" y="14" width="8" height="196" fill="#6b5442"/><rect x="22" y="108" width="296" height="7" fill="#6b5442"/>`;
+  o += `<rect x="0" y="200" width="340" height="20" fill="#e9dccb"/>`;
+  return heroSVG(o, 'Leuchtender Fensterstern');
+}
+function flakeArm(R, col, w) {
+  return `<path d="M0 0 L0 ${-R}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>` +
+    [0.35, 0.6, 0.82].map((f, i) => { const l = R * [0.3, 0.24, 0.14][i]; return `<path d="M0 ${f1(-R * f)} l${f1(l * 0.866)} ${f1(-l * 0.5)} M0 ${f1(-R * f)} l${f1(-l * 0.866)} ${f1(-l * 0.5)}" stroke="${col}" stroke-width="${f1(w * 0.75)}" stroke-linecap="round"/>`; }).join('');
+}
+const flake = (cx, cy, R, rot, col = '#fff', w = 4) => `<g transform="translate(${cx} ${cy}) rotate(${rot})">${[0, 1, 2, 3, 4, 5].map(k => `<g transform="rotate(${k * 60})">${flakeArm(R, col, w)}</g>`).join('')}<circle r="${f1(R * 0.1)}" fill="${col}"/></g>`;
+function heroFlocke() {
+  let o = `<rect width="340" height="220" fill="url(#g-ice)"/>${snowDots(340, 220, 60, 8, '#fff', .9)}`;
+  o += `<g filter="url(#f-sh2)">${flake(115, 112, 78, 8)}${flake(250, 70, 42, 20, '#eaf4ff', 3)}${flake(262, 168, 32, 0, '#fff', 2.6)}${flake(40, 40, 20, 12, '#eaf4ff', 2)}</g>`;
+  return heroSVG(o, 'Papier-Schneeflocken');
+}
+function tueteStar(cx, cy, R, n, base, dark, holes) {
+  const half = Math.tan(Math.PI / n) * R * 0.95;
+  let g = '';
+  for (let k = 0; k < n; k++) {
+    g += `<g transform="translate(${cx} ${cy}) rotate(${k * 360 / n})"><polygon points="0,0 ${f1(half * 0.55)},${f1(-R * 0.72)} 0,${-R}" fill="${dark}"/><polygon points="0,0 ${f1(-half * 0.55)},${f1(-R * 0.72)} 0,${-R}" fill="${base}"/><line x1="0" y1="0" x2="0" y2="${-R}" stroke="#000" stroke-opacity=".12" stroke-width=".6"/><polygon points="0,${f1(-R * 0.42)} ${f1(R * .04)},${f1(-R * 0.5)} 0,${f1(-R * 0.58)} ${f1(-R * .04)},${f1(-R * 0.5)}" fill="${holes}"/><circle cy="${f1(-R * 0.25)}" r="${f1(R * .025)}" fill="${holes}"/></g>`;
+  }
+  return g;
+}
+function heroTuete() {
+  let o = `<rect width="340" height="220" fill="url(#g-wall)"/>`;
+  o += `<line x1="140" y1="0" x2="140" y2="28" stroke="#9c7b52" stroke-width="1.2"/><line x1="268" y1="0" x2="268" y2="70" stroke="#9c7b52" stroke-width="1"/>`;
+  o += `<g filter="url(#f-sh)">${tueteStar(140, 118, 92, 10, '#d3ab7c', '#b58a5a', '#f3ece2')}</g>`;
+  o += `<g filter="url(#f-sh)">${tueteStar(268, 120, 50, 8, '#faf7f0', '#e4ddd0', '#f3ece2')}</g>`;
+  return heroSVG(o, 'Sterne aus Brottüten');
+}
+
+/* ================= MALEREI ================= */
+const SCRIPT = "'Dancing Script','Segoe Script','Brush Script MT','Snell Roundhand','URW Chancery L','Comic Sans MS',cursive";
+const FORMATS = {105: {w: 105, h: 148, name: 'Postkarte A6'}, 145: {w: 145, h: 145, name: 'Quadratkarte'}, 148: {w: 148, h: 210, name: 'A5'}, 210: {w: 210, h: 297, name: 'A4-Bild'}};
+const YEAR = new Date().getFullYear();
+function malCalc(id) {
+  const f = FORMATS[state[id].H] || FORMATS[105], k = 340 / f.w;
+  return {f, k, W: 340, H: f.h * k, u: Math.min(340, f.h * k / 1.41)};
+}
+const mmOf = (c, px) => px / c.k;                    // px → mm
+const cmOf = (c, px) => fmt(px / c.k / 10, 1);       // px → cm-Text
+const paperBg = c => `<rect width="${c.W}" height="${f1(c.H)}" fill="#fbf8f1"/><rect width="${c.W}" height="${f1(c.H)}" filter="url(#f-noise)"/>`;
+function splatter(c, n, col, seed, maxR = 2.6) {
+  const r = rng(seed); let o = '';
+  for (let i = 0; i < n; i++) o += `<circle cx="${f1(r() * c.W)}" cy="${f1(r() * c.H)}" r="${f1(0.5 + maxR * r() ** 3)}" fill="${col}" opacity="${(0.3 + 0.45 * r()).toFixed(2)}"/>`;
+  return o;
+}
+function band(x1, y1, x2, y2, seed, col = '#e8cb72') {
+  const r = rng(seed), top = [], bot = [], sl = -(y2 - y1) * 0.35;
+  for (let i = 0; i <= 8; i++) { const t = i / 8, x = x1 + (x2 - x1) * t; top.push([x + (r() - .5) * 6, y1 + sl * t + (r() - .5) * 4]); bot.push([x + (r() - .5) * 6, y2 + sl * t + (r() - .5) * 4]); }
+  return `<polygon points="${P2(top.concat(bot.reverse()))}" fill="${col}" fill-opacity=".55" filter="url(#f-wc)"/>`;
+}
+function aqTree(cx, yb, Ht, Wd, seed) {
+  const r = rng(seed), pal = ['#2f5fa8', '#3f74c0', '#5b8ad0', '#284d8c', '#1f3f7a', '#6f93cf', '#4a6fa5'];
+  let o = '';
+  const n = 30;
+  for (let pass = 0; pass < 2; pass++) for (let i = 0; i < n; i++) {
+    const t = i / (n - 1), y = yb - Ht + t * Ht * 0.98 + (r() - .5) * Ht * 0.02;
+    const base = (0.04 + 0.96 * t) * Wd / 2;
+    const th = Ht / n * (0.55 + 0.5 * r()) * (pass ? 0.7 : 1);
+    for (const sg of [-1, 1]) {
+      const hw = base * (0.65 + 0.5 * r()) * (pass ? 0.8 : 1), droop = th * (0.6 + 1.4 * r()), x0 = cx + (r() - .5) * Wd * 0.03;
+      const col = pass ? pal[4 - Math.floor(r() * 2)] : pal[Math.floor(r() * pal.length)];
+      const op = (pass ? 0.25 + 0.3 * r() : 0.35 + 0.4 * r()).toFixed(2);
+      const xe = x0 + sg * hw;
+      o += `<path d="M${f1(x0)} ${f1(y - th)} Q${f1(x0 + sg * hw * 0.55)} ${f1(y - th * 0.8)} ${f1(xe)} ${f1(y + droop)} Q${f1(x0 + sg * hw * 0.45)} ${f1(y + th * 0.9)} ${f1(x0)} ${f1(y + th * 0.6)}Z" fill="${col}" fill-opacity="${op}"/>`;
+    }
+  }
+  o += `<path d="M${f1(cx)} ${f1(yb - Ht * 1.05)} L${f1(cx + Wd * 0.03)} ${f1(yb - Ht + Ht * 0.12)} L${f1(cx - Wd * 0.03)} ${f1(yb - Ht + Ht * 0.12)}Z" fill="#2f5fa8" fill-opacity=".7"/>`;
+  return `<g filter="url(#f-wc)">${o}</g>`;
+}
+function groundStrokes(c, y, seed) {
+  const r = rng(seed); let o = '';
+  for (let i = 0; i < 9; i++) { const x = r() * c.W * 0.9 - 10, w = 40 + r() * 120, yy = y + (r() - .3) * 14; o += `<path d="M${f1(x)} ${f1(yy)} q${f1(w / 2)} ${f1(-4 - 3 * r())} ${f1(w)} 0 q${f1(-w / 2)} ${f1(5)} ${f1(-w)} 0Z" fill="${r() > .5 ? '#6b7f99' : '#3f5f93'}" fill-opacity="${(0.25 + 0.35 * r()).toFixed(2)}"/>`; }
+  return `<g filter="url(#f-wc)">${o}</g>`;
+}
+/* ---- Aquarell-Tannen ---- */
+function aqGeo(c) {
+  const {W, H} = c;
+  return {t1: {cx: 0.3 * W, yb: 0.88 * H, h: 0.55 * H, w: 0.46 * W}, t2: {cx: 0.73 * W, yb: 0.86 * H, h: 0.42 * H, w: 0.34 * W}, b1: [0.06 * W, 0.12 * H, 0.82 * W, 0.12 * H + 0.075 * H], b2: [0.45 * W, 0.235 * H, 0.8 * W, 0.235 * H + 0.06 * H]};
+}
+function paintAq(c) {
+  const g = aqGeo(c), fs = 0.115 * c.W;
+  let o = paperBg(c) + splatter(c, 80, '#6f8fc4', 3);
+  o += band(...g.b1, 4) + band(...g.b2, 9);
+  o += groundStrokes(c, g.t1.yb, 7);
+  o += aqTree(g.t1.cx, g.t1.yb, g.t1.h, g.t1.w, 11) + aqTree(g.t2.cx, g.t2.yb, g.t2.h, g.t2.w, 23);
+  o += `<text x="${f1(0.1 * c.W)}" y="${f1(g.b1[3] - 0.012 * c.H)}" font-family="${SCRIPT}" font-size="${f1(fs)}" fill="#1c1c1c" transform="rotate(-3 ${f1(0.1 * c.W)} ${f1(g.b1[3])})">Weihnachten</text>`;
+  o += `<text x="${f1(0.52 * c.W)}" y="${f1(g.b2[3] - 0.008 * c.H)}" font-family="${SCRIPT}" font-size="${f1(fs * 0.95)}" fill="#1c1c1c" transform="rotate(-3 ${f1(0.52 * c.W)} ${f1(g.b2[3])})">${YEAR}</text>`;
+  return o;
+}
+function planAq(c) {
+  const g = aqGeo(c);
+  let o = '';
+  for (const [t, n] of [[g.t1, 1], [g.t2, 2]]) {
+    o += `<line x1="${f1(t.cx)}" y1="${f1(t.yb - t.h - 6)}" x2="${f1(t.cx)}" y2="${f1(t.yb + 6)}" stroke="#555" stroke-dasharray="4 3"/>`;
+    o += `<polyline points="${P2([[t.cx - t.w / 2, t.yb], [t.cx, t.yb - t.h], [t.cx + t.w / 2, t.yb], [t.cx - t.w / 2, t.yb]])}" fill="none" stroke="#555" stroke-width="1" stroke-dasharray="2 3"/>`;
+    o += badge(t.cx + t.w / 2 + 4, t.yb - t.h * 0.55, n);
+  }
+  o += `<rect x="${f1(g.b1[0])}" y="${f1(g.b1[1])}" width="${f1(g.b1[2] - g.b1[0])}" height="${f1(g.b1[3] - g.b1[1])}" fill="none" stroke="#555" stroke-dasharray="4 3"/>` + badge(g.b1[2] + 4, g.b1[1] + 8, 3);
+  return o;
+}
+function tableAq(c) {
+  const g = aqGeo(c), cmX = v => cmOf(c, v);
+  return partsTable([
+    ['Tanne 1 (groß)', 1, `Mitte <b>${cmX(g.t1.cx)} cm</b> von links · Spitze <b>${cmX(g.t1.yb - g.t1.h)} cm</b> von oben`, `Fußlinie ${cmX(g.t1.yb)} cm von oben · unten ${cmX(g.t1.w)} cm breit`],
+    ['Tanne 2 (klein)', 1, `Mitte <b>${cmX(g.t2.cx)} cm</b> von links · Spitze <b>${cmX(g.t2.yb - g.t2.h)} cm</b> von oben`, `Fußlinie ${cmX(g.t2.yb)} cm von oben · unten ${cmX(g.t2.w)} cm breit`],
+    ['Goldband + Schrift', 2, `oben <b>${cmX(g.b1[1])}–${cmX(g.b1[3])} cm</b> von oben`, `zweites Band ab ${cmX(g.b2[0])} cm von links`]
+  ]);
+}
+/* ---- Schneemann von unten ---- */
+function schneeGeo(c) {
+  const {W, H, u} = c, cx = W / 2;
+  const body = {cx, cy: H + 0.18 * u, r: 0.62 * u}, mid = {cx, cy: H - 0.55 * u, r: 0.3 * u}, head = {cx, cy: H - 1.07 * u, r: 0.17 * u};
+  return {body, mid, head, u};
+}
+function snowBall(b) { return `<circle cx="${f1(b.cx)}" cy="${f1(b.cy)}" r="${f1(b.r)}" fill="url(#g-snow)" stroke="#a9bfd8" stroke-width="1.2" filter="url(#f-wc2)"/>`; }
+function paintSchnee(c) {
+  const {body, mid, head, u} = schneeGeo(c), W = c.W, H = c.H;
+  let o = `<rect width="${W}" height="${f1(H)}" fill="url(#g-sky)"/><rect width="${W}" height="${f1(H)}" filter="url(#f-noise)"/>`;
+  o += `<g filter="url(#f-wc)" opacity=".5">${[0.2, 0.55, 0.8].map((x, i) => `<ellipse cx="${f1(x * W)}" cy="${f1((0.1 + 0.15 * i) * H)}" rx="${f1(0.25 * W)}" ry="${f1(0.06 * H)}" fill="#c3dbf2"/>`).join('')}</g>`;
+  o += splatter(c, 70, '#ffffff', 31, 3.2);
+  // Arme
+  const arm = sg => { const x1 = mid.cx + sg * 0.26 * u, y1 = mid.cy - 0.08 * u, x2 = mid.cx + sg * 0.5 * u, y2 = mid.cy - 0.42 * u; return `<path d="M${f1(x1)} ${f1(y1)} L${f1(x2)} ${f1(y2)} M${f1(x1 + sg * 0.14 * u)} ${f1(y1 - 0.18 * u)} l${f1(sg * 0.1 * u)} ${f1(-0.02 * u)}" stroke="#6b4a2e" stroke-width="${f1(0.025 * u)}" stroke-linecap="round" fill="none"/>`; };
+  o += arm(-1) + arm(1);
+  o += snowBall(head);
+  // Hutkrempe von unten
+  o += `<ellipse cx="${f1(head.cx)}" cy="${f1(head.cy - 0.13 * u)}" rx="${f1(0.22 * u)}" ry="${f1(0.06 * u)}" fill="#26303d"/><rect x="${f1(head.cx - 0.13 * u)}" y="${f1(head.cy - 0.24 * u)}" width="${f1(0.26 * u)}" height="${f1(0.1 * u)}" fill="#26303d"/><rect x="${f1(head.cx - 0.13 * u)}" y="${f1(head.cy - 0.17 * u)}" width="${f1(0.26 * u)}" height="${f1(0.03 * u)}" fill="#c0392b"/>`;
+  // Gesicht
+  const ey = head.cy + 0.02 * u;
+  o += `<circle cx="${f1(head.cx - 0.06 * u)}" cy="${f1(ey)}" r="${f1(0.018 * u)}" fill="#1d1d1d"/><circle cx="${f1(head.cx + 0.06 * u)}" cy="${f1(ey)}" r="${f1(0.018 * u)}" fill="#1d1d1d"/>`;
+  o += `<path d="M${f1(head.cx - 0.025 * u)} ${f1(ey + 0.045 * u)} L${f1(head.cx + 0.03 * u)} ${f1(ey + 0.04 * u)} L${f1(head.cx + 0.05 * u)} ${f1(ey + 0.2 * u)}Z" fill="#f07c1e" stroke="#c45f10" stroke-width=".8"/>`;
+  o += [-2, -1, 0, 1, 2].map(i => `<circle cx="${f1(head.cx - 0.04 * u + i * 0.025 * u)}" cy="${f1(ey + 0.105 * u + Math.abs(i) * -0.008 * u)}" r="${f1(0.009 * u)}" fill="#1d1d1d"/>`).join('');
+  o += snowBall(mid);
+  // Schal
+  o += `<path d="M${f1(head.cx - 0.2 * u)} ${f1(mid.cy - 0.29 * u)} Q${f1(head.cx)} ${f1(mid.cy - 0.22 * u)} ${f1(head.cx + 0.2 * u)} ${f1(mid.cy - 0.29 * u)} L${f1(head.cx + 0.19 * u)} ${f1(mid.cy - 0.24 * u)} Q${f1(head.cx)} ${f1(mid.cy - 0.16 * u)} ${f1(head.cx - 0.19 * u)} ${f1(mid.cy - 0.24 * u)}Z" fill="#c8323c" filter="url(#f-wc2)"/>`;
+  o += `<path d="M${f1(head.cx + 0.08 * u)} ${f1(mid.cy - 0.22 * u)} l${f1(0.07 * u)} 0 l${f1(0.03 * u)} ${f1(0.24 * u)} l${f1(-0.07 * u)} 0Z" fill="#b72a34"/>`;
+  o += `<circle cx="${f1(mid.cx)}" cy="${f1(mid.cy - 0.06 * u)}" r="${f1(0.025 * u)}" fill="#26303d"/><circle cx="${f1(mid.cx)}" cy="${f1(mid.cy + 0.05 * u)}" r="${f1(0.025 * u)}" fill="#26303d"/>`;
+  o += snowBall(body);
+  o += `<text x="${f1(W / 2)}" y="${f1(H - 0.12 * u)}" text-anchor="middle" font-family="${SCRIPT}" font-size="${f1(0.085 * u)}" fill="#2c4f8a">Frohe Weihnachten!</text>`;
+  o += `<text x="${f1(0.05 * W)}" y="${f1(0.07 * H + 0.07 * u)}" font-family="${SCRIPT}" font-size="${f1(0.07 * u)}" fill="#1f3b66" transform="rotate(-8 ${f1(0.05 * W)} ${f1(0.07 * H)})">Hallo</text><text x="${f1(0.05 * W)}" y="${f1(0.07 * H + 0.16 * u)}" font-family="${SCRIPT}" font-size="${f1(0.07 * u)}" fill="#1f3b66" transform="rotate(-8 ${f1(0.05 * W)} ${f1(0.07 * H)})">da unten!</text>`;
+  return o;
+}
+function planSchnee(c) {
+  const {body, mid, head} = schneeGeo(c);
+  let o = '';
+  [[head, 1], [mid, 2], [body, 3]].forEach(([b, n]) => {
+    o += `<circle cx="${f1(b.cx)}" cy="${f1(b.cy)}" r="${f1(b.r)}" fill="none" stroke="#555" stroke-dasharray="4 3"/><circle cx="${f1(b.cx)}" cy="${f1(b.cy)}" r="2.5" fill="#555"/>`;
+    o += badge(b.cx + b.r * 0.72 + 4, Math.min(b.cy - b.r * 0.72, c.H - 16), n);
+  });
+  return o;
+}
+function tableSchnee(c) {
+  const {body, mid, head} = schneeGeo(c), cmX = v => cmOf(c, v);
+  const tpl = d => { const mmD = mmOf(c, d); return mmD < 60 ? 'Schnapsglas/Deckel' : mmD < 95 ? 'Glas/Tasse' : mmD < 170 ? 'Untertasse/Schälchen' : 'Teller'; };
+  return partsTable([
+    ['Kopf (Kreis 1)', 1, `Ø <b>${cmX(2 * head.r)} cm</b> · Mitte <b>${cmX(head.cy)} cm</b> von oben`, `waagerecht mittig · Schablone: ${tpl(2 * head.r)}`],
+    ['Bauch (Kreis 2)', 1, `Ø <b>${cmX(2 * mid.r)} cm</b> · Mitte <b>${cmX(mid.cy)} cm</b> von oben`, `Schablone: ${tpl(2 * mid.r)}`],
+    ['Unterteil (Kreis 3)', 1, `Ø <b>${cmX(2 * body.r)} cm</b> · Mitte <b>${cmX(body.cy - c.H)} cm unter</b> der Karte`, `${tpl(2 * body.r)} über die Unterkante hinaus anlegen – nur der Bogen ist zu sehen`]
+  ]);
+}
+/* ---- Wichtel ---- */
+function wichtelGeo(c) {
+  const {W, H, u} = c;
+  return [{cx: 0.3 * W, yb: H - 0.17 * u, s: 0.3 * u, hat: '#c8323c', bend: 0.3}, {cx: 0.64 * W, yb: H - 0.2 * u, s: 0.23 * u, hat: '#2f7a4a', bend: -0.25}, {cx: 0.86 * W, yb: H - 0.14 * u, s: 0.15 * u, hat: '#3b5b8a', bend: 0.2}];
+}
+function gnome(g) {
+  const {cx, yb, s, hat, bend} = g;
+  let o = `<ellipse cx="${f1(cx)}" cy="${f1(yb + 0.06 * s)}" rx="${f1(0.55 * s)}" ry="${f1(0.08 * s)}" fill="#9fb3cc" opacity=".5"/>`;
+  o += `<ellipse cx="${f1(cx - 0.17 * s)}" cy="${f1(yb)}" rx="${f1(0.14 * s)}" ry="${f1(0.08 * s)}" fill="#3a2a20"/><ellipse cx="${f1(cx + 0.17 * s)}" cy="${f1(yb)}" rx="${f1(0.14 * s)}" ry="${f1(0.08 * s)}" fill="#3a2a20"/>`;
+  o += `<path d="M${f1(cx - 0.42 * s)} ${f1(yb - 0.5 * s)} C${f1(cx - 0.5 * s)} ${f1(yb - 0.15 * s)} ${f1(cx - 0.15 * s)} ${f1(yb + 0.02 * s)} ${f1(cx)} ${f1(yb + 0.06 * s)} C${f1(cx + 0.15 * s)} ${f1(yb + 0.02 * s)} ${f1(cx + 0.5 * s)} ${f1(yb - 0.15 * s)} ${f1(cx + 0.42 * s)} ${f1(yb - 0.5 * s)}Z" fill="#f4f1ea" stroke="#c9c1b2" stroke-width="1" filter="url(#f-wc2)"/>`;
+  o += [-0.2, 0, 0.2].map(d => `<path d="M${f1(cx + d * s)} ${f1(yb - 0.38 * s)} q${f1(0.05 * s)} ${f1(0.12 * s)} 0 ${f1(0.25 * s)}" stroke="#cfc6b6" stroke-width="1" fill="none"/>`).join('');
+  o += `<circle cx="${f1(cx - 0.44 * s)}" cy="${f1(yb - 0.32 * s)}" r="${f1(0.09 * s)}" fill="${hat}" filter="url(#f-wc2)"/><circle cx="${f1(cx + 0.44 * s)}" cy="${f1(yb - 0.32 * s)}" r="${f1(0.09 * s)}" fill="${hat}" filter="url(#f-wc2)"/>`;
+  const tx = cx + bend * s, ty = yb - 1.75 * s;
+  o += `<path d="M${f1(cx - 0.5 * s)} ${f1(yb - 0.48 * s)} Q${f1(cx - 0.22 * s)} ${f1(yb - 1.2 * s)} ${f1(tx)} ${f1(ty)} Q${f1(cx + 0.28 * s)} ${f1(yb - 1.05 * s)} ${f1(cx + 0.5 * s)} ${f1(yb - 0.48 * s)} Q${f1(cx)} ${f1(yb - 0.4 * s)} ${f1(cx - 0.5 * s)} ${f1(yb - 0.48 * s)}Z" fill="${hat}" filter="url(#f-wc2)"/>`;
+  o += `<path d="M${f1(cx - 0.5 * s)} ${f1(yb - 0.48 * s)} Q${f1(cx)} ${f1(yb - 0.38 * s)} ${f1(cx + 0.5 * s)} ${f1(yb - 0.48 * s)}" stroke="#fff" stroke-opacity=".35" stroke-width="${f1(0.05 * s)}" fill="none"/>`;
+  o += `<circle cx="${f1(tx)}" cy="${f1(ty)}" r="${f1(0.08 * s)}" fill="#fff" stroke="#ddd"/>`;
+  o += `<ellipse cx="${f1(cx)}" cy="${f1(yb - 0.5 * s)}" rx="${f1(0.13 * s)}" ry="${f1(0.11 * s)}" fill="#e9978a"/><circle cx="${f1(cx - 0.04 * s)}" cy="${f1(yb - 0.54 * s)}" r="${f1(0.03 * s)}" fill="#fff" opacity=".7"/>`;
+  return o;
+}
+function paintWichtel(c) {
+  const {W, H, u} = c;
+  let o = paperBg(c) + splatter(c, 50, '#9fb8d8', 41, 2.4);
+  o += `<path d="M0 ${f1(H - 0.24 * u)} Q${f1(W * 0.35)} ${f1(H - 0.34 * u)} ${f1(W * 0.7)} ${f1(H - 0.25 * u)} T${W} ${f1(H - 0.28 * u)} V${f1(H)} H0Z" fill="#e7eef7" filter="url(#f-wc)"/><path d="M0 ${f1(H - 0.12 * u)} Q${f1(W * 0.5)} ${f1(H - 0.2 * u)} ${W} ${f1(H - 0.1 * u)}" stroke="#b9cbe0" stroke-width="3" fill="none" filter="url(#f-wc)"/>`;
+  o += wichtelGeo(c).map(gnome).join('');
+  o += `<text x="${f1(0.08 * W)}" y="${f1(0.06 * H + 0.12 * u)}" font-family="${SCRIPT}" font-size="${f1(0.13 * u)}" fill="#b02a33" transform="rotate(-6 ${f1(0.08 * W)} ${f1(0.06 * H)})">Hohoho!</text>`;
+  return o;
+}
+function planWichtel(c) {
+  return wichtelGeo(c).map((g, i) => `<polyline points="${P2([[g.cx - 0.5 * g.s, g.yb - 0.48 * g.s], [g.cx + g.bend * g.s, g.yb - 1.75 * g.s], [g.cx + 0.5 * g.s, g.yb - 0.48 * g.s]])}" fill="none" stroke="#555" stroke-dasharray="4 3"/><ellipse cx="${f1(g.cx)}" cy="${f1(g.yb - 0.22 * g.s)}" rx="${f1(0.46 * g.s)}" ry="${f1(0.3 * g.s)}" fill="none" stroke="#555" stroke-dasharray="2 3"/>${badge(g.cx + 0.55 * g.s + 6, g.yb - 1.1 * g.s, i + 1)}`).join('');
+}
+function tableWichtel(c) {
+  const cmX = v => cmOf(c, v);
+  return partsTable(wichtelGeo(c).map((g, i) => [`Wichtel ${i + 1}`, 1, `Mütze <b>${cmX(1.27 * g.s)} cm</b> hoch, <b>${cmX(g.s)} cm</b> breit`, `Mitte ${cmX(g.cx)} cm von links · Füße ${cmX(g.yb)} cm von oben`]));
+}
+/* ---- Fingerabdruck-Lichterkette ---- */
+function ketteGeo(c) {
+  const {W, H, u} = c;
+  const rows = [[[-5, 0.3 * H], [0.3 * W, 0.16 * H], [0.62 * W, 0.46 * H], [W + 5, 0.28 * H]], [[-5, 0.6 * H], [0.35 * W, 0.47 * H], [0.68 * W, 0.78 * H], [W + 5, 0.58 * H]]];
+  const bez = (p, t) => { const m = 1 - t; return [m * m * m * p[0][0] + 3 * m * m * t * p[1][0] + 3 * m * t * t * p[2][0] + t * t * t * p[3][0], m * m * m * p[0][1] + 3 * m * m * t * p[1][1] + 3 * m * t * t * p[2][1] + t * t * t * p[3][1]]; };
+  const step = 19 * c.k, bulbs = [];
+  rows.forEach((p, ri) => {
+    const pts = Array.from({length: 201}, (_, i) => bez(p, i / 200));
+    sampleLine(pts, step).forEach((q, i) => { if (q[0] > 6 && q[0] < W - 6) { const j = pts.findIndex(z => z[0] >= q[0]); const a = pts[Math.max(0, j - 1)], b = pts[Math.min(200, j + 1)]; bulbs.push({x: q[0], y: q[1], ang: Math.atan2(b[1] - a[1], b[0] - a[0]) / DEG, i: i + ri * 3}); } });
+  });
+  return {rows, bulbs};
+}
+function paintKette(c) {
+  const {rows, bulbs} = ketteGeo(c), k = c.k, cols = ['#e63946', '#f4a261', '#2a9d8f', '#457b9d', '#e9c46a', '#d66ba0'];
+  let o = paperBg(c);
+  o += rows.map(p => `<path d="M${P2([p[0]])} C${P2([p[1], p[2], p[3]])}" fill="none" stroke="#2b2b2b" stroke-width="${f1(0.5 * k)}" stroke-linecap="round"/>`).join('');
+  o += bulbs.map(b => {
+    const col = cols[b.i % cols.length];
+    return `<g transform="translate(${f1(b.x)} ${f1(b.y)}) rotate(${f1(b.ang)})"><rect x="${f1(-2.2 * k)}" y="${f1(-0.5 * k)}" width="${f1(4.4 * k)}" height="${f1(3.4 * k)}" rx="${f1(0.6 * k)}" fill="#4a4a4a"/>
+      <g filter="url(#f-wc2)"><ellipse cx="0" cy="${f1(9 * k)}" rx="${f1(5.6 * k)}" ry="${f1(7.2 * k)}" fill="${col}" fill-opacity=".9"/></g>
+      ${[2.2, 3.6, 5].map(r => `<ellipse cx="0" cy="${f1(9.4 * k)}" rx="${f1(r * k * 0.8)}" ry="${f1(r * k)}" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="${f1(0.35 * k)}"/>`).join('')}
+      <circle cx="${f1(-1.9 * k)}" cy="${f1(8.4 * k)}" r="${f1(0.75 * k)}" fill="#1d1d1d"/><circle cx="${f1(1.9 * k)}" cy="${f1(8.4 * k)}" r="${f1(0.75 * k)}" fill="#1d1d1d"/>
+      <path d="M${f1(-2 * k)} ${f1(11 * k)} Q0 ${f1(13.2 * k)} ${f1(2 * k)} ${f1(11 * k)}" stroke="#1d1d1d" stroke-width="${f1(0.45 * k)}" fill="none" stroke-linecap="round"/></g>`;
+  }).join('');
+  o += `<text x="${f1(c.W / 2)}" y="${f1(c.H - 0.07 * c.u)}" text-anchor="middle" font-family="${SCRIPT}" font-size="${f1(0.085 * c.u)}" fill="#2b2b2b">Leuchtende Weihnachten!</text>`;
+  return o;
+}
+function planKette(c) {
+  const {rows, bulbs} = ketteGeo(c);
+  return rows.map((p, i) => `<path d="M${P2([p[0]])} C${P2([p[1], p[2], p[3]])}" fill="none" stroke="#555" stroke-dasharray="5 3" stroke-width="1.4"/>${badge(Math.min(c.W - 16, p[3][0] - 26), p[3][1] - 22, i + 1)}`).join('') + bulbs.map(b => `<circle cx="${f1(b.x)}" cy="${f1(b.y)}" r="3" fill="#555"/>`).join('');
+}
+function tableKette(c) {
+  const {rows, bulbs} = ketteGeo(c), cmX = v => cmOf(c, v);
+  return partsTable([['Kabel 1 (oben)', 1, `links <b>${cmX(rows[0][0][1])} cm</b> · rechts <b>${cmX(rows[0][3][1])} cm</b> von oben`, 'Welle: in der Mitte nach oben, rechts nach unten'], ['Kabel 2 (unten)', 1, `links <b>${cmX(rows[1][0][1])} cm</b> · rechts <b>${cmX(rows[1][3][1])} cm</b> von oben`, 'Welle gegengleich zum oberen Kabel'], ['Fingerabdrücke', bulbs.length, `alle <b>ca. 1,9 cm</b> ein Lämpchen`, '6 Farben im Wechsel']]);
+}
+/* ---- gemeinsame Bausteine ---- */
+const cardSVG = (c, inner, label) => `<svg viewBox="0 0 ${c.W} ${f1(c.H)}" role="img" aria-label="${esc(label)}">${inner}</svg>`;
+function planSVG(c, paint, plan, label) {
+  const pad = 30;
+  return `<svg viewBox="${-pad} -10 ${c.W + 2 * pad} ${f1(c.H + 46)}" role="img" aria-label="${esc(label)}"><g opacity=".42">${paint}</g><rect width="${c.W}" height="${f1(c.H)}" fill="none" stroke="#2b2118" stroke-width="1.2"/>${plan}
+    <line x1="0" y1="${f1(c.H + 16)}" x2="${c.W}" y2="${f1(c.H + 16)}" stroke="#2b2118"/><text x="${c.W / 2}" y="${f1(c.H + 34)}" text-anchor="middle" font-size="15" font-weight="700" fill="#2b2118">${fmt(c.f.w / 10, 1)} × ${fmt(c.f.h / 10, 1)} cm</text></svg>`;
+}
+function heroCard(paint, c, label) {
+  const sc = Math.min(150 / c.H, 170 / c.W);
+  let o = `<rect width="340" height="220" fill="url(#g-table)"/>`;
+  for (let i = 0; i < 6; i++) o += `<path d="M0 ${30 + i * 38} Q170 ${24 + i * 38} 340 ${34 + i * 38}" stroke="#6b4426" stroke-opacity=".12" fill="none"/>`;
+  const cw = c.W * sc, ch = c.H * sc, x = 160 - cw / 2, y = 112 - ch / 2;
+  o += `<g transform="translate(${f1(x)} ${f1(y)}) rotate(-4 ${f1(cw / 2)} ${f1(ch / 2)})"><rect x="3" y="5" width="${f1(cw)}" height="${f1(ch)}" fill="#000" opacity=".25" filter="url(#f-blur)"/><g transform="scale(${sc.toFixed(4)})">${paint}</g></g>`;
+  // Malkasten + Pinsel
+  o += `<g transform="translate(262 150) rotate(8)"><rect x="-6" y="-26" width="76" height="52" rx="6" fill="#20242c"/>${['#2f5fa8', '#c8323c', '#e8c15a', '#3d8a4b', '#f07c1e', '#6b4a2e'].map((col, i) => `<rect x="${(i % 3) * 22}" y="${i < 3 ? -20 : 2}" width="18" height="16" rx="4" fill="${col}"/>`).join('')}</g>`;
+  o += `<g transform="rotate(-28 270 60)"><rect x="200" y="56" width="90" height="6" rx="3" fill="#c0392b"/><rect x="186" y="55" width="16" height="8" fill="#b9b9b9"/><path d="M186 55 L170 59 L186 63Z" fill="#3a2a20"/></g>`;
+  return heroSVG(o, label);
+}
+const malNote = `<div class="safe"><b>Für Groß und Klein:</b> Bleistiftlinien ganz leicht zeichnen – sie verschwinden unter der Farbe. Lieber zwei Karten probieren: Die zweite wird immer schöner!</div>`;
+const malMat = (extra, tools) => ({wood: ['Aquarellpapier <b>300 g/m²</b> (kalt gepresst), Format siehe oben – oder fertige Aquarell-Klappkarten', ...extra], small: ['Aquarellfarben (Kasten genügt)', 'Wasserfester Fineliner oder Brush Pen in Schwarz', '2 Wassergläser (sauber und schmutzig), Küchenpapier', 'Malerkrepp zum Fixieren (gibt einen schönen weißen Rand)'], tools: ['Rundpinsel Gr. 8–10 und Gr. 2–4', 'Bleistift HB und Knetradiergummi', ...tools], extra: ''});
+function malProject(def) {
+  return Object.assign({cat: 'mal', presets: [105, 145, 148, 210], range: [105, 210], formats: true, sizeLabel: 'Format',
+    tabNames: {zuschnitt: 'Format & Maße', winkel: 'Technik'}, sizeExtra: () => '',
+    calc() { return malCalc(this.id); },
+    zuschnitt(c) { return `<div class="panel"><h3>Format & Maße · ${c.f.name}</h3><p class="small muted">Bleistift-Vorzeichnung zum Übertragen. Alle Maße vom oberen und linken Rand gemessen.</p><div class="drawing">${planSVG(c, def.paint(c), def.plan(c), def.title)}</div>${def.table(c)}</div>`; }
+  }, def);
+}
+const aqtanne = malProject({
+  id: 'aqtanne', title: 'Aquarell-Tannen mit Goldschrift', teaser: 'Blaue Tannen aus lockeren Pinselstrichen, Schneespritzer und ein goldenes Band mit Handlettering – die Karte vom Foto.',
+  tags: ['für alle', 'Nass-in-Nass', '45 Minuten'], paint: paintAq, plan: planAq, table: tableAq,
+  thumb() { const c = {f: FORMATS[105], k: 340 / 105, W: 340, H: 148 * 340 / 105, u: 340}; return heroCard(paintAq(c), c, 'Aquarellkarte mit blauen Tannen'); },
+  ziel(c) { return `<div class="panel"><h3>Was male ich?</h3><p>Zwei Tannen in Blautönen – gemalt aus lauter waagerechten Pinsel-„Wischern“, oben kurz, unten lang. Darüber zwei goldene Farbbänder mit „Weihnachten ${YEAR}“. Schneespritzer machen das Bild lebendig.</p><div class="drawing">${cardSVG(c, paintAq(c), 'Aquarell-Tannen')}</div>${legend(['<b>Tannen:</b> Pinselstriche von der Mitte nach außen, oben kurz, unten lang', '<b>Schattierung:</b> dunkles Blau nass in nass hineintupfen', '<b>Goldband</b> zuerst malen, Schrift erst nach dem Trocknen', '<b>Schneespritzer</b> zum Schluss'])}${malNote}</div>`; },
+  material() { return malMat(['optional: Goldaquarell, Goldmarker oder Metallic-Farbe'], ['alte Zahnbürste für die Spritzer']); },
+  winkel() { return `<div class="panel"><h3>Technik</h3>
+    <div class="anglecard"><div class="badge alt"><b>Wisch</b><span>Striche</span></div><div>Pinsel flach halten und von der Mittellinie aus <b>nach außen und leicht nach unten</b> wischen. Erst links, dann rechts. Oben ganz kurze Striche, nach unten immer länger.</div></div>
+    <div class="anglecard"><div class="badge"><b>Nass</b><span>in Nass</span></div><div>Solange die Farbe noch glänzt: Mit dunklem Blau (etwas Schwarz oder Braun hinein) in die Unterseite der Äste tupfen. Die Farbe läuft weich aus – das sind die Schatten.</div></div>
+    <div class="anglecard"><div class="badge hand"><b>Spritz</b><span>Schnee</span></div><div>Verdünntes Blau auf den Pinsel, über dem Bild gegen einen Finger klopfen. Mit Zahnbürste werden die Tröpfchen feiner.</div></div>
+    <div class="anglecard"><div class="badge alt"><b>Gold</b><span>Band</span></div><div>Ockergelb sehr hell oder Goldfarbe in einem schrägen, unregelmäßigen Streifen. Erst wenn alles trocken ist, mit Fineliner oder Brush Pen schreiben.</div></div></div>`; },
+  steps(c) { const g = aqGeo(c), cm = v => cmOf(c, v); return [
+    {t: 'Papier vorbereiten', b: `<p>Papier auf ${fmt(c.f.w / 10, 1)} × ${fmt(c.f.h / 10, 1)} cm zuschneiden und mit Malerkrepp rundum auf den Tisch kleben.</p>`},
+    {t: 'Ganz leicht vorzeichnen', b: `<p>Zwei senkrechte Mittellinien: bei <b>${cm(g.t1.cx)} cm</b> und <b>${cm(g.t2.cx)} cm</b> von links. Spitzen bei ${cm(g.t1.yb - g.t1.h)} und ${cm(g.t2.yb - g.t2.h)} cm von oben. Mehr nicht!</p>`},
+    {t: 'Goldbänder', b: `<p>Zwei schräge Streifen in hellem Gold/Ocker (siehe „Format & Maße“). Trocknen lassen.</p>`},
+    {t: 'Große Tanne', b: `<p>Mittelblau anmischen. Oben an der Spitze mit kurzen Wischern beginnen, nach unten immer längere Striche. Lücken lassen – das wirkt wie Schnee.</p>`},
+    {t: 'Schatten nass in nass', b: `<p>Solange es glänzt: dunkles Blau in die Unterseiten der Äste tupfen.</p>`},
+    {t: 'Kleine Tanne', b: `<p>Genauso, etwas heller. Dann ein paar graublaue Striche als Boden unter beide Bäume.</p>`},
+    {t: 'Schnee spritzen', b: `<p>Verdünntes Blau, über das Bild klopfen. Schrift-Bereich ruhig mit einem Blatt abdecken.</p>`},
+    {t: 'Schrift', b: `<p>Ganz trocken? Dann „Weihnachten ${YEAR}“ mit Fineliner oder Brush Pen auf die Goldbänder schreiben.</p>`},
+    {t: 'Klebeband abziehen', b: `<p>Langsam und flach vom Bild weg abziehen – fertig ist die Karte mit weißem Rand.</p>`}]; }
+});
+const schnee = malProject({
+  id: 'schnee', title: 'Schneemann von unten', teaser: 'Der Schneemann schaut auf dich herunter: riesiger Bauch, winziger Kopf, Karottennase von unten. Lustig und ganz einfach!',
+  tags: ['lustig', 'ab 6 Jahren', '30 Minuten'], paint: paintSchnee, plan: planSchnee, table: tableSchnee,
+  thumb() { const c = {f: FORMATS[105], k: 340 / 105, W: 340, H: 148 * 340 / 105, u: 340}; return heroCard(paintSchnee(c), c, 'Schneemann von unten'); },
+  ziel(c) { return `<div class="panel"><h3>Was male ich?</h3><p>Stell dir vor, du liegst im Schnee und schaust am Schneemann hoch: Die untere Kugel ist riesig, der Kopf ganz klein und weit oben. Die Karotte zeigt direkt auf dich! Die Kreise zeichnest du mit Glas, Tasse und Teller vor.</p><div class="drawing">${cardSVG(c, paintSchnee(c), 'Schneemann von unten')}</div>${legend(['<b>Himmel</b> blau, die Kugeln bleiben weiß', '<b>Kugeln:</b> nur am Rand ein Hauch Blaugrau als Schatten', '<b>Karotte</b> von unten: ein kurzes Dreieck nach unten', '<b>Schal und Hut</b> geben Farbe'])}${malNote}</div>`; },
+  material() { return malMat(['Glas, Tasse und Teller als Kreisschablonen'], ['optional: Grobes Salz für Schneegestöber-Effekt']); },
+  winkel() { return `<div class="panel"><h3>Technik</h3>
+    <div class="anglecard"><div class="badge alt"><b>Aus</b><span>sparen</span></div><div>Weiß gibt es im Aquarell nicht – du lässt das Papier einfach frei. Den Himmel um die Kreise herum malen.</div></div>
+    <div class="anglecard"><div class="badge"><b>Salz</b><span>Trick</span></div><div>In den noch nassen Himmel ein paar Körnchen grobes Salz streuen. Wenn es trocken ist, abreiben – es entstehen Schneeflocken-Sterne.</div></div>
+    <div class="anglecard"><div class="badge hand"><b>Hauch</b><span>Schatten</span></div><div>Sehr viel Wasser, ganz wenig Blau und ein Tupfer Grau. Nur am Rand der Kugeln – zur Mitte hin mit sauberem, feuchtem Pinsel verwischen.</div></div></div>`; },
+  steps(c) { return [
+    {t: 'Kreise vorzeichnen', b: `<p>Mit Schablonen leicht vorzeichnen (Maße unter „Format & Maße“): großer Bogen unten, mittlere Kugel, kleiner Kopf oben.</p>`},
+    {t: 'Himmel malen', b: `<p>Papier rund um die Kreise mit klarem Wasser anfeuchten, dann Blau hineingeben – oben dunkler, unten heller. Die Kreise bleiben weiß. Optional Salz hineinstreuen.</p>`},
+    {t: 'Trocknen', b: `<p>Ganz trocknen lassen (Föhn auf kleiner Stufe hilft).</p>`},
+    {t: 'Schatten', b: `<p>An den Kugelrändern einen Hauch Blaugrau, nach innen verwischen.</p>`},
+    {t: 'Hut, Schal, Karotte', b: `<p>Hutkrempe als dunkle Ellipse über dem Kopf, roter Schal zwischen Kopf und Bauch, die Karotte als kurzes oranges Dreieck nach unten.</p>`},
+    {t: 'Gesicht und Arme', b: `<p>Mit Fineliner: zwei Augen, Kohle-Mund, Knöpfe. Zwei Ast-Arme in Braun.</p>`},
+    {t: 'Text', b: `<p>„Hallo da unten!“ oben in die Ecke, „Frohe Weihnachten!“ unten auf den Schnee.</p>`}]; }
+});
+const wichtel = malProject({
+  id: 'wichtel', title: 'Wichtel-Familie', teaser: 'Drei skandinavische Wichtel mit langen Mützen, Rauschebart und Knubbelnase – ein Bild, über das alle lachen.',
+  tags: ['lustig', 'ab 6 Jahren', '40 Minuten'], paint: paintWichtel, plan: planWichtel, table: tableWichtel,
+  thumb() { const c = {f: FORMATS[145], k: 340 / 145, W: 340, H: 340, u: 340 / 1.41}; return heroCard(paintWichtel(c), c, 'Wichtel-Familie in Aquarell'); },
+  ziel(c) { return `<div class="panel"><h3>Was male ich?</h3><p>Drei Wichtel in verschiedenen Größen stehen im Schnee: Jeder bekommt eine lange Zipfelmütze in einer anderen Farbe, einen großen weißen Bart und eine dicke Knubbelnase. Mehr Gesicht braucht ein Wichtel nicht!</p><div class="drawing">${cardSVG(c, paintWichtel(c), 'Wichtel')}</div>${legend(['<b>Mütze:</b> ein großes, leicht gebogenes Dreieck', '<b>Bart:</b> ein Tropfen nach unten, nur zart grau schattiert', '<b>Nase:</b> rosa Kreis, halb auf der Mütze', '<b>Schnee</b> als hellblauer Hügel'])}${malNote}</div>`; },
+  material() { return malMat(['optional: weißer Gelstift für Lichtpunkte'], []); },
+  winkel() { return `<div class="panel"><h3>Technik</h3>
+    <div class="anglecard"><div class="badge alt"><b>Lasur</b><span>Schichten</span></div><div>Erst die Mütze in kräftigem Rot, trocknen lassen, dann an einer Seite eine zweite, dunklere Schicht – so wird sie rund.</div></div>
+    <div class="anglecard"><div class="badge"><b>Knick</b><span>Mütze</span></div><div>Lustig wird es, wenn die Mützenspitze umknickt: Die Spitze einfach zur Seite biegen und einen Bommel dranmalen.</div></div>
+    <div class="anglecard"><div class="badge hand"><b>Weiß</b><span>Bart</span></div><div>Den Bart weiß lassen und nur mit hellem Grau ein paar Locken andeuten.</div></div></div>`; },
+  steps(c) { return [
+    {t: 'Vorzeichnen', b: `<p>Drei Mützen-Dreiecke und drei Bart-Tropfen leicht mit Bleistift (Maße unter „Format & Maße“).</p>`},
+    {t: 'Schneehügel', b: `<p>Unten einen hellblauen Hügel malen, oben verlaufen lassen.</p>`},
+    {t: 'Mützen', b: `<p>Rot, Grün, Blau – jede Mütze in einer Farbe. Trocknen lassen, dann eine Seite dunkler nachmalen.</p>`},
+    {t: 'Bärte', b: `<p>Ganz zart mit verdünntem Grau Locken und Schatten in den weißen Bart.</p>`},
+    {t: 'Nasen und Hände', b: `<p>Rosa Knubbelnasen, kleine Fäustlinge in Mützenfarbe, dunkle Stiefel.</p>`},
+    {t: 'Schnee und Schrift', b: `<p>Ein paar blaue Spritzer, dann „Hohoho!“ in Rot darüber.</p>`}]; }
+});
+const kette = malProject({
+  id: 'kette', title: 'Fingerabdruck-Lichterkette', teaser: 'Bunte Daumenabdrücke werden zu Lämpchen mit lustigen Gesichtern. Schon für die Kleinsten – und schnell gemacht.',
+  tags: ['ab 4 Jahren', 'Fingerfarbe', '20 Minuten'], paint: paintKette, plan: planKette, table: tableKette,
+  thumb() { const c = {f: FORMATS[145], k: 340 / 145, W: 340, H: 340, u: 340 / 1.41}; return heroCard(paintKette(c), c, 'Fingerabdruck-Lichterkette'); },
+  ziel(c) { const {bulbs} = ketteGeo(c); return `<div class="panel"><h3>Was male ich?</h3><p>Zwei geschwungene Kabel, und daran <b>${bulbs.length} bunte Fingerabdrücke</b> als Lämpchen. Wenn sie trocken sind, bekommt jedes Lämpchen ein Gesicht – fröhlich, verschlafen, frech …</p><div class="drawing">${cardSVG(c, paintKette(c), 'Lichterkette')}</div>${legend(['<b>Kabel:</b> mit schwarzem Stift in Wellen', '<b>Lämpchen:</b> Daumen in Farbe tupfen und abdrücken', '<b>Fassung:</b> kleines graues Rechteck am Kabel', '<b>Gesichter</b> mit Fineliner, wenn alles trocken ist'])}${malNote}</div>`; },
+  material() { return {wood: ['Festes Papier oder Aquarellpapier, Format siehe oben'], small: ['Fingerfarben oder Stempelkissen in 5–6 Farben (Aquarellfarbe geht auch: dick auf den Finger)', 'Schwarzer Filzstift und Fineliner', 'Feuchttücher für die Finger'], tools: ['Lineal (für die Wellen nicht nötig)', 'Bleistift'], extra: ''}; },
+  winkel() { return `<div class="panel"><h3>Technik</h3>
+    <div class="anglecard"><div class="badge alt"><b>Tupf</b><span>Daumen</span></div><div>Daumen einmal in die Farbe tupfen, auf einem Schmierblatt einmal abdrücken (zu viel Farbe macht Kleckse), dann aufs Bild. Der Daumen zeigt dabei vom Kabel weg.</div></div>
+    <div class="anglecard"><div class="badge"><b>Reihe</b><span>Farben</span></div><div>Immer dieselbe Farbreihenfolge: Rot, Orange, Grün, Blau, Gelb, Rosa – dann sieht es aus wie eine echte Lichterkette.</div></div>
+    <div class="anglecard"><div class="badge hand"><b>Face</b><span>Gesichter</span></div><div>Zwei Punkte und ein Bogen reichen. Variationen: Zunge raus, Augen zu, schielen, gähnen.</div></div></div>`; },
+  steps(c) { const {bulbs} = ketteGeo(c); return [
+    {t: 'Kabel zeichnen', b: `<p>Zwei Wellenlinien mit schwarzem Stift quer übers Papier (Positionen unter „Format & Maße“).</p>`},
+    {t: 'Fassungen', b: `<p>Etwa alle 1,9 cm ein kleines graues Rechteck ans Kabel – insgesamt ${bulbs.length}.</p>`},
+    {t: 'Daumen drücken', b: `<p>Unter jede Fassung einen Fingerabdruck in der nächsten Farbe. Zwischendurch Finger abwischen.</p>`},
+    {t: 'Trocknen', b: `<p>15 Minuten warten – Zeit für Kakao.</p>`},
+    {t: 'Gesichter', b: `<p>Jedem Lämpchen ein Gesicht geben. Wer schafft die meisten verschiedenen?</p>`},
+    {t: 'Text', b: `<p>„Leuchtende Weihnachten!“ unten drunter schreiben.</p>`}]; }
+});
+
+const PROJECTS = {tanne, stern, latte, advent, rentier, masu, fenster, flocke, tuete, aqtanne, schnee, wichtel, kette};
+const tabName = (p, t) => (p.tabNames && p.tabNames[t[0]]) || t[1];
 const TABS = [['ziel', 'Was möchte ich?'], ['material', 'Was brauche ich?'], ['zuschnitt', 'Zuschnitt'], ['winkel', 'Winkel'], ['anleitung', 'Schritt für Schritt']];
 
 /* ---------------- Rendering ---------------- */
@@ -1136,13 +1686,14 @@ function render() {
   if (!pid) {
     back.hidden = true;
     document.getElementById('htitle').textContent = 'Werkstatt';
-    document.getElementById('hsub').textContent = 'Holzprojekte Schritt für Schritt';
-    const card = p => `<a class="pcard${p.junior ? ' jun' : ''}${p.paper ? ' pap' : ''}" href="#/${p.id}/ziel"><div class="thumb">${p.thumb()}</div><div class="body"><h3>${p.title}</h3><p>${p.teaser}</p><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div></div></a>`;
+    document.getElementById("hsub").textContent = "Holz · Papier · Malerei";
+    const card = p => `<a class="pcard cat-${p.cat}" href="#/${p.id}/ziel"><div class="thumb">${p.thumb()}</div><div class="body">${p.junior ? '<span class="jbadge">Junior · ab 10</span>' : ''}<h3>${p.title}</h3><p>${p.teaser}</p><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div></div></a>`;
     const all = Object.values(PROJECTS);
-    app.innerHTML = `<div class="hero"><h2>Was baust du heute?</h2><p>Projekt wählen, Größe einstellen – Materialliste, Zuschnitt, Winkel und Anleitung rechnen sich automatisch.</p></div>
-      <h2 class="sec">Werkstatt</h2><div class="cards">${all.filter(p => !p.junior && !p.paper).map(card).join('')}</div>
-      <h2 class="sec jun">Junior-Werkstatt <span>ab 10 Jahren</span></h2><p class="muted small">Einfache Projekte zum Selbermachen – Sägen, Bohren und Heißkleben zusammen mit einem Erwachsenen.</p><div class="cards">${all.filter(p => p.junior).map(card).join('')}</div>
-      <h2 class="sec pap">Papier-Werkstatt <span>für Groß und Klein</span></h2><p class="muted small">Falten, schneiden, kleben – ohne Werkstatt, am Küchentisch.</p><div class="cards">${all.filter(p => p.paper).map(card).join('')}</div>`;
+    const cats = [['holz', 'Holz', 'Sägen, schrauben, leimen – große Deko für drinnen und draußen. Mit Junior-Projekten ab 10.', heroTanne()], ['papier', 'Papier', 'Falten, schneiden, kleben – am Küchentisch, für Groß und Klein.', heroFenster()], ['mal', 'Malerei', 'Aquarell und lustige Motive für Weihnachtskarten und Bilder.', aqtanne.thumb()]];
+    app.innerHTML = `<div class="hero"><h2>Was machst du heute?</h2><p>Rubrik wählen, Projekt aussuchen, Größe einstellen – Material, Maße, Winkel und Anleitung rechnen sich automatisch.</p></div>
+      <div class="cattiles">${cats.map(([id, name, txt, img]) => `<button class="cattile cat-${id}" data-cat="${id}"><div class="ct-img">${img}</div><div class="ct-body"><b>${name}</b><span>${all.filter(p => p.cat === id).length} Projekte</span></div></button>`).join('')}</div>
+      ${cats.map(([id, name, txt]) => `<section id="sec-${id}" class="catsec"><h2 class="sec cat-${id}">${name}</h2><p class="muted small">${txt}</p><div class="cards">${all.filter(p => p.cat === id).sort((x, y) => (x.junior ? 1 : 0) - (y.junior ? 1 : 0)).map(card).join('')}</div></section>`).join('')}`;
+    if (state.scrollCat) { const el = document.getElementById('sec-' + state.scrollCat); state.scrollCat = null; if (el) el.scrollIntoView(); }
     return;
   }
   const p = PROJECTS[pid], st = state[pid], c = p.calc();
@@ -1150,19 +1701,25 @@ function render() {
   document.getElementById('htitle').textContent = p.title;
   document.getElementById('hsub').textContent = `Größe: ${fmt(st.H / 10)} cm`;
   const isPreset = p.presets.includes(+st.H);
-  let html = `<div class="sizebar"><div class="lbl">${p.sizeLabel || 'Größe (Gesamthöhe)'}</div><div class="chips">
+  let html;
+  if (p.formats) {
+    document.getElementById('hsub').textContent = `Format: ${(FORMATS[st.H] || FORMATS[105]).name}`;
+    html = `<div class="sizebar"><div class="lbl">Format</div><div class="chips">${p.presets.map(h => `<button class="chip ${+st.H === h ? 'on' : ''}" data-h="${h}">${FORMATS[h].name}</button>`).join('')}</div></div>`;
+  } else {
+    html = `<div class="sizebar"><div class="lbl">${p.sizeLabel || 'Größe (Gesamthöhe)'}</div><div class="chips">
     ${p.presets.map(h => `<button class="chip ${+st.H === h ? 'on' : ''}" data-h="${h}">${fmt(h / 10)} cm</button>`).join('')}
     <label class="custom">eigene: <input type="number" inputmode="numeric" min="${p.range[0] / 10}" max="${p.range[1] / 10}" step="1" value="${isPreset ? '' : fmt(st.H / 10)}" placeholder="cm" id="hcustom"> cm</label></div>
     ${p.sizeExtra(c) ? `<div class="row2">${p.sizeExtra(c)}</div>` : ''}</div>`;
-  html += `<nav class="tabs">${TABS.map((t, i) => `<button data-tab="${t[0]}" class="${t[0] === tab ? 'on' : ''}"><span class="n">${i + 1}</span>${t[1]}</button>`).join('')}</nav>`;
+  }
+  html += `<nav class="tabs">${TABS.map((t, i) => `<button data-tab="${t[0]}" class="${t[0] === tab ? 'on' : ''}"><span class="n">${i + 1}</span>${tabName(p, t)}</button>`).join('')}</nav>`;
   html += `<div id="content">${renderTab(p, tab, c)}</div>`;
   app.innerHTML = html;
   const on = app.querySelector('nav.tabs .on'); if (on) on.parentNode.scrollLeft = on.offsetLeft - 40;
 }
 function renderTab(p, tab, c) {
   const idx = TABS.findIndex(t => t[0] === tab), nxt = TABS[idx + 1];
-  const nextLink = nxt ? `<a class="next" href="#/${p.id}/${nxt[0]}">Weiter: ${nxt[1]} →</a>` : '';
-  if (tab === 'ziel') return p.ziel(c) + nextLink;
+  const nextLink = nxt ? `<a class="next" href="#/${p.id}/${nxt[0]}">Weiter: ${tabName(p, nxt)} →</a>` : '';
+  if (tab === 'ziel') return `<div class="heroimg">${p.thumb()}</div>` + p.ziel(c).replace('<div class="drawing">', `<h4 class="ch">${p.cat === 'mal' ? 'So sieht es aus' : 'Konzeptzeichnung mit Maßen'}</h4><div class="drawing">`) + nextLink;
   if (tab === 'zuschnitt') return p.zuschnitt(c) + nextLink;
   if (tab === 'winkel') return p.winkel(c) + nextLink;
   if (tab === 'material') {
@@ -1170,7 +1727,7 @@ function renderTab(p, tab, c) {
     const buy = state.buy[key] || [];
     const list = (arr, off) => arr.map((t, i) => `<label class="check ${buy.includes(off + i) ? 'done' : ''}"><input type="checkbox" data-buy="${off + i}" ${buy.includes(off + i) ? 'checked' : ''}><span>${t}</span></label>`).join('');
     return `<div class="panel"><h3>Einkaufs- und Werkzeugliste</h3><p class="small muted">Zum Abhaken – wird auf diesem Gerät gespeichert.</p>
-      <h4>${p.paper ? "Papier" : p.id === "rentier" ? "Äste" : "Holz"}</h4>${list(mat.wood, 0)}${mat.extra}
+      <h4>${p.cat === "papier" ? "Papier" : p.cat === "mal" ? "Papier & Farben" : p.id === "rentier" ? "Äste" : "Holz"}</h4>${list(mat.wood, 0)}${mat.extra}
       <h4>Kleinteile</h4>${list(mat.small, 100)}
       <h4>Werkzeug</h4>${list(mat.tools, 200)}</div>` + nextLink;
   }
@@ -1199,6 +1756,7 @@ function renderTab(p, tab, c) {
 app.addEventListener('click', e => {
   const b = e.target.closest('button');
   if (!b) return;
+  if (b.dataset.cat) { const el = document.getElementById('sec-' + b.dataset.cat); if (el) el.scrollIntoView({behavior: 'smooth'}); return; }
   const {pid, tab} = route();
   if (b.dataset.h) { state[pid].H = +b.dataset.h; save(); render(); }
   else if (b.dataset.tab) { location.hash = `#/${pid}/${b.dataset.tab}`; }

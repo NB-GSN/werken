@@ -1,24 +1,19 @@
-# Werkstatt – Holzprojekte Schritt für Schritt
+# Werkstatt – Holz · Papier · Malerei
 
-Interaktive Werkanleitungen mit Größenrechner:
+Interaktive Bastel- und Werkanleitungen mit Größenrechner, Konzeptzeichnungen und Schritt-für-Schritt-Anleitung.
 
+## Holz
 - **Holz-Tannen mit Lichterkette** – Rahmen aus Kantholz, Stäbe überlappen innen, Seiten 67,5°, alle Schnitte 22,5°
 - **Holzstern als Rahmen** – 10 gleiche Brettstücke, Innenecken 36°, Spitzen 18° zur Kante
-- **Latten-Tanne zum Hinstellen** – waagerechte Latten auf Stamm mit Kreuzfuß, Enden 15° oder 22,5°, ideal mit Kindern
+- **Latten-Tanne zum Hinstellen** – waagerechte Latten auf Stamm mit Kreuzfuß
+- Junior (ab 10): **Advents-Tanne zum Aufhängen**, **Rentier aus Ästen**
 
-Für jedes Projekt: Was möchte ich? · Was brauche ich? · Zuschnitt · Winkel · Schritt für Schritt.
-Größe frei wählbar, alle Maße rechnen sich automatisch neu.
+## Papier
+- **Masu-Schachtel mit Deckel**, **Fensterstern aus Transparentpapier**, **Schneeflocken schneiden**, **Stern aus Brottüten**
+
+## Malerei
+- **Aquarell-Tannen mit Goldschrift**, **Schneemann von unten**, **Wichtel-Familie**, **Fingerabdruck-Lichterkette**
 
 Online: https://nb-gsn.github.io/werken/
 
-## Junior-Werkstatt (ab 10 Jahren)
-
-- **Advents-Tanne zum Aufhängen** – Holzdreieck in 4 Streifen, versetzt, mit Ablagen für LED-Kerzen
-- **Rentier aus Ästen** – Zweige, Jutegarn, Heißkleber
-
-## Papier-Werkstatt (für Groß und Klein)
-
-- **Masu-Schachtel mit Deckel** – Rechner: Schachtelgröße → Papiergröße
-- **Fensterstern aus Transparentpapier** – 8 oder 16 Drachen, Rechner: Durchmesser → Quadrate
-- **Schneeflocken schneiden** – 60°-Falttrick, Musterideen
-- **Stern aus Brottüten** – 7–12 Tüten, T-Klebemuster
+Schrift „Dancing Script“ unter SIL Open Font License (siehe `fonts/OFL-DancingScript.txt`).
