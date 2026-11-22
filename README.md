@@ -12,7 +12,9 @@ Interaktive Bastel- und Werkanleitungen mit Größenrechner, Konzeptzeichnungen 
 - **Masu-Schachtel mit Deckel**, **Fensterstern aus Transparentpapier**, **Schneeflocken schneiden**, **Stern aus Brottüten**
 
 ## Malerei
-- **Aquarell-Tannen mit Goldschrift**, **Schneemann von unten**, **Wichtel-Familie**, **Fingerabdruck-Lichterkette**
+- Weihnachtskarten-Werkstatt: **Aquarell-Tannen mit Goldschrift**, **Leuchtende Christbaumkugeln**, **Aquarell-Kranz**, **Rotkehlchen im Schnee**
+- Lustige Motive: **Schneemann von unten**, **Wichtel-Familie**, **Fingerabdruck-Lichterkette**, **Lebkuchenmann mit Pflaster**
+- Weihnachtliche Landschaften: **Verschneites Dorf bei Nacht**, **Winterwald im Nebel**, **Polarlicht über dem Winterwald**, **Hütte im Abendrot**
 
 Online: https://nb-gsn.github.io/werken/
 

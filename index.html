@@ -133,6 +133,7 @@ h2.sec.cat-holz{color:#9b4a1f} h2.sec.cat-papier{color:#3b5b8a} h2.sec.cat-mal{c
 .pcard.cat-papier .tag{background:#e3ebf5;color:#3b5b8a}
 .pcard.cat-mal .tag{background:#f0e4f4;color:#7b3f8c}
 .jbadge{display:inline-block;font-size:12px;font-weight:700;background:var(--green);color:#fff;border-radius:99px;padding:2px 10px;margin-bottom:6px}
+h3.subsec{font-size:17px;margin:22px 4px 2px;color:#7b3f8c}
 </style>
 </head>
 <body>
@@ -242,7 +243,7 @@ const heroSVG = (inner, label) => `<svg viewBox="0 0 340 220" preserveAspectRati
 
 /* ---------------- Speicher ---------------- */
 const STORE = 'werkstatt-v1';
-let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, masu: {H: 80}, fenster: {H: 300, lagen: '2'}, flocke: {H: 150}, tuete: {H: 280, n: '10'}, aqtanne: {H: 105}, schnee: {H: 105}, wichtel: {H: 145}, kette: {H: 145}, done: {}, buy: {}, step: {}};
+let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, masu: {H: 80}, fenster: {H: 300, lagen: '2'}, flocke: {H: 150}, tuete: {H: 280, n: '10'}, aqtanne: {H: 105}, schnee: {H: 105}, wichtel: {H: 145}, kette: {H: 145}, kugeln: {H: 105}, kranz: {H: 145}, robin: {H: 105}, lebkuchen: {H: 105}, dorf: {H: 2100}, nebel: {H: 2100}, polar: {H: 2100}, huette: {H: 2100}, done: {}, buy: {}, step: {}};
 try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) { const d = JSON.parse(JSON.stringify(state)); state = Object.assign(state, s); for (const k of Object.keys(d)) if (d[k] && typeof d[k] === 'object' && 'H' in d[k]) state[k] = Object.assign({}, d[k], s[k]); state.step = Object.assign({}, s.step); } } catch (e) {}
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
 
@@ -1568,8 +1569,8 @@ function tableKette(c) {
 /* ---- gemeinsame Bausteine ---- */
 const cardSVG = (c, inner, label) => `<svg viewBox="0 0 ${c.W} ${f1(c.H)}" role="img" aria-label="${esc(label)}">${inner}</svg>`;
 function planSVG(c, paint, plan, label) {
-  const pad = 30;
-  return `<svg viewBox="${-pad} -10 ${c.W + 2 * pad} ${f1(c.H + 46)}" role="img" aria-label="${esc(label)}"><g opacity=".42">${paint}</g><rect width="${c.W}" height="${f1(c.H)}" fill="none" stroke="#2b2118" stroke-width="1.2"/>${plan}
+  const pad = 30, cid = uid('clip');
+  return `<svg viewBox="${-pad} -10 ${c.W + 2 * pad} ${f1(c.H + 46)}" role="img" aria-label="${esc(label)}"><defs><clipPath id="${cid}"><rect width="${c.W}" height="${f1(c.H)}"/></clipPath></defs><g opacity=".42" clip-path="url(#${cid})">${paint}</g><rect width="${c.W}" height="${f1(c.H)}" fill="none" stroke="#2b2118" stroke-width="1.2"/>${plan}
     <line x1="0" y1="${f1(c.H + 16)}" x2="${c.W}" y2="${f1(c.H + 16)}" stroke="#2b2118"/><text x="${c.W / 2}" y="${f1(c.H + 34)}" text-anchor="middle" font-size="15" font-weight="700" fill="#2b2118">${fmt(c.f.w / 10, 1)} × ${fmt(c.f.h / 10, 1)} cm</text></svg>`;
 }
 function heroCard(paint, c, label) {
@@ -1577,7 +1578,8 @@ function heroCard(paint, c, label) {
   let o = `<rect width="340" height="220" fill="url(#g-table)"/>`;
   for (let i = 0; i < 6; i++) o += `<path d="M0 ${30 + i * 38} Q170 ${24 + i * 38} 340 ${34 + i * 38}" stroke="#6b4426" stroke-opacity=".12" fill="none"/>`;
   const cw = c.W * sc, ch = c.H * sc, x = 160 - cw / 2, y = 112 - ch / 2;
-  o += `<g transform="translate(${f1(x)} ${f1(y)}) rotate(-4 ${f1(cw / 2)} ${f1(ch / 2)})"><rect x="3" y="5" width="${f1(cw)}" height="${f1(ch)}" fill="#000" opacity=".25" filter="url(#f-blur)"/><g transform="scale(${sc.toFixed(4)})">${paint}</g></g>`;
+  const cid = uid('clip');
+  o += `<defs><clipPath id="${cid}"><rect width="${c.W}" height="${f1(c.H)}"/></clipPath></defs><g transform="translate(${f1(x)} ${f1(y)}) rotate(-4 ${f1(cw / 2)} ${f1(ch / 2)})"><rect x="3" y="5" width="${f1(cw)}" height="${f1(ch)}" fill="#000" opacity=".25" filter="url(#f-blur)"/><g transform="scale(${sc.toFixed(4)})"><g clip-path="url(#${cid})">${paint}</g></g></g>`;
   // Malkasten + Pinsel
   o += `<g transform="translate(262 150) rotate(8)"><rect x="-6" y="-26" width="76" height="52" rx="6" fill="#20242c"/>${['#2f5fa8', '#c8323c', '#e8c15a', '#3d8a4b', '#f07c1e', '#6b4a2e'].map((col, i) => `<rect x="${(i % 3) * 22}" y="${i < 3 ? -20 : 2}" width="18" height="16" rx="4" fill="${col}"/>`).join('')}</g>`;
   o += `<g transform="rotate(-28 270 60)"><rect x="200" y="56" width="90" height="6" rx="3" fill="#c0392b"/><rect x="186" y="55" width="16" height="8" fill="#b9b9b9"/><path d="M186 55 L170 59 L186 63Z" fill="#3a2a20"/></g>`;
@@ -1593,7 +1595,7 @@ function malProject(def) {
   }, def);
 }
 const aqtanne = malProject({
-  id: 'aqtanne', title: 'Aquarell-Tannen mit Goldschrift', teaser: 'Blaue Tannen aus lockeren Pinselstrichen, Schneespritzer und ein goldenes Band mit Handlettering – die Karte vom Foto.',
+  id: 'aqtanne', group: 'karten', title: 'Aquarell-Tannen mit Goldschrift', teaser: 'Blaue Tannen aus lockeren Pinselstrichen, Schneespritzer und ein goldenes Band mit Handlettering – die Karte vom Foto.',
   tags: ['für alle', 'Nass-in-Nass', '45 Minuten'], paint: paintAq, plan: planAq, table: tableAq,
   thumb() { const c = {f: FORMATS[105], k: 340 / 105, W: 340, H: 148 * 340 / 105, u: 340}; return heroCard(paintAq(c), c, 'Aquarellkarte mit blauen Tannen'); },
   ziel(c) { return `<div class="panel"><h3>Was male ich?</h3><p>Zwei Tannen in Blautönen – gemalt aus lauter waagerechten Pinsel-„Wischern“, oben kurz, unten lang. Darüber zwei goldene Farbbänder mit „Weihnachten ${YEAR}“. Schneespritzer machen das Bild lebendig.</p><div class="drawing">${cardSVG(c, paintAq(c), 'Aquarell-Tannen')}</div>${legend(['<b>Tannen:</b> Pinselstriche von der Mitte nach außen, oben kurz, unten lang', '<b>Schattierung:</b> dunkles Blau nass in nass hineintupfen', '<b>Goldband</b> zuerst malen, Schrift erst nach dem Trocknen', '<b>Schneespritzer</b> zum Schluss'])}${malNote}</div>`; },
@@ -1615,7 +1617,7 @@ const aqtanne = malProject({
     {t: 'Klebeband abziehen', b: `<p>Langsam und flach vom Bild weg abziehen – fertig ist die Karte mit weißem Rand.</p>`}]; }
 });
 const schnee = malProject({
-  id: 'schnee', title: 'Schneemann von unten', teaser: 'Der Schneemann schaut auf dich herunter: riesiger Bauch, winziger Kopf, Karottennase von unten. Lustig und ganz einfach!',
+  id: 'schnee', group: 'lustig', title: 'Schneemann von unten', teaser: 'Der Schneemann schaut auf dich herunter: riesiger Bauch, winziger Kopf, Karottennase von unten. Lustig und ganz einfach!',
   tags: ['lustig', 'ab 6 Jahren', '30 Minuten'], paint: paintSchnee, plan: planSchnee, table: tableSchnee,
   thumb() { const c = {f: FORMATS[105], k: 340 / 105, W: 340, H: 148 * 340 / 105, u: 340}; return heroCard(paintSchnee(c), c, 'Schneemann von unten'); },
   ziel(c) { return `<div class="panel"><h3>Was male ich?</h3><p>Stell dir vor, du liegst im Schnee und schaust am Schneemann hoch: Die untere Kugel ist riesig, der Kopf ganz klein und weit oben. Die Karotte zeigt direkt auf dich! Die Kreise zeichnest du mit Glas, Tasse und Teller vor.</p><div class="drawing">${cardSVG(c, paintSchnee(c), 'Schneemann von unten')}</div>${legend(['<b>Himmel</b> blau, die Kugeln bleiben weiß', '<b>Kugeln:</b> nur am Rand ein Hauch Blaugrau als Schatten', '<b>Karotte</b> von unten: ein kurzes Dreieck nach unten', '<b>Schal und Hut</b> geben Farbe'])}${malNote}</div>`; },
@@ -1634,7 +1636,7 @@ const schnee = malProject({
     {t: 'Text', b: `<p>„Hallo da unten!“ oben in die Ecke, „Frohe Weihnachten!“ unten auf den Schnee.</p>`}]; }
 });
 const wichtel = malProject({
-  id: 'wichtel', title: 'Wichtel-Familie', teaser: 'Drei skandinavische Wichtel mit langen Mützen, Rauschebart und Knubbelnase – ein Bild, über das alle lachen.',
+  id: 'wichtel', group: 'lustig', title: 'Wichtel-Familie', teaser: 'Drei skandinavische Wichtel mit langen Mützen, Rauschebart und Knubbelnase – ein Bild, über das alle lachen.',
   tags: ['lustig', 'ab 6 Jahren', '40 Minuten'], paint: paintWichtel, plan: planWichtel, table: tableWichtel,
   thumb() { const c = {f: FORMATS[145], k: 340 / 145, W: 340, H: 340, u: 340 / 1.41}; return heroCard(paintWichtel(c), c, 'Wichtel-Familie in Aquarell'); },
   ziel(c) { return `<div class="panel"><h3>Was male ich?</h3><p>Drei Wichtel in verschiedenen Größen stehen im Schnee: Jeder bekommt eine lange Zipfelmütze in einer anderen Farbe, einen großen weißen Bart und eine dicke Knubbelnase. Mehr Gesicht braucht ein Wichtel nicht!</p><div class="drawing">${cardSVG(c, paintWichtel(c), 'Wichtel')}</div>${legend(['<b>Mütze:</b> ein großes, leicht gebogenes Dreieck', '<b>Bart:</b> ein Tropfen nach unten, nur zart grau schattiert', '<b>Nase:</b> rosa Kreis, halb auf der Mütze', '<b>Schnee</b> als hellblauer Hügel'])}${malNote}</div>`; },
@@ -1652,7 +1654,7 @@ const wichtel = malProject({
     {t: 'Schnee und Schrift', b: `<p>Ein paar blaue Spritzer, dann „Hohoho!“ in Rot darüber.</p>`}]; }
 });
 const kette = malProject({
-  id: 'kette', title: 'Fingerabdruck-Lichterkette', teaser: 'Bunte Daumenabdrücke werden zu Lämpchen mit lustigen Gesichtern. Schon für die Kleinsten – und schnell gemacht.',
+  id: 'kette', group: 'lustig', title: 'Fingerabdruck-Lichterkette', teaser: 'Bunte Daumenabdrücke werden zu Lämpchen mit lustigen Gesichtern. Schon für die Kleinsten – und schnell gemacht.',
   tags: ['ab 4 Jahren', 'Fingerfarbe', '20 Minuten'], paint: paintKette, plan: planKette, table: tableKette,
   thumb() { const c = {f: FORMATS[145], k: 340 / 145, W: 340, H: 340, u: 340 / 1.41}; return heroCard(paintKette(c), c, 'Fingerabdruck-Lichterkette'); },
   ziel(c) { const {bulbs} = ketteGeo(c); return `<div class="panel"><h3>Was male ich?</h3><p>Zwei geschwungene Kabel, und daran <b>${bulbs.length} bunte Fingerabdrücke</b> als Lämpchen. Wenn sie trocken sind, bekommt jedes Lämpchen ein Gesicht – fröhlich, verschlafen, frech …</p><div class="drawing">${cardSVG(c, paintKette(c), 'Lichterkette')}</div>${legend(['<b>Kabel:</b> mit schwarzem Stift in Wellen', '<b>Lämpchen:</b> Daumen in Farbe tupfen und abdrücken', '<b>Fassung:</b> kleines graues Rechteck am Kabel', '<b>Gesichter</b> mit Fineliner, wenn alles trocken ist'])}${malNote}</div>`; },
@@ -1670,7 +1672,363 @@ const kette = malProject({
     {t: 'Text', b: `<p>„Leuchtende Weihnachten!“ unten drunter schreiben.</p>`}]; }
 });
 
-const PROJECTS = {tanne, stern, latte, advent, rentier, masu, fenster, flocke, tuete, aqtanne, schnee, wichtel, kette};
+/* ================= MALEREI – ERWEITERUNG ================= */
+let _uid = 0;
+const uid = p => p + (++_uid);
+Object.assign(FORMATS, {1480: {w: 148, h: 105, name: 'Postkarte quer'}, 2100: {w: 210, h: 148, name: 'A5 quer'}, 2970: {w: 297, h: 210, name: 'A4 quer'}});
+const templ = mmD => mmD < 45 ? 'Flaschendeckel' : mmD < 60 ? 'Schnapsglas' : mmD < 95 ? 'Wasserglas/Tasse' : mmD < 170 ? 'Untertasse/Schälchen' : 'Teller';
+function envelope(f) {
+  const k = f.w + '×' + f.h;
+  return {'105×148': 'C6 (11,4 × 16,2 cm)', '148×105': 'C6 (11,4 × 16,2 cm)', '145×145': 'quadratisch 15,5 × 15,5 cm', '148×210': 'C5 (16,2 × 22,9 cm)', '210×148': 'C5 (16,2 × 22,9 cm)'}[k] || 'Bilderrahmen oder Passepartout';
+}
+function linGrad(stops, x2 = 0, y2 = 1) { const id = uid('lg'); return {id, def: `<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}">${stops.map(([o, col, op]) => `<stop offset="${o}" stop-color="${col}"${op != null ? ` stop-opacity="${op}"` : ''}/>`).join('')}</linearGradient>`}; }
+function radGrad(stops, cx = .35, cy = .3) { const id = uid('rg'); return {id, def: `<radialGradient id="${id}" cx="${cx}" cy="${cy}" r=".75">${stops.map(([o, col]) => `<stop offset="${o}" stop-color="${col}"/>`).join('')}</radialGradient>`}; }
+function skyWash(c, stops, h = c.H) { const g = linGrad(stops); return `<defs>${g.def}</defs><rect x="-12" y="-12" width="${c.W + 24}" height="${f1(h + 14)}" fill="url(#${g.id})" filter="url(#f-wc)"/>`; }
+function firSil(cx, yb, h, w, col, seed = 1, op = 1) {
+  const r = rng(seed), n = 6, R = [], L = [];
+  for (let i = 1; i <= n; i++) {
+    const t = i / n, y = yb - h + t * h * 0.9, hw = w / 2 * t * (0.85 + 0.3 * r());
+    R.push([cx + hw, y]); L.push([cx - hw * (0.9 + 0.2 * r()), y + (r() - .5) * 2]);
+    if (i < n) { R.push([cx + hw * 0.45, y + h * 0.015]); L.push([cx - hw * 0.45, y + h * 0.015]); }
+  }
+  const pts = [[cx, yb - h], ...R, [cx + w * 0.05, yb - h * 0.1], [cx + w * 0.05, yb], [cx - w * 0.05, yb], [cx - w * 0.05, yb - h * 0.1], ...L.reverse()];
+  return `<polygon points="${P2(pts)}" fill="${col}" fill-opacity="${op}" filter="url(#f-wc2)"/>`;
+}
+function stars(c, n, maxY, seed, sparkle = 4) {
+  const r = rng(seed); let o = '';
+  for (let i = 0; i < n; i++) o += `<circle cx="${f1(r() * c.W)}" cy="${f1(r() * maxY)}" r="${f1(0.5 + 1.2 * r() ** 2)}" fill="#fff" opacity="${(0.5 + 0.5 * r()).toFixed(2)}"/>`;
+  for (let i = 0; i < sparkle; i++) { const x = r() * c.W, y = r() * maxY * 0.8, s = 4 + 4 * r(); o += `<path d="M${f1(x)} ${f1(y - s)} L${f1(x + s * .2)} ${f1(y - s * .2)} L${f1(x + s)} ${f1(y)} L${f1(x + s * .2)} ${f1(y + s * .2)} L${f1(x)} ${f1(y + s)} L${f1(x - s * .2)} ${f1(y + s * .2)} L${f1(x - s)} ${f1(y)} L${f1(x - s * .2)} ${f1(y - s * .2)}Z" fill="#fff" filter="url(#f-glow)"/>`; }
+  return o;
+}
+function house(x, yb, w, h, wall, lit = true, tower = false) {
+  let o = `<rect x="${f1(x)}" y="${f1(yb - h)}" width="${f1(w)}" height="${f1(h)}" fill="${wall}"/>`;
+  if (tower) o += `<rect x="${f1(x + w * 0.3)}" y="${f1(yb - h * 2.3)}" width="${f1(w * 0.4)}" height="${f1(h * 1.4)}" fill="${wall}"/><polygon points="${P2([[x + w * 0.25, yb - h * 2.3], [x + w * 0.5, yb - h * 3.1], [x + w * 0.75, yb - h * 2.3]])}" fill="#fff" stroke="#c8d4e6" stroke-width=".6"/><line x1="${f1(x + w * .5)}" y1="${f1(yb - h * 3.1)}" x2="${f1(x + w * .5)}" y2="${f1(yb - h * 3.35)}" stroke="#d8c06a" stroke-width="1.2"/>`;
+  o += `<polygon points="${P2([[x - w * 0.12, yb - h], [x + w / 2, yb - h - w * 0.5], [x + w * 1.12, yb - h]])}" fill="#fbfdff" stroke="#c8d4e6" stroke-width=".7"/>`;
+  const win = lit ? '#ffd36b' : '#53627d';
+  o += `<g ${lit ? 'filter="url(#f-glow)"' : ''}><rect x="${f1(x + w * 0.18)}" y="${f1(yb - h * 0.75)}" width="${f1(w * 0.22)}" height="${f1(h * 0.28)}" fill="${win}"/><rect x="${f1(x + w * 0.6)}" y="${f1(yb - h * 0.75)}" width="${f1(w * 0.22)}" height="${f1(h * 0.28)}" fill="${win}"/>${tower ? `<rect x="${f1(x + w * 0.42)}" y="${f1(yb - h * 1.9)}" width="${f1(w * 0.16)}" height="${f1(h * 0.35)}" fill="${win}"/>` : ''}</g>`;
+  return o;
+}
+const snowHill = (pts, col = '#fbfdff') => `<path d="${pts}" fill="${col}" filter="url(#f-wc)"/>`;
+const gelDots = (pts, r = 1.2) => pts.map(q => `<circle cx="${f1(q[0])}" cy="${f1(q[1])}" r="${r}" fill="#fff"/>`).join('');
+const pText = (c, x, y, txt, size, col = '#1f1f1f', anchor = 'middle', rot = 0) => `<text x="${f1(x)}" y="${f1(y)}" text-anchor="${anchor}" font-family="${SCRIPT}" font-weight="700" font-size="${f1(size)}" fill="${col}"${rot ? ` transform="rotate(${rot} ${f1(x)} ${f1(y)})"` : ''}>${txt}</text>`;
+const guideLine = (x1, y1, x2, y2) => `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(x2)}" y2="${f1(y2)}" stroke="#555" stroke-dasharray="5 3" stroke-width="1.2"/>`;
+const guideCircle = (cx, cy, r) => `<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(r)}" fill="none" stroke="#555" stroke-dasharray="4 3"/><circle cx="${f1(cx)}" cy="${f1(cy)}" r="2.5" fill="#555"/>`;
+
+/* ---- generischer Malprojekt-Baukasten ---- */
+function mal2(def) {
+  const proj = malProject(Object.assign({
+    plan: c => def.guides(c), table: c => partsTable(def.measures(c)),
+    thumb() { const f = FORMATS[def.presets ? def.presets[0] : 105]; const H = f.h * 340 / f.w; return heroCard(def.paint({f, k: 340 / f.w, W: 340, H, u: Math.min(340, H / 1.41)}), {W: 340, H}, def.title); },
+    ziel(c) { return `<div class="panel"><h3>Was male ich?</h3><p>${def.intro}</p><div class="drawing">${cardSVG(c, def.paint(c), def.title)}</div>${legend(def.legend)}${malNote}</div>`; },
+    material(c) { const m = malMat(def.extra || [], def.tools || []); if (def.group !== 'land') m.wood.push(`Passender Umschlag: <b>${envelope(c.f)}</b>`); else m.wood.push(`Zum Aufhängen: ${envelope(c.f)}`); return m; },
+    winkel() { return `<div class="panel"><h3>Technik</h3>${def.tech.map(([b, s, t], i) => `<div class="anglecard"><div class="badge ${['alt', '', 'hand'][i % 3]}"><b>${b}</b><span>${s}</span></div><div>${t}</div></div>`).join('')}</div>`; },
+    steps: c => def.stepsF(c)
+  }, def));
+  return proj;
+}
+
+/* ---- Weihnachtskugeln ---- */
+function kugelGeo(c) { const {W, H} = c; return [{cx: .28 * W, cy: .5 * H, r: .16 * W, col: ['#ff8a80', '#d32f2f', '#8e1b1b']}, {cx: .55 * W, cy: .36 * H, r: .13 * W, col: ['#90caf9', '#1e5fae', '#0d2f63']}, {cx: .79 * W, cy: .54 * H, r: .11 * W, col: ['#ffe9a3', '#d4a52a', '#8a6414']}]; }
+function paintKugeln(c) {
+  const {W, H} = c;
+  let o = paperBg(c) + splatter(c, 40, '#d4a52a', 51, 2) + `<g transform="scale(1.6)">${branch(-10, 0.045 * H, W * 0.7, 6, 61)}${branch(W * 0.12, 0.03 * H, W * 0.32, -10, 62)}${branch(W * 0.38, 0.04 * H, W * 0.3, 14, 63)}</g>`;
+  kugelGeo(c).forEach((k, i) => {
+    const g = radGrad([[0, k.col[0]], [.55, k.col[1]], [1, k.col[2]]]);
+    o += `<line x1="${f1(k.cx)}" y1="${f1(0.07 * H)}" x2="${f1(k.cx)}" y2="${f1(k.cy - k.r - 6)}" stroke="#b08d2c" stroke-width="1"/>`;
+    o += `<defs>${g.def}</defs><circle cx="${f1(k.cx)}" cy="${f1(k.cy)}" r="${f1(k.r)}" fill="url(#${g.id})" filter="url(#f-wc2)"/>`;
+    o += `<rect x="${f1(k.cx - k.r * .22)}" y="${f1(k.cy - k.r - 7)}" width="${f1(k.r * .44)}" height="8" rx="1.5" fill="#b9b9b9" stroke="#8d8d8d" stroke-width=".6"/>`;
+    o += `<ellipse cx="${f1(k.cx - k.r * .4)}" cy="${f1(k.cy - k.r * .42)}" rx="${f1(k.r * .18)}" ry="${f1(k.r * .1)}" fill="#fff" opacity=".7" transform="rotate(-35 ${f1(k.cx - k.r * .4)} ${f1(k.cy - k.r * .42)})"/>`;
+    if (i === 0) o += gelDots(Array.from({length: 9}, (_, j) => [k.cx - k.r * .8 + j * k.r * .2, k.cy + Math.sin(j / 8 * Math.PI) * k.r * .12]), 1.5);
+    if (i === 1) o += `<polyline points="${P2(Array.from({length: 9}, (_, j) => [k.cx - k.r * .85 + j * k.r * .21, k.cy + (j % 2 ? -1 : 1) * k.r * .1]))}" fill="none" stroke="#fff" stroke-width="1.4"/>`;
+    if (i === 2) o += `<g filter="url(#f-glow)">${starShape(k.cx, k.cy + k.r * .05, k.r * .35, '#fff8dc')}</g>`;
+  });
+  o += pText(c, W / 2, H - 0.07 * H, 'Frohe Weihnachten', 0.1 * W, '#7a1f1f');
+  return o;
+}
+const kugeln = mal2({
+  id: 'kugeln', group: 'karten', title: 'Leuchtende Christbaumkugeln', teaser: 'Drei glänzende Kugeln in Rot, Blau und Gold hängen an einem Tannenzweig. Der Trick: Lichtpunkt aussparen!',
+  tags: ['für alle', 'Nass-in-Nass', '40 Minuten'],
+  intro: 'Drei Kugeln in verschiedenen Größen hängen an dünnen Fäden von einem Tannenzweig. Jede Kugel wird nass in nass gemalt: außen dunkel, innen hell, und ein kleiner weißer Glanzpunkt bleibt einfach frei. Mit weißem Gelstift kommen Muster drauf.',
+  legend: ['<b>Kugeln:</b> Kreise mit Glas/Tasse vorzeichnen', '<b>Glanzpunkt:</b> weiß lassen – nicht übermalen!', '<b>Muster</b> mit weißem Gelstift nach dem Trocknen', '<b>Tannenzweig</b> mit kurzen, feinen Strichen'],
+  paint: paintKugeln,
+  guides: c => kugelGeo(c).map((k, i) => guideCircle(k.cx, k.cy, k.r) + guideLine(k.cx, 0.07 * c.H, k.cx, k.cy - k.r) + badge(k.cx + k.r * .75 + 6, k.cy - k.r * .75, i + 1)).join(''),
+  measures: c => kugelGeo(c).map((k, i) => [`Kugel ${i + 1}`, 1, `Ø <b>${cmOf(c, 2 * k.r)} cm</b> · Mitte <b>${cmOf(c, k.cx)} cm</b> von links, <b>${cmOf(c, k.cy)} cm</b> von oben`, `Schablone: ${templ(mmOf(c, 2 * k.r))}`]),
+  extra: ['Weißer Gelstift, optional Goldstift'], tools: [],
+  tech: [['Nass', 'in Nass', 'Kreis mit klarem Wasser anfeuchten. Erst die helle Farbe in die Mitte, dann die dunkle an den Rand tupfen – die Farben fließen zu einer runden Kugel zusammen.'], ['Aus', 'sparen', 'Den Glanzpunkt oben links trocken lassen (vorher nicht anfeuchten). Das weiße Papier wirkt wie Licht.'], ['Gel', 'stift', 'Muster erst auf die ganz trockene Kugel: Punkte, Zickzack, Sterne.']],
+  stepsF: c => [
+    {t: 'Kreise vorzeichnen', b: '<p>Drei Kreise mit Glas, Tasse und Deckel (Maße unter „Format & Maße“) und die Fäden bis zum oberen Rand.</p>'},
+    {t: 'Rote Kugel', b: '<p>Kreis anfeuchten, Glanzpunkt trocken lassen. Hellrot in die Mitte, Dunkelrot an den unteren rechten Rand tupfen.</p>'},
+    {t: 'Blaue und goldene Kugel', b: '<p>Genauso – Blau mit Dunkelblau, Gelb mit Ocker und etwas Braun.</p>'},
+    {t: 'Tannenzweig', b: '<p>Oben einen braunen Zweig quer über die Karte, dann viele kurze grüne Nadelstriche schräg nach außen.</p>'},
+    {t: 'Fäden und Kappen', b: '<p>Mit dünnem Pinsel oder Goldstift die Fäden, kleine graue Kappen auf die Kugeln.</p>'},
+    {t: 'Muster und Text', b: '<p>Mit weißem Gelstift Punkte, Zickzack oder einen Stern auf die Kugeln. Unten „Frohe Weihnachten“ schreiben.</p>'}]
+});
+
+/* ---- Kranz ---- */
+function kranzGeo(c) { return {cx: c.W / 2, cy: 0.45 * c.H, R: Math.min(0.33 * c.W, 0.3 * c.H)}; }
+function paintKranz(c) {
+  const {cx, cy, R} = kranzGeo(c), r = rng(71), greens = ['#2f6b3a', '#3f8a4b', '#5aa064', '#24533a', '#7bb07a'];
+  let o = paperBg(c), leaves = '';
+  for (let i = 0; i < 90; i++) {
+    const a = (i / 90) * 360 + (r() - .5) * 6, rad = R + (r() - .5) * 0.12 * R, x = cx + rad * Math.cos(a * DEG), y = cy + rad * Math.sin(a * DEG);
+    const len = R * (0.12 + 0.06 * r()), rot = a + 90 + (r() - .5) * 70;
+    leaves += `<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${f1(len)}" ry="${f1(len * 0.32)}" fill="${greens[Math.floor(r() * greens.length)]}" fill-opacity="${(0.55 + 0.4 * r()).toFixed(2)}" transform="rotate(${f1(rot)} ${f1(x)} ${f1(y)})"/>`;
+  }
+  o += `<g filter="url(#f-wc2)">${leaves}</g>`;
+  for (let i = 0; i < 10; i++) { const a = i * 36 + 12, x = cx + R * Math.cos(a * DEG), y = cy + R * Math.sin(a * DEG); for (let j = 0; j < 3; j++) o += `<circle cx="${f1(x + (j - 1) * R * .05)}" cy="${f1(y + (j === 1 ? -R * .04 : 0))}" r="${f1(R * .035)}" fill="#c62828"/><circle cx="${f1(x + (j - 1) * R * .05 - R * .01)}" cy="${f1(y + (j === 1 ? -R * .04 : 0) - R * .012)}" r="${f1(R * .01)}" fill="#fff" opacity=".7"/>`; }
+  const by = cy + R;
+  o += `<g filter="url(#f-wc2)"><path d="M${f1(cx)} ${f1(by)} q${f1(-R * .28)} ${f1(-R * .2)} ${f1(-R * .3)} ${f1(R * .02)} q${f1(R * .05)} ${f1(R * .16)} ${f1(R * .3)} ${f1(-R * .02)}Z M${f1(cx)} ${f1(by)} q${f1(R * .28)} ${f1(-R * .2)} ${f1(R * .3)} ${f1(R * .02)} q${f1(-R * .05)} ${f1(R * .16)} ${f1(-R * .3)} ${f1(-R * .02)}Z" fill="#c62828"/><path d="M${f1(cx - R * .03)} ${f1(by)} l${f1(-R * .14)} ${f1(R * .36)} l${f1(R * .08)} ${f1(-R * .03)}Z M${f1(cx + R * .03)} ${f1(by)} l${f1(R * .14)} ${f1(R * .36)} l${f1(-R * .08)} ${f1(-R * .03)}Z" fill="#a51f1f"/><circle cx="${f1(cx)}" cy="${f1(by)}" r="${f1(R * .06)}" fill="#a51f1f"/></g>`;
+  o += pText(c, cx, cy - R * .05, 'Frohe', R * 0.3, '#24533a') + pText(c, cx, cy + R * .28, 'Weihnachten', R * 0.28, '#24533a');
+  return o;
+}
+const kranz = mal2({
+  id: 'kranz', group: 'karten', title: 'Aquarell-Kranz', teaser: 'Ein Kranz aus vielen kleinen Blattstrichen mit roten Beeren und Schleife – innen Platz für deinen Gruß.',
+  tags: ['für alle', 'Pinselblätter', '45 Minuten'],
+  intro: 'Mit einem Teller oder einer Untertasse zeichnest du einen Kreis. Darauf setzt du viele kleine Blätter in verschiedenen Grüntönen – einfach den Pinsel aufdrücken und abheben. Rote Beeren und eine Schleife machen den Kranz festlich, in die Mitte kommt dein Gruß.',
+  legend: ['<b>Kreis</b> mit Teller/Untertasse ganz leicht vorzeichnen', '<b>Blätter:</b> Pinsel aufdrücken – ziehen – abheben', '<b>Beeren</b> in Dreiergruppen', '<b>Schleife</b> unten, Schrift in die Mitte'],
+  paint: paintKranz,
+  guides: c => { const {cx, cy, R} = kranzGeo(c); return guideCircle(cx, cy, R) + badge(cx + R * .72 + 8, cy - R * .72, 1) + guideLine(cx - R * .7, cy + R * .12, cx + R * .7, cy + R * .12) + badge(cx + R * .7 + 14, cy + R * .12, 2); },
+  measures: c => { const {cx, cy, R} = kranzGeo(c); return [['Kranz-Kreis', 1, `Ø <b>${cmOf(c, 2 * R)} cm</b> · Mitte <b>${cmOf(c, cy)} cm</b> von oben, waagerecht mittig`, `Schablone: ${templ(mmOf(c, 2 * R))}`], ['Schriftlinie', 1, `<b>${cmOf(c, cy + R * .12)} cm</b> von oben`, 'zwei Zeilen: „Frohe“ und „Weihnachten“']]; },
+  extra: [], tools: [],
+  tech: [['Blatt', 'Druck', 'Spitze des Rundpinsels aufsetzen, Pinsel kurz flach drücken und mit Schwung abheben – so entsteht ein Blatt mit Spitze.'], ['Grün', 'mischen', 'Drei Grüntöne anmischen: Gelbgrün, Grasgrün und Dunkelgrün (Grün + etwas Blau oder Braun). Abwechselnd verwenden.'], ['Schicht', 'en', 'Erst helle Blätter rundherum, trocknen lassen, dann dunkle dazwischen. So wird der Kranz dicht und lebendig.']],
+  stepsF: c => [
+    {t: 'Kreis vorzeichnen', b: `<p>Untertasse oder Teller auflegen und ganz leicht nachfahren (Ø ${cmOf(c, 2 * kranzGeo(c).R)} cm).</p>`},
+    {t: 'Helle Blätter', b: '<p>Mit Gelbgrün rundherum Blätter auf die Linie setzen – mal nach innen, mal nach außen geneigt.</p>'},
+    {t: 'Dunkle Blätter', b: '<p>Wenn trocken: dunkelgrüne Blätter in die Lücken.</p>'},
+    {t: 'Beeren', b: '<p>Rote Beeren in Dreiergruppen, mit einem weißen Gelstift-Pünktchen als Glanz.</p>'},
+    {t: 'Schleife', b: '<p>Unten eine rote Schleife: zwei Schlaufen, zwei Bänder, ein Knoten.</p>'},
+    {t: 'Gruß', b: '<p>In die Mitte „Frohe Weihnachten“ – oder den Namen der Person, die die Karte bekommt.</p>'}]
+});
+
+/* ---- Rotkehlchen ---- */
+function robinGeo(c) { const {W, H} = c; return {cx: 0.52 * W, cy: 0.5 * H, rx: 0.2 * W, ry: 0.16 * W, by: 0.5 * H + 0.15 * W}; }
+function paintRobin(c) {
+  const {W, H} = c, {cx, cy, rx, ry, by} = robinGeo(c);
+  let o = paperBg(c) + splatter(c, 50, '#9fb8d8', 81, 2.5);
+  // Zweig
+  o += `<path d="M-10 ${f1(by + 0.05 * W)} Q${f1(W * .45)} ${f1(by - 0.02 * W)} ${f1(W + 10)} ${f1(by - 0.1 * W)}" stroke="#5a3d25" stroke-width="${f1(0.035 * W)}" fill="none" stroke-linecap="round" filter="url(#f-wc2)"/>`;
+  o += `<path d="M${f1(W * .7)} ${f1(by - 0.06 * W)} q${f1(W * .08)} ${f1(-W * .1)} ${f1(W * .2)} ${f1(-W * .14)}" stroke="#5a3d25" stroke-width="${f1(0.015 * W)}" fill="none"/>`;
+  o += snowHill(`M-10 ${f1(by + 0.03 * W)} Q${f1(W * .2)} ${f1(by - 0.02 * W)} ${f1(W * .35)} ${f1(by + 0.01 * W)} Q${f1(W * .6)} ${f1(by - 0.05 * W)} ${f1(W + 10)} ${f1(by - 0.13 * W)} L${f1(W + 10)} ${f1(by - 0.1 * W)} Q${f1(W * .5)} ${f1(by)} -10 ${f1(by + 0.06 * W)}Z`, '#ffffff') + `<path d="M-10 ${f1(by + 0.03 * W)} Q${f1(W * .2)} ${f1(by - 0.02 * W)} ${f1(W * .35)} ${f1(by + 0.01 * W)} Q${f1(W * .6)} ${f1(by - 0.05 * W)} ${f1(W + 10)} ${f1(by - 0.13 * W)}" stroke="#c5d6ea" stroke-width="1.2" fill="none"/>`;
+  for (let i = 0; i < 4; i++) o += `<circle cx="${f1(W * .82 + i * W * .03)}" cy="${f1(by - 0.2 * W + (i % 2) * W * .02)}" r="${f1(W * .015)}" fill="#c62828"/>`;
+  // Schwanz, Körper, Brust, Kopf
+  o += `<g filter="url(#f-wc2)"><path d="M${f1(cx + rx * .7)} ${f1(cy)} L${f1(cx + rx * 1.55)} ${f1(cy - ry * .9)} L${f1(cx + rx * 1.65)} ${f1(cy - ry * .6)} L${f1(cx + rx * .9)} ${f1(cy + ry * .3)}Z" fill="#6e5238"/>`;
+  o += `<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(rx)}" ry="${f1(ry)}" fill="#8a6a4a"/>`;
+  o += `<ellipse cx="${f1(cx - rx * .3)}" cy="${f1(cy + ry * .1)}" rx="${f1(rx * .62)}" ry="${f1(ry * .78)}" fill="#e0602a"/>`;
+  o += `<ellipse cx="${f1(cx - rx * .1)}" cy="${f1(cy + ry * .7)}" rx="${f1(rx * .55)}" ry="${f1(ry * .3)}" fill="#f2ebe0"/>`;
+  o += `<circle cx="${f1(cx - rx * .55)}" cy="${f1(cy - ry * .75)}" r="${f1(ry * .55)}" fill="#8a6a4a"/><ellipse cx="${f1(cx - rx * .7)}" cy="${f1(cy - ry * .55)}" rx="${f1(ry * .38)}" ry="${f1(ry * .34)}" fill="#e0602a"/>`;
+  o += `<path d="M${f1(cx + rx * .1)} ${f1(cy - ry * .3)} q${f1(rx * .35)} ${f1(ry * .1)} ${f1(rx * .55)} ${f1(ry * .55)}" stroke="#5a412b" stroke-width="2" fill="none"/></g>`;
+  o += `<circle cx="${f1(cx - rx * .62)}" cy="${f1(cy - ry * .85)}" r="${f1(ry * .08)}" fill="#111"/><circle cx="${f1(cx - rx * .64)}" cy="${f1(cy - ry * .88)}" r="${f1(ry * .025)}" fill="#fff"/>`;
+  o += `<path d="M${f1(cx - rx * 1.0)} ${f1(cy - ry * .78)} l${f1(-rx * .18)} ${f1(ry * .06)} l${f1(rx * .18)} ${f1(ry * .08)}Z" fill="#3a2a20"/>`;
+  o += `<path d="M${f1(cx - rx * .2)} ${f1(cy + ry * .95)} l${f1(-rx * .05)} ${f1(ry * .45)} M${f1(cx + rx * .15)} ${f1(cy + ry * .95)} l0 ${f1(ry * .42)}" stroke="#4a3626" stroke-width="1.6"/>`;
+  o += pText(c, W / 2, H - 0.08 * H, 'Frohe Weihnachten', 0.1 * W, '#8e2b1b');
+  return o;
+}
+const robin = mal2({
+  id: 'robin', group: 'karten', title: 'Rotkehlchen im Schnee', teaser: 'Ein kugelrundes Rotkehlchen auf einem verschneiten Zweig – mit leuchtend oranger Brust und roten Beeren.',
+  tags: ['für alle', 'Formen aus Kreisen', '50 Minuten'],
+  intro: 'Das Rotkehlchen besteht fast nur aus Kreisen und Ovalen: ein großes Oval als Körper, ein Kreis als Kopf, ein Oval für die orange Brust. Es sitzt auf einem Zweig, auf dem eine Schneehaube liegt – die ist einfach weißes, freigelassenes Papier.',
+  legend: ['<b>Körper:</b> Oval, Kopf: Kreis – überlappend', '<b>Brust und Gesicht</b> in kräftigem Orange', '<b>Schnee auf dem Zweig</b> = weißes Papier, nur unten blau schattiert', '<b>Auge</b> mit weißem Lichtpunkt – dann lebt der Vogel'],
+  paint: paintRobin,
+  guides: c => { const {cx, cy, rx, ry, by} = robinGeo(c); return `<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(rx)}" ry="${f1(ry)}" fill="none" stroke="#555" stroke-dasharray="4 3"/>` + guideCircle(cx - rx * .55, cy - ry * .75, ry * .55) + guideLine(0, by + 0.05 * c.W, c.W, by - 0.1 * c.W) + badge(cx + rx + 8, cy + ry * .5, 1) + badge(cx - rx * .55 - ry * .55 - 14, cy - ry * .9, 2) + badge(24, by + 0.02 * c.W - 16, 3); },
+  measures: c => { const {cx, cy, rx, ry, by} = robinGeo(c); return [['Körper (Oval)', 1, `<b>${cmOf(c, 2 * rx)} × ${cmOf(c, 2 * ry)} cm</b> · Mitte <b>${cmOf(c, cx)} / ${cmOf(c, cy)} cm</b>`, 'von links / von oben'], ['Kopf (Kreis)', 1, `Ø <b>${cmOf(c, 1.1 * ry)} cm</b>`, `Schablone: ${templ(mmOf(c, 1.1 * ry))}`], ['Zweig', 1, `links <b>${cmOf(c, by + 0.05 * c.W)} cm</b>, rechts <b>${cmOf(c, by - 0.1 * c.W)} cm</b> von oben`, 'leicht ansteigend']]; },
+  extra: ['Weißer Gelstift für den Lichtpunkt im Auge'], tools: [],
+  tech: [['Form', 'en', 'Erst die Formen ganz hell vormalen, trocknen lassen, dann kräftiger nachmalen. So bleibt der Vogel sauber.'], ['Weich', 'Kanten', 'Wo Brust und braunes Gefieder sich treffen, mit feuchtem Pinsel verwischen – das wirkt wie weiche Federn.'], ['Weiß', 'lassen', 'Schnee wird nicht gemalt: Nur die Unterkante der Schneehaube mit einem Hauch Blau schattieren.']],
+  stepsF: c => [
+    {t: 'Vorzeichnen', b: '<p>Oval, Kopf-Kreis, Schwanz-Dreieck und den Zweig leicht vorzeichnen.</p>'},
+    {t: 'Zweig', b: '<p>Braunen Zweig malen, die Schneehaube oben drauf weiß lassen, unten ein Hauch Blau.</p>'},
+    {t: 'Körper', b: '<p>Hellbraun für Rücken, Kopf und Schwanz. Den Bauch fast weiß lassen.</p>'},
+    {t: 'Brust', b: '<p>Kräftiges Orange (Gelb + Rot) für Brust und Gesicht, Ränder weich verwischen.</p>'},
+    {t: 'Details', b: '<p>Flügel-Linie, Schnabel, Beinchen und Auge mit Fineliner, Lichtpunkt mit Gelstift.</p>'},
+    {t: 'Beeren und Text', b: '<p>Ein paar rote Beeren am Zweig, hellblaue Schneespritzer, unten der Gruß.</p>'}]
+});
+
+/* ---- Lebkuchenmann (lustig) ---- */
+function lebGeo(c) { const {W, H, u} = c; return {cx: 0.5 * W, hy: 0.3 * H, hr: 0.13 * u, by: 0.3 * H + 0.3 * u, s: u}; }
+function paintLeb(c) {
+  const {W, H} = c, {cx, hy, hr, by, s} = lebGeo(c), brown = '#c27c3e';
+  let o = paperBg(c) + splatter(c, 40, '#d9a65a', 91, 2);
+  const lw = f1(0.15 * s);
+  o += `<g filter="url(#f-wc2)" stroke="${brown}" stroke-linecap="round" fill="none"><line x1="${f1(cx - .27 * s)}" y1="${f1(by - .1 * s)}" x2="${f1(cx + .27 * s)}" y2="${f1(by - .16 * s)}" stroke-width="${lw}"/><line x1="${f1(cx - .06 * s)}" y1="${f1(by)}" x2="${f1(cx - .18 * s)}" y2="${f1(by + .32 * s)}" stroke-width="${lw}"/><line x1="${f1(cx + .06 * s)}" y1="${f1(by)}" x2="${f1(cx + .14 * s)}" y2="${f1(by + .2 * s)}" stroke-width="${lw}"/></g>`;
+  o += `<g filter="url(#f-wc2)"><ellipse cx="${f1(cx)}" cy="${f1(by)}" rx="${f1(.15 * s)}" ry="${f1(.18 * s)}" fill="${brown}"/><circle cx="${f1(cx)}" cy="${f1(hy)}" r="${f1(hr)}" fill="${brown}"/></g>`;
+  // Biss am rechten Bein
+  o += [0, 1, 2].map(i => `<circle cx="${f1(cx + .14 * s + (i - 1) * .045 * s)}" cy="${f1(by + .24 * s + (i === 1 ? .02 * s : 0))}" r="${f1(.04 * s)}" fill="#fbf8f1"/>`).join('');
+  // Zuckerguss
+  const zz = (x, y, ang) => `<polyline points="${P2(Array.from({length: 6}, (_, j) => [x + (j - 2.5) * .022 * s * Math.cos(ang), y + (j - 2.5) * .022 * s * Math.sin(ang) + (j % 2 ? -1 : 1) * .02 * s]))}" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  o += zz(cx - .22 * s, by - .09 * s, 1.6) + zz(cx + .22 * s, by - .15 * s, 1.6) + zz(cx - .15 * s, by + .26 * s, 0.3);
+  o += ['#e63946', '#2a9d8f', '#f4a261'].map((col, i) => `<circle cx="${f1(cx)}" cy="${f1(by - .08 * s + i * .08 * s)}" r="${f1(.025 * s)}" fill="${col}"/>`).join('');
+  // Gesicht: erschrocken
+  o += `<circle cx="${f1(cx - .045 * s)}" cy="${f1(hy - .02 * s)}" r="${f1(.018 * s)}" fill="#fff"/><circle cx="${f1(cx + .045 * s)}" cy="${f1(hy - .02 * s)}" r="${f1(.018 * s)}" fill="#fff"/><circle cx="${f1(cx - .045 * s)}" cy="${f1(hy - .015 * s)}" r="${f1(.008 * s)}" fill="#111"/><circle cx="${f1(cx + .045 * s)}" cy="${f1(hy - .015 * s)}" r="${f1(.008 * s)}" fill="#111"/>`;
+  o += `<ellipse cx="${f1(cx)}" cy="${f1(hy + .055 * s)}" rx="${f1(.022 * s)}" ry="${f1(.03 * s)}" fill="#fff" stroke="#7a3f12" stroke-width="1"/>`;
+  // Pflaster
+  o += `<g transform="rotate(-30 ${f1(cx + .07 * s)} ${f1(hy - .1 * s)})"><rect x="${f1(cx + .01 * s)}" y="${f1(hy - .12 * s)}" width="${f1(.13 * s)}" height="${f1(.045 * s)}" rx="${f1(.015 * s)}" fill="#f3d6b0" stroke="#d1a978" stroke-width=".8"/><rect x="${f1(cx + .055 * s)}" y="${f1(hy - .12 * s)}" width="${f1(.04 * s)}" height="${f1(.045 * s)}" fill="#e9c393"/></g>`;
+  // Sprechblase
+  const bx = cx + .28 * s, byy = hy - .1 * s;
+  o += `<path d="M${f1(bx - .12 * s)} ${f1(byy - .08 * s)} h${f1(.24 * s)} a${f1(.03 * s)} ${f1(.03 * s)} 0 0 1 ${f1(.03 * s)} ${f1(.03 * s)} v${f1(.09 * s)} a${f1(.03 * s)} ${f1(.03 * s)} 0 0 1 ${f1(-.03 * s)} ${f1(.03 * s)} h${f1(-.14 * s)} l${f1(-.08 * s)} ${f1(.06 * s)} l${f1(.02 * s)} ${f1(-.06 * s)} h${f1(-.04 * s)} a${f1(.03 * s)} ${f1(.03 * s)} 0 0 1 ${f1(-.03 * s)} ${f1(-.03 * s)} v${f1(-.09 * s)} a${f1(.03 * s)} ${f1(.03 * s)} 0 0 1 ${f1(.03 * s)} ${f1(-.03 * s)}Z" fill="#fff" stroke="#333" stroke-width="1.2"/>`;
+  o += pText(c, bx + .015 * s, byy + .015 * s, 'Aua!', .075 * s, '#c62828');
+  o += pText(c, W / 2, H - 0.06 * H, 'Frohe Weihnachten – trotzdem!', 0.075 * s, '#7a3f12');
+  return o;
+}
+const lebkuchen = mal2({
+  id: 'lebkuchen', group: 'lustig', title: 'Lebkuchenmann mit Pflaster', teaser: 'Da hat schon jemand reingebissen! Ein erschrockener Lebkuchenmann mit Pflaster und Sprechblase „Aua!“.',
+  tags: ['lustig', 'ab 6 Jahren', '30 Minuten'],
+  intro: 'Ein Lebkuchenmann aus einem Kreis (Kopf), einem Oval (Bauch) und vier dicken Pinselstrichen (Arme und Beine). Lustig wird er, weil ihm am Bein schon ein Stück fehlt – Bissspuren! Dazu ein Pflaster auf dem Kopf, erschrockene Augen und „Aua!“.',
+  legend: ['<b>Kopf und Bauch:</b> Kreis und Oval in Lebkuchenbraun', '<b>Arme und Beine:</b> dicke Pinselstriche mit runden Enden', '<b>Bissspur:</b> drei Halbkreise am Bein weiß lassen', '<b>Zuckerguss</b> mit weißem Gelstift im Zickzack'],
+  paint: paintLeb,
+  guides: c => { const {cx, hy, hr, by, s} = lebGeo(c); return guideCircle(cx, hy, hr) + `<ellipse cx="${f1(cx)}" cy="${f1(by)}" rx="${f1(.15 * s)}" ry="${f1(.18 * s)}" fill="none" stroke="#555" stroke-dasharray="4 3"/>` + guideLine(cx - .27 * s, by - .1 * s, cx + .27 * s, by - .16 * s) + badge(cx - hr - 16, hy, 1) + badge(cx - .15 * s - 16, by + .06 * s, 2) + badge(cx - .27 * s - 4, by - .1 * s - 18, 3); },
+  measures: c => { const {cx, hy, hr, by, s} = lebGeo(c); return [['Kopf', 1, `Ø <b>${cmOf(c, 2 * hr)} cm</b> · Mitte <b>${cmOf(c, hy)} cm</b> von oben`, `Schablone: ${templ(mmOf(c, 2 * hr))}`], ['Bauch (Oval)', 1, `<b>${cmOf(c, .3 * s)} × ${cmOf(c, .36 * s)} cm</b> · Mitte <b>${cmOf(c, by)} cm</b> von oben`, 'waagerecht mittig'], ['Arme', 1, `Spannweite <b>${cmOf(c, .54 * s)} cm</b>`, 'dicker Pinselstrich, leicht schräg']]; },
+  extra: ['Weißer Gelstift (Zuckerguss)'], tools: [],
+  tech: [['Braun', 'mischen', 'Lebkuchenbraun: Ocker + ein Hauch Rot + etwas Braun. Lieber zu hell anfangen und eine zweite Schicht drübermalen.'], ['Dick', 'Strich', 'Für Arme und Beine den Pinsel voll Farbe nehmen und mit Druck ziehen – die Enden rund nachtupfen.'], ['Guss', 'Gelstift', 'Zickzack an Händen und Füßen, Knöpfe in Bonbonfarben.']],
+  stepsF: c => [
+    {t: 'Vorzeichnen', b: '<p>Kopf-Kreis, Bauch-Oval und Linien für Arme und Beine.</p>'},
+    {t: 'Lebkuchen malen', b: '<p>Alles in Lebkuchenbraun ausmalen. Am rechten Bein drei kleine Halbkreise als Bissspur weiß lassen.</p>'},
+    {t: 'Zweite Schicht', b: '<p>Nach dem Trocknen den Rand etwas dunkler nachmalen – so wirkt er gebacken.</p>'},
+    {t: 'Gesicht und Pflaster', b: '<p>Erschrockene Kulleraugen, ein O-Mund, ein beiges Pflaster schräg auf den Kopf.</p>'},
+    {t: 'Zuckerguss und Knöpfe', b: '<p>Mit Gelstift Zickzack an Händen und Füßen, drei bunte Knöpfe.</p>'},
+    {t: 'Sprechblase und Text', b: '<p>„Aua!“ in die Sprechblase, unten „Frohe Weihnachten – trotzdem!“.</p>'}]
+});
+
+/* ---- Landschaften ---- */
+const LAND = [1480, 2100, 2970];
+function dorfGeo(c) { const {W, H} = c; return {hor: 0.6 * H, moon: [0.8 * W, 0.2 * H, 0.06 * W], church: 0.55 * W}; }
+function paintDorf(c) {
+  const {W, H} = c, g = dorfGeo(c);
+  let o = skyWash(c, [[0, '#0e1a3a'], [.55, '#26407e'], [1, '#6c86c4']], g.hor + 0.1 * H);
+  o += stars(c, 60, g.hor - 0.1 * H, 101, 5);
+  o += halo(g.moon[0], g.moon[1], g.moon[2] * 3, g.moon[2] * 3, .4) + `<circle cx="${f1(g.moon[0])}" cy="${f1(g.moon[1])}" r="${f1(g.moon[2])}" fill="#fdf3c8" filter="url(#f-glow)"/>`;
+  o += snowHill(`M-12 ${f1(g.hor)} Q${f1(W * .3)} ${f1(g.hor - .12 * H)} ${f1(W * .6)} ${f1(g.hor - .03 * H)} T${f1(W + 12)} ${f1(g.hor - .06 * H)} V${f1(H + 12)} H-12Z`, '#dfe8f5');
+  [[.12, .095], [.25, .07], [.75, .08], [.9, .1]].forEach(([x, h], i) => { o += firSil(x * W, g.hor - 0.02 * H + (i % 2) * 0.02 * H, h * H * 1.6, h * H, '#1b2f4f', 110 + i); });
+  const hw = 0.08 * W, hh = 0.07 * H;
+  o += house(0.33 * W, g.hor + 0.02 * H, hw, hh, '#3a4a6b') + house(g.church, g.hor + 0.0 * H, hw * 1.1, hh * 1.1, '#34446a', true, true) + house(0.68 * W, g.hor + 0.03 * H, hw * 0.9, hh * 0.9, '#3a4a6b');
+  o += snowHill(`M-12 ${f1(g.hor + .1 * H)} Q${f1(W * .4)} ${f1(g.hor + .02 * H)} ${f1(W + 12)} ${f1(g.hor + .14 * H)} V${f1(H + 12)} H-12Z`, '#fbfdff');
+  o += `<path d="M-12 ${f1(g.hor + .1 * H)} Q${f1(W * .4)} ${f1(g.hor + .02 * H)} ${f1(W + 12)} ${f1(g.hor + .14 * H)}" stroke="#a9bfe0" stroke-width="2" fill="none" filter="url(#f-wc2)"/>`;
+  [[.06, .14], [.9, .16]].forEach(([x, h], i) => { o += firSil(x * W, H + 4, h * H * 2.2, h * H * 1.2, '#16263f', 120 + i); });
+  return o;
+}
+const dorf = mal2({
+  id: 'dorf', group: 'land', presets: LAND, title: 'Verschneites Dorf bei Nacht', teaser: 'Ein kleines Dorf mit Kirche auf einem Schneehügel, warme Fenster, Vollmond und funkelnde Sterne.',
+  tags: ['stimmungsvoll', 'Aussparen', '60 Minuten'],
+  intro: 'Ein tiefblauer Nachthimmel, der zum Horizont heller wird. Darunter liegen weiße Schneehügel mit kleinen Häusern und einer Kirche – ihre Fenster leuchten gelb. Der Mond und die Sterne kommen zum Schluss mit Deckweiß oder Gelstift.',
+  legend: ['<b>Horizont</b> bei etwa 3/5 der Höhe', '<b>Himmel</b> nass in nass von Dunkelblau nach Hellblau', '<b>Schnee</b> = weißes Papier mit blauen Schatten', '<b>Fenster</b> gelb – sie leuchten im Dunkeln'],
+  paint: paintDorf,
+  guides: c => { const g = dorfGeo(c); return guideLine(0, g.hor, c.W, g.hor) + badge(16, g.hor - 16, 1) + guideCircle(g.moon[0], g.moon[1], g.moon[2]) + badge(g.moon[0] - g.moon[2] - 16, g.moon[1], 2) + guideLine(g.church + 0.044 * c.W, g.hor - 0.25 * c.H, g.church + 0.044 * c.W, g.hor) + badge(g.church + .044 * c.W + 16, g.hor - .2 * c.H, 3); },
+  measures: c => { const g = dorfGeo(c); return [['Horizontlinie', 1, `<b>${cmOf(c, g.hor)} cm</b> von oben`, 'ganz leicht mit Bleistift'], ['Mond', 1, `Ø <b>${cmOf(c, 2 * g.moon[2])} cm</b> · Mitte <b>${cmOf(c, g.moon[0])} / ${cmOf(c, g.moon[1])} cm</b>`, `von links / oben · Schablone: ${templ(mmOf(c, 2 * g.moon[2]))}`], ['Kirche', 1, `Mitte bei <b>${cmOf(c, g.church + .044 * c.W)} cm</b> von links`, 'Häuser links und rechts daneben']]; },
+  extra: ['Weißer Gelstift oder Deckweiß für Sterne', 'optional: Maskierflüssigkeit für Mond und Fenster'], tools: [],
+  tech: [['Nass', 'in Nass', 'Den Himmel mit klarem Wasser anfeuchten, oben Indigo/Preußischblau, nach unten mehr Wasser und Ultramarin. Die Farbe fließt zu einem weichen Verlauf.'], ['Mask', 'ieren', 'Mond und Fenster vorher mit Maskierflüssigkeit oder einem Wachsmalstift abdecken – so bleiben sie hell. Alternativ später mit Deckweiß/Gelb drübermalen.'], ['Schat', 'ten', 'Schnee ist nie nur weiß: Mit verdünntem Blau die Unterseiten der Hügel und Dächer schattieren.']],
+  stepsF: c => [
+    {t: 'Horizont und Häuser', b: `<p>Horizontlinie bei ${cmOf(c, dorfGeo(c).hor)} cm, Hügelkurven, Häuser und Kirche als einfache Rechtecke mit Dreieck-Dach.</p>`},
+    {t: 'Abdecken', b: '<p>Mond und Fenster mit Maskierflüssigkeit oder weißem Wachsmalstift abdecken.</p>'},
+    {t: 'Himmel', b: '<p>Himmel nass in nass bis zu den Hügeln malen – oben fast schwarzblau, unten hellblau. Ganz trocknen lassen.</p>'},
+    {t: 'Häuser und Bäume', b: '<p>Häuser in Graublau, Dächer weiß lassen. Tannen als dunkle Silhouetten.</p>'},
+    {t: 'Schneeschatten', b: '<p>Blaue Schatten an Hügelkanten und unter den Dächern.</p>'},
+    {t: 'Licht', b: '<p>Maskierung abrubbeln, Fenster gelb ausmalen, Mond hellgelb. Sterne mit Gelstift tupfen.</p>'}]
+});
+function nebelGeo(c) { const {H} = c; return {layers: [0.5, 0.6, 0.72, 0.88].map(f => f * H)}; }
+function paintNebel(c) {
+  const {W, H} = c, g = nebelGeo(c), cols = ['#c7d3df', '#94a9bf', '#56728f', '#1f3a52'];
+  let o = skyWash(c, [[0, '#e9eef4'], [1, '#f7f4ee']]);
+  g.layers.forEach((y, L) => {
+    const r = rng(200 + L), n = 8 + L * 3, hBase = (0.12 + L * 0.07) * H;
+    let t = '';
+    for (let i = 0; i < n; i++) { const x = (i + r() * 0.8) / n * (W + 40) - 20, h = hBase * (0.7 + 0.6 * r()); t += firSil(x, y + r() * 0.02 * H, h, h * 0.42, cols[L], 300 + L * 30 + i); }
+    o += t;
+    const fg = linGrad([[0, '#f4f1ec', 0], [1, '#f4f1ec', .95]]);
+    if (L < 3) o += `<defs>${fg.def}</defs><rect x="-10" y="${f1(y - 0.05 * H)}" width="${W + 20}" height="${f1(0.07 * H)}" fill="url(#${fg.id})"/>`;
+  });
+  o += snowHill(`M-12 ${f1(H * .9)} Q${f1(W * .5)} ${f1(H * .84)} ${f1(W + 12)} ${f1(H * .92)} V${f1(H + 12)} H-12Z`, '#fbfdff');
+  o += splatter(c, 40, '#ffffff', 211, 2);
+  return o;
+}
+const nebel = mal2({
+  id: 'nebel', group: 'land', presets: LAND, title: 'Winterwald im Nebel', teaser: 'Tannenreihen hintereinander – hinten blass, vorne dunkel. So entsteht eine magische Tiefe wie im Nebel.',
+  tags: ['für alle', 'Luftperspektive', '50 Minuten'],
+  intro: 'Vier Reihen Tannen hintereinander: Die hinterste ist fast unsichtbar hellgrau, jede Reihe davor wird dunkler und größer. Zwischen den Reihen lässt du einen hellen Streifen frei – das ist der Nebel. Diese „Luftperspektive“ benutzen echte Landschaftsmaler.',
+  legend: ['<b>4 Baumreihen</b> von hinten (hell) nach vorne (dunkel)', '<b>Nebel:</b> unten an jeder Reihe mit sauberem Pinsel verwischen', '<b>Jede Reihe</b> muss trocken sein, bevor die nächste kommt', '<b>Vorne</b> weißer Schnee mit Spritzern'],
+  paint: paintNebel,
+  guides: c => nebelGeo(c).layers.map((y, i) => guideLine(0, y, c.W, y) + badge(c.W - 14, y - 14, i + 1)).join(''),
+  measures: c => nebelGeo(c).layers.map((y, i) => [`Baumreihe ${i + 1}`, 1, `Fußlinie <b>${cmOf(c, y)} cm</b> von oben`, ['ganz hell: viel Wasser, Hauch Blaugrau', 'hellgrau-blau', 'mittelblau', 'dunkles Blaugrün'][i]]),
+  extra: [], tools: ['Föhn (beschleunigt das Trocknen zwischen den Reihen)'],
+  tech: [['Luft', 'perspektive', 'Was weit weg ist, wirkt heller, blauer und kleiner. Darum: Reihe 1 mit sehr viel Wasser, Reihe 4 kräftig und dunkel.'], ['Ver', 'wischen', 'Direkt nach jeder Baumreihe die Unterkante mit einem sauberen, feuchten Pinsel verwischen – die Bäume verschwinden im Nebel.'], ['Ge', 'duld', 'Jede Schicht muss ganz trocken sein. Sonst laufen die Farben ineinander. Föhn auf niedriger Stufe hilft.']],
+  stepsF: c => [
+    {t: 'Linien ziehen', b: '<p>Vier Fußlinien für die Baumreihen (Maße unter „Format & Maße“).</p>'},
+    {t: 'Hintere Reihe', b: '<p>Sehr verdünntes Blaugrau: kleine Tannenspitzen nebeneinander, Unterkante verwischen. Trocknen.</p>'},
+    {t: 'Reihe 2 und 3', b: '<p>Jeweils etwas dunkler und größer, wieder unten verwischen, trocknen lassen.</p>'},
+    {t: 'Vordere Reihe', b: '<p>Kräftiges Dunkelblaugrün, große Bäume, die ruhig über den Rand gehen.</p>'},
+    {t: 'Schnee', b: '<p>Vorne weiß lassen, nur einen Hauch Blau als Schatten. Mit Deckweiß ein paar Flocken spritzen.</p>'}]
+});
+function polarGeo(c) { const {H} = c; return {mount: 0.62 * H, ground: 0.82 * H}; }
+function paintPolar(c) {
+  const {W, H} = c, g = polarGeo(c);
+  let o = skyWash(c, [[0, '#06101f'], [.6, '#102844'], [1, '#1d3d5c']], g.ground);
+  o += stars(c, 70, g.mount, 301, 4);
+  const r = rng(311); let au = '';
+  for (let i = 0; i < 7; i++) {
+    const x0 = (i / 7) * W * 1.1 - 10, w = W * (0.12 + 0.08 * r()), top = H * (0.08 + 0.12 * r()), bot = H * (0.42 + 0.12 * r());
+    const lg = linGrad([[0, i % 3 === 0 ? '#b388ff' : '#64ffda', 0], [.35, i % 3 === 0 ? '#9c6bff' : '#3ddc97', .7], [1, '#3ddc97', 0]]);
+    au += `<defs>${lg.def}</defs><path d="M${f1(x0)} ${f1(bot)} C${f1(x0 + w * .3)} ${f1(top + .1 * H)} ${f1(x0 + w * .6)} ${f1(top)} ${f1(x0 + w)} ${f1(top + .05 * H)} L${f1(x0 + w * 1.2)} ${f1(bot - .05 * H)} C${f1(x0 + w * .8)} ${f1(bot - .1 * H)} ${f1(x0 + w * .4)} ${f1(bot + .05 * H)} ${f1(x0)} ${f1(bot)}Z" fill="url(#${lg.id})"/>`;
+  }
+  o += `<g filter="url(#f-softglow)" opacity=".9">${au}</g>`;
+  const pk = [[-10, g.mount + .04 * H], [.12 * W, g.mount - .1 * H], [.25 * W, g.mount - .02 * H], [.42 * W, g.mount - .18 * H], [.58 * W, g.mount - .03 * H], [.76 * W, g.mount - .13 * H], [W + 10, g.mount]];
+  o += `<polygon points="${P2([...pk, [W + 10, g.ground], [-10, g.ground]])}" fill="#2a3f5a" filter="url(#f-wc2)"/>`;
+  [[3, -1], [5, 1]].forEach(([i]) => { const p = pk[i]; o += `<polygon points="${P2([p, [p[0] - .05 * W, p[1] + .06 * H], [p[0] - .01 * W, p[1] + .045 * H], [p[0] + .02 * W, p[1] + .065 * H], [p[0] + .05 * W, p[1] + .05 * H]])}" fill="#dce8f5" filter="url(#f-wc2)"/>`; });
+  o += snowHill(`M-12 ${f1(g.ground)} Q${f1(W * .5)} ${f1(g.ground - .06 * H)} ${f1(W + 12)} ${f1(g.ground)} V${f1(H + 12)} H-12Z`, '#e8f1fb');
+  [[.08, .3], [.18, .22], [.86, .28], [.95, .2], [.3, .12], [.7, .1]].forEach(([x, h], i) => { o += firSil(x * W, g.ground + .03 * H, h * H, h * H * .42, '#07111f', 320 + i); });
+  return o;
+}
+const polar = mal2({
+  id: 'polar', group: 'land', presets: LAND, title: 'Polarlicht über dem Winterwald', teaser: 'Grün und violett tanzende Nordlichter über Bergen und schwarzen Tannen – das Bild, das alle staunen lässt.',
+  tags: ['wow-Effekt', 'Nass-in-Nass', '60 Minuten'],
+  intro: 'Ein fast schwarzer Nachthimmel, in den du nass in nass leuchtendes Grün und Violett laufen lässt – das ist das Polarlicht. Davor Berge mit Schneegipfeln und vorne tiefschwarze Tannen-Silhouetten im Schnee. Sterne kommen zum Schluss.',
+  legend: ['<b>Polarlicht</b> zuerst: Grün und Violett in nassen Streifen', '<b>Himmel</b> drumherum dunkel – Grün leuchtet nur neben Dunkel', '<b>Berge</b> blaugrau mit weißen Gipfeln', '<b>Tannen</b> schwarz als Silhouetten'],
+  paint: paintPolar,
+  guides: c => { const g = polarGeo(c); return guideLine(0, g.mount, c.W, g.mount) + badge(16, g.mount - 16, 1) + guideLine(0, g.ground, c.W, g.ground) + badge(16, g.ground - 16, 2); },
+  measures: c => { const g = polarGeo(c); return [['Bergfuß', 1, `ca. <b>${cmOf(c, g.mount)} cm</b> von oben`, 'Gipfel bis zu 4 cm höher, frei Hand'], ['Schneeboden', 1, `<b>${cmOf(c, g.ground)} cm</b> von oben`, 'leicht gewölbt'], ['Polarlicht', 1, `oberes Drittel bis Hälfte`, 'schräge, weiche Streifen']]; },
+  extra: ['Leuchtendes Grün (Phthalogrün) und Violett', 'Weißer Gelstift für Sterne'], tools: [],
+  tech: [['Nass', 'in Nass', 'Himmel komplett anfeuchten. Erst Grün in schrägen Streifen, dann Violett daneben, dann Dunkelblau/Schwarz drumherum – die Farben verschwimmen leuchtend.'], ['Hebe', 'n', 'Mit einem trockenen Pinsel senkrechte Streifen aus dem nassen Grün „herausheben“ – so sieht das Licht wie ein Vorhang aus.'], ['Sil', 'houette', 'Tannen ganz schwarz (Schwarz oder Indigo + Braun), mit der Pinselspitze von oben nach unten zickzack.']],
+  stepsF: c => [
+    {t: 'Vorzeichnen', b: '<p>Berglinie und Schneeboden leicht vorzeichnen.</p>'},
+    {t: 'Polarlicht', b: '<p>Himmel anfeuchten, grüne und violette Streifen schräg hineinsetzen.</p>'},
+    {t: 'Dunkler Himmel', b: '<p>Sofort Dunkelblau und fast Schwarz um das Licht herum, oben am dunkelsten. Trocknen lassen.</p>'},
+    {t: 'Berge', b: '<p>Berge in Blaugrau, Gipfel weiß lassen.</p>'},
+    {t: 'Schnee und Tannen', b: '<p>Schneeboden mit einem Hauch Blau, dann schwarze Tannen davor.</p>'},
+    {t: 'Sterne', b: '<p>Mit Gelstift kleine Sterne, besonders im dunklen Bereich.</p>'}]
+});
+function huetteGeo(c) { const {W, H} = c; return {hor: 0.62 * H, sun: [0.65 * W, 0.6 * H, 0.09 * W], hut: [0.28 * W, 0.7 * H]}; }
+function paintHuette(c) {
+  const {W, H} = c, g = huetteGeo(c);
+  let o = skyWash(c, [[0, '#7b6bb0'], [.35, '#e889a0'], [.7, '#f7b267'], [1, '#fbe7a1']], g.hor + 0.05 * H);
+  o += `<circle cx="${f1(g.sun[0])}" cy="${f1(g.sun[1])}" r="${f1(g.sun[2])}" fill="#fff3c4" filter="url(#f-softglow)"/>`;
+  o += snowHill(`M-12 ${f1(g.hor)} Q${f1(W * .5)} ${f1(g.hor - .1 * H)} ${f1(W + 12)} ${f1(g.hor + .02 * H)} V${f1(H + 12)} H-12Z`, '#efe4f2');
+  [[.75, .14], [.82, .19], [.9, .13], [.62, .1]].forEach(([x, h], i) => { o += firSil(x * W, g.hor + .03 * H, h * H, h * H * .45, '#5b3f6e', 400 + i); });
+  const [hx, hy] = g.hut, hw = 0.14 * W, hh = 0.1 * H;
+  o += `<g filter="url(#f-wc2)"><rect x="${f1(hx)}" y="${f1(hy - hh)}" width="${f1(hw)}" height="${f1(hh)}" fill="#6b3f2a"/><polygon points="${P2([[hx - hw * .15, hy - hh], [hx + hw / 2, hy - hh - hw * .5], [hx + hw * 1.15, hy - hh]])}" fill="#fff8f3"/><rect x="${f1(hx + hw * .7)}" y="${f1(hy - hh - hw * .45)}" width="${f1(hw * .12)}" height="${f1(hw * .3)}" fill="#4d2c1d"/></g>`;
+  o += `<g filter="url(#f-glow)"><rect x="${f1(hx + hw * .2)}" y="${f1(hy - hh * .7)}" width="${f1(hw * .22)}" height="${f1(hh * .3)}" fill="#ffd36b"/></g><rect x="${f1(hx + hw * .58)}" y="${f1(hy - hh * .6)}" width="${f1(hw * .2)}" height="${f1(hh * .6)}" fill="#3a2316"/>`;
+  o += `<path d="M${f1(hx + hw * .76)} ${f1(hy - hh - hw * .5)} c${f1(-.03 * W)} ${f1(-.05 * H)} ${f1(.04 * W)} ${f1(-.07 * H)} ${f1(.01 * W)} ${f1(-.13 * H)} c${f1(-.03 * W)} ${f1(-.05 * H)} ${f1(.03 * W)} ${f1(-.07 * H)} ${f1(.01 * W)} ${f1(-.12 * H)}" stroke="#d9cbe0" stroke-width="${f1(.012 * W)}" fill="none" stroke-linecap="round" opacity=".8" filter="url(#f-wc)"/>`;
+  o += snowHill(`M-12 ${f1(H * .8)} Q${f1(W * .3)} ${f1(H * .74)} ${f1(W * .6)} ${f1(H * .82)} T${f1(W + 12)} ${f1(H * .78)} V${f1(H + 12)} H-12Z`, '#fdf9f7');
+  o += `<path d="M-12 ${f1(H * .8)} Q${f1(W * .3)} ${f1(H * .74)} ${f1(W * .6)} ${f1(H * .82)} T${f1(W + 12)} ${f1(H * .78)}" stroke="#c7b5da" stroke-width="2" fill="none" filter="url(#f-wc2)"/>`;
+  [[.05, .3], [.13, .22]].forEach(([x, h], i) => { o += firSil(x * W, H * .84, h * H, h * H * .45, '#3d2850', 420 + i); });
+  return o;
+}
+const huette = mal2({
+  id: 'huette', group: 'land', presets: LAND, title: 'Hütte im Abendrot', teaser: 'Eine kleine Hütte im Schnee, aus dem Schornstein steigt Rauch, dahinter ein Himmel in Gold, Rosa und Lila.',
+  tags: ['für alle', 'Farbverlauf', '50 Minuten'],
+  intro: 'Der Himmel ist ein Farbverlauf von Lila oben über Rosa und Orange bis Hellgelb am Horizont. Davor liegen sanfte Schneehügel, die den Himmel spiegeln – darum sind ihre Schatten lila. Eine kleine Hütte mit leuchtendem Fenster und Rauchfahne macht es gemütlich.',
+  legend: ['<b>Himmel:</b> 4 Farben nass in nass von oben nach unten', '<b>Sonne:</b> ausgespart oder mit Küchenpapier herausgetupft', '<b>Schneeschatten</b> in Lila – spiegeln den Himmel', '<b>Hütte</b> klein und dunkel, Fenster gelb'],
+  paint: paintHuette,
+  guides: c => { const g = huetteGeo(c); return guideLine(0, g.hor, c.W, g.hor) + badge(16, g.hor - 16, 1) + guideCircle(g.sun[0], g.sun[1], g.sun[2]) + badge(g.sun[0] + g.sun[2] + 14, g.sun[1] - 10, 2) + `<rect x="${f1(g.hut[0])}" y="${f1(g.hut[1] - .1 * c.H)}" width="${f1(.14 * c.W)}" height="${f1(.1 * c.H)}" fill="none" stroke="#555" stroke-dasharray="4 3"/>` + badge(g.hut[0] - 14, g.hut[1] - .05 * c.H, 3); },
+  measures: c => { const g = huetteGeo(c); return [['Horizont', 1, `<b>${cmOf(c, g.hor)} cm</b> von oben`, 'Hügel wölbt sich in der Mitte etwas höher'], ['Sonne', 1, `Ø <b>${cmOf(c, 2 * g.sun[2])} cm</b> · Mitte <b>${cmOf(c, g.sun[0])} cm</b> von links`, 'halb hinter dem Hügel'], ['Hütte', 1, `<b>${cmOf(c, .14 * c.W)} × ${cmOf(c, .1 * c.H)} cm</b> · links unten bei <b>${cmOf(c, g.hut[0])} cm</b>`, 'plus Dach als Dreieck']]; },
+  extra: ['Küchenpapier zum Heraustupfen der Sonne'], tools: [],
+  tech: [['Ver', 'lauf', 'Papier anfeuchten, dann waagerechte Streifen: Lila, Rosa, Orange, Gelb. Wo sie sich berühren, fließen sie ineinander. Nicht mehr rühren!'], ['Tupf', 'en', 'Für die Sonne ein Stück Küchenpapier zusammenknüllen und in die nasse Farbe drücken – es nimmt die Farbe heraus.'], ['Spie', 'gelung', 'Schnee spiegelt den Himmel: Schatten im Schnee mit verdünntem Lila malen, nicht mit Grau.']],
+  stepsF: c => [
+    {t: 'Vorzeichnen', b: '<p>Horizont, Hügel und eine kleine Hütte leicht vorzeichnen.</p>'},
+    {t: 'Himmel', b: '<p>Bis zum Horizont anfeuchten, Farbstreifen von oben nach unten: Lila, Rosa, Orange, Hellgelb.</p>'},
+    {t: 'Sonne', b: '<p>Sofort mit Küchenpapier einen Kreis heraustupfen. Ganz trocknen lassen.</p>'},
+    {t: 'Hügel und Bäume', b: '<p>Schneehügel weiß lassen, Schatten in zartem Lila. Bäume am Horizont in dunklem Lila.</p>'},
+    {t: 'Hütte', b: '<p>Hütte in dunklem Braun, Dach mit Schnee weiß, Fenster gelb, Schornstein und eine geschwungene Rauchfahne.</p>'},
+    {t: 'Vordergrund', b: '<p>Vorne ein zweiter Schneehügel und zwei große, dunkle Tannen am Rand.</p>'}]
+});
+
+const PROJECTS = {tanne, stern, latte, advent, rentier, masu, fenster, flocke, tuete, aqtanne, kugeln, kranz, robin, schnee, wichtel, kette, lebkuchen, dorf, nebel, polar, huette};
+const GROUPS = {mal: [['karten', 'Weihnachtskarten-Werkstatt', 'Kartenmotive in Aquarell. Tipp: Postkarte A6 passt in einen C6-Umschlag, Quadratkarten 14,5 cm in 15,5 × 15,5 cm. Mit dem Format-Schalter rechnet jede Anleitung die Maße um.'], ['lustig', 'Lustige Motive', 'Zum Lachen – und perfekt für Kinder.'], ['land', 'Weihnachtliche Landschaften', 'Stimmungsvolle Winterbilder im Querformat – als Karte oder gerahmt als Geschenk.']]};
 const tabName = (p, t) => (p.tabNames && p.tabNames[t[0]]) || t[1];
 const TABS = [['ziel', 'Was möchte ich?'], ['material', 'Was brauche ich?'], ['zuschnitt', 'Zuschnitt'], ['winkel', 'Winkel'], ['anleitung', 'Schritt für Schritt']];
 
@@ -1689,10 +2047,10 @@ function render() {
     document.getElementById("hsub").textContent = "Holz · Papier · Malerei";
     const card = p => `<a class="pcard cat-${p.cat}" href="#/${p.id}/ziel"><div class="thumb">${p.thumb()}</div><div class="body">${p.junior ? '<span class="jbadge">Junior · ab 10</span>' : ''}<h3>${p.title}</h3><p>${p.teaser}</p><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div></div></a>`;
     const all = Object.values(PROJECTS);
-    const cats = [['holz', 'Holz', 'Sägen, schrauben, leimen – große Deko für drinnen und draußen. Mit Junior-Projekten ab 10.', heroTanne()], ['papier', 'Papier', 'Falten, schneiden, kleben – am Küchentisch, für Groß und Klein.', heroFenster()], ['mal', 'Malerei', 'Aquarell und lustige Motive für Weihnachtskarten und Bilder.', aqtanne.thumb()]];
+    const cats = [['holz', 'Holz', 'Sägen, schrauben, leimen – große Deko für drinnen und draußen. Mit Junior-Projekten ab 10.', heroTanne()], ['papier', 'Papier', 'Falten, schneiden, kleben – am Küchentisch, für Groß und Klein.', heroFenster()], ['mal', 'Malerei', 'Aquarell: Weihnachtskarten, lustige Motive und winterliche Landschaften.', polar.thumb()]];
     app.innerHTML = `<div class="hero"><h2>Was machst du heute?</h2><p>Rubrik wählen, Projekt aussuchen, Größe einstellen – Material, Maße, Winkel und Anleitung rechnen sich automatisch.</p></div>
       <div class="cattiles">${cats.map(([id, name, txt, img]) => `<button class="cattile cat-${id}" data-cat="${id}"><div class="ct-img">${img}</div><div class="ct-body"><b>${name}</b><span>${all.filter(p => p.cat === id).length} Projekte</span></div></button>`).join('')}</div>
-      ${cats.map(([id, name, txt]) => `<section id="sec-${id}" class="catsec"><h2 class="sec cat-${id}">${name}</h2><p class="muted small">${txt}</p><div class="cards">${all.filter(p => p.cat === id).sort((x, y) => (x.junior ? 1 : 0) - (y.junior ? 1 : 0)).map(card).join('')}</div></section>`).join('')}`;
+      ${cats.map(([id, name, txt]) => { const ps = all.filter(p => p.cat === id).sort((x, y) => (x.junior ? 1 : 0) - (y.junior ? 1 : 0)); const groups = GROUPS[id]; const body = groups ? groups.map(([gid, gname, gtxt]) => `<h3 class="subsec">${gname}</h3>${gtxt ? `<p class="muted small">${gtxt}</p>` : ''}<div class="cards">${ps.filter(p => p.group === gid).map(card).join('')}</div>`).join('') : `<div class="cards">${ps.map(card).join('')}</div>`; return `<section id="sec-${id}" class="catsec"><h2 class="sec cat-${id}">${name}</h2><p class="muted small">${txt}</p>${body}</section>`; }).join('')}`;
     if (state.scrollCat) { const el = document.getElementById('sec-' + state.scrollCat); state.scrollCat = null; if (el) el.scrollIntoView(); }
     return;
   }
