@@ -199,6 +199,8 @@ details.abc p{margin:0 0 10px;font-size:15px}
   <linearGradient id="g-ice" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5f8fc4"/><stop offset="1" stop-color="#20385e"/></linearGradient>
   <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fa9d8"/><stop offset="1" stop-color="#dcebf8"/></linearGradient>
   <linearGradient id="g-candle" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fffdf6"/><stop offset="1" stop-color="#eee3cc"/></linearGradient>
+  <linearGradient id="g-barkfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a6a4a"/><stop offset=".5" stop-color="#6b4c30"/><stop offset="1" stop-color="#46301d"/></linearGradient>
+  <linearGradient id="g-glowbag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e7b874"/><stop offset="1" stop-color="#f6d28e"/></linearGradient>
   <radialGradient id="g-halo"><stop offset="0" stop-color="#ffd98a" stop-opacity=".9"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></radialGradient>
   <radialGradient id="g-snow" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#ffffff"/><stop offset=".7" stop-color="#f3f7fc"/><stop offset="1" stop-color="#c9d9ec"/></radialGradient>
   <pattern id="p-dots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.8" fill="#fff" opacity=".85"/></pattern>
@@ -291,7 +293,7 @@ const heroSVG = (inner, label) => `<svg viewBox="0 0 340 220" preserveAspectRati
 
 /* ---------------- Speicher ---------------- */
 const STORE = 'werkstatt-v1';
-let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, masu: {H: 80}, fenster: {H: 300, lagen: '2'}, flocke: {H: 150}, tuete: {H: 280, n: '10'}, aqtanne: {H: 105}, schnee: {H: 105}, wichtel: {H: 145}, kette: {H: 145}, kugeln: {H: 105}, kranz: {H: 145}, robin: {H: 105}, lebkuchen: {H: 105}, dorf: {H: 2100}, nebel: {H: 2100}, polar: {H: 2100}, huette: {H: 2100}, done: {}, buy: {}, step: {}};
+let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, masu: {H: 80}, fenster: {H: 300, lagen: '2'}, flocke: {H: 150}, tuete: {H: 280, n: '10'}, aqtanne: {H: 105}, schnee: {H: 105}, wichtel: {H: 145}, kette: {H: 145}, kugeln: {H: 105}, kranz: {H: 145}, robin: {H: 105}, lebkuchen: {H: 105}, dorf: {H: 2100}, nebel: {H: 2100}, polar: {H: 2100}, huette: {H: 2100}, bogen: {H: 600}, balken: {H: 500, q: '70'}, stammrentier: {H: 700}, popup: {H: 148}, licht: {H: 250, n: '5'}, poinsettie: {H: 145}, kerzen: {H: 105}, done: {}, buy: {}, step: {}};
 try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) { const d = JSON.parse(JSON.stringify(state)); state = Object.assign(state, s); for (const k of Object.keys(d)) if (d[k] && typeof d[k] === 'object' && 'H' in d[k]) state[k] = Object.assign({}, d[k], s[k]); state.step = Object.assign({}, s.step); } } catch (e) {}
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
 
@@ -2075,13 +2077,473 @@ const huette = mal2({
     {t: 'Vordergrund', b: '<p>Vorne ein zweiter Schneehügel und zwei große, dunkle Tannen am Rand.</p>'}]
 });
 
-const PROJECTS = {tanne, stern, latte, advent, rentier, masu, fenster, flocke, tuete, aqtanne, kugeln, kranz, robin, schnee, wichtel, kette, lebkuchen, dorf, nebel, polar, huette};
+/* ================= WEITERE PROJEKTE ================= */
+const DRILLS = [6, 8, 10, 12, 14, 16, 18, 20, 22, 25, 30, 35, 40, 45, 50];
+const drillFor = d => DRILLS.reduce((b, x) => Math.abs(x - d) < Math.abs(b - d) ? x : b, DRILLS[0]);
+const arcPath = (cx, cy, R, a0, a1) => { const p = a => [cx + R * Math.cos(a * DEG), cy - R * Math.sin(a * DEG)]; const A = p(a0), B = p(a1); return `M${f1(A[0])} ${f1(A[1])} A${f1(R)} ${f1(R)} 0 0 ${a1 > a0 ? 0 : 1} ${f1(B[0])} ${f1(B[1])}`; };
+const candleFlame = (x, y, s) => `<g filter="url(#f-glow)"><ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${f1(2.2 * s)}" ry="${f1(4.5 * s)}" fill="#ffcf55"/><ellipse cx="${f1(x)}" cy="${f1(y + s)}" rx="${f1(1 * s)}" ry="${f1(2.2 * s)}" fill="#fff6d0"/></g>`;
+
+/* ---- Schwibbogen ---- */
+function bogenCalc(B) {
+  const R = B / 2, a = Math.max(40, Math.round(0.09 * B)), r = R - a, n = B <= 450 ? 5 : B <= 650 ? 7 : 9;
+  const angles = Array.from({length: n}, (_, k) => 15 + 150 * k / (n - 1));
+  const hm = Math.round(0.45 * r), mw = Math.round(2 * r - 24);
+  const base = {L: B + 60, D: 90};
+  const cl = Math.max(40, Math.round(0.07 * B));
+  return {B, R, a, r, n, angles, hm, mw, base, cl, plate: [Math.ceil(B / 10) * 10 + 20, Math.ceil((R + hm + base.D + 40) / 10) * 10]};
+}
+function motifPts(w, h, seed = 3) {
+  // Silhouette: Tannen und zwei Häuser, Unterkante gerade
+  const r = rng(seed), pts = [[0, 0]];
+  const items = [[0.08, 'f', .9], [0.2, 'f', .65], [0.36, 'h', .55], [0.52, 'f', 1], [0.66, 'h', .7], [0.82, 'f', .8], [0.93, 'f', .55]];
+  items.forEach(([x, t, s]) => {
+    const cx = x * w, hh = s * h;
+    if (t === 'f') { const bw = hh * 0.42; pts.push([cx - bw / 2, -h * 0.12], [cx - bw * 0.3, -hh * 0.45], [cx - bw * 0.42, -hh * 0.45], [cx - bw * 0.18, -hh * 0.75], [cx - bw * 0.28, -hh * 0.75], [cx, -hh], [cx + bw * 0.28, -hh * 0.75], [cx + bw * 0.18, -hh * 0.75], [cx + bw * 0.42, -hh * 0.45], [cx + bw * 0.3, -hh * 0.45], [cx + bw / 2, -h * 0.12]); }
+    else { const bw = hh * 0.7; pts.push([cx - bw / 2, -h * 0.12], [cx - bw / 2, -hh * 0.6], [cx, -hh], [cx + bw / 2, -hh * 0.6], [cx + bw / 2, -h * 0.12]); }
+  });
+  pts.push([w, -h * 0.12], [w, 0]);
+  return pts;
+}
+function bogenArt(c, o) {
+  const s = o.s, cx = o.cx, by = o.by, R = c.R * s, r = c.r * s;
+  let g = '';
+  // Sockel
+  g += woodPoly([[cx - c.base.L / 2 * s, by], [cx + c.base.L / 2 * s, by], [cx + c.base.L / 2 * s, by + 18 * s * 1.4], [cx - c.base.L / 2 * s, by + 18 * s * 1.4]], o.tone || 'oak');
+  // Motiv
+  const mp = motifPts(c.mw * s, c.hm * s).map(q => [cx - c.mw * s / 2 + q[0], by + q[1]]);
+  g += `<polygon points="${P2(mp)}" fill="${o.dark ? '#3a2a1e' : 'url(#g-oak)'}" stroke="#7a5432" stroke-width=".8"/>`;
+  if (o.dark) g += `<g filter="url(#f-glow)">${[[0.36, .3], [0.66, .35]].map(([x, f]) => `<rect x="${f1(cx - c.mw * s / 2 + x * c.mw * s - 3 * s * 4)}" y="${f1(by - f * c.hm * s - 4 * s * 4)}" width="${f1(6 * s * 4)}" height="${f1(6 * s * 4)}" fill="#ffd36b"/>`).join('')}</g>`;
+  // Bogen
+  g += `<path d="${arcPath(cx, by, R, 180, 0)} L${f1(cx + r)} ${f1(by)} ${arcPath(cx, by, r, 0, 180).replace('M', 'L')} Z" fill="url(#g-${o.tone || 'oak'})" stroke="#9c7442" stroke-width="1"/>`;
+  for (const f of [0.3, 0.62]) g += `<path d="${arcPath(cx, by, r + (R - r) * f, 175, 5)}" fill="none" stroke="#6b3f1c" stroke-opacity=".2" stroke-width=".8"/>`;
+  g += `<path d="${arcPath(cx, by, R, 180, 0)}" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width=".9"/>`;
+  // Kerzen
+  let cand = '';
+  c.angles.forEach(a => {
+    const x = cx + R * Math.cos(a * DEG), y = by - R * Math.sin(a * DEG), len = c.cl * s, w = Math.max(3, 12 * s);
+    cand += `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(90 - a)})"><rect x="${f1(-w / 2)}" y="${f1(-len)}" width="${f1(w)}" height="${f1(len)}" rx="${f1(w * .2)}" fill="url(#g-candle)" stroke="#d9ccb3" stroke-width=".6"/>${o.lit ? candleFlame(0, -len - 5 * Math.max(.5, s * 3), Math.max(.6, s * 3)) : `<line x1="0" y1="${f1(-len)}" x2="0" y2="${f1(-len - 4)}" stroke="#333"/>`}</g>`;
+  });
+  return `<g filter="url(#f-sh)">${g}</g>${cand}`;
+}
+function bogenSVG(c) {
+  const s = 300 / c.B, cx = 170, by = 30 + (c.R + c.cl + 10) * s;
+  let o = bogenArt(c, {s, cx, by, lit: true});
+  const p = a => [cx + c.R * s * Math.cos(a * DEG), by - c.R * s * Math.sin(a * DEG)];
+  o += badge(...p(90).map((v, i) => i ? v - c.cl * s - 26 : v + 22), 1);
+  o += badge(cx + c.r * s - 4, by - c.r * s * 0.55, 2);
+  o += badge(cx, by - c.hm * s * 0.35, 3);
+  o += badge(cx + c.base.L / 2 * s - 8, by + 30, 4);
+  o += `<line x1="${f1(cx - c.R * s)}" y1="${f1(by + 46)}" x2="${f1(cx + c.R * s)}" y2="${f1(by + 46)}" stroke="#2b2118"/><text x="${cx}" y="${f1(by + 66)}" text-anchor="middle" font-size="16" font-weight="700" fill="#2b2118">${fmt(c.B / 10)} cm breit · ${c.n} Kerzen</text>`;
+  return `<svg viewBox="0 0 340 ${f1(by + 76)}" role="img" aria-label="Schwibbogen">${o}</svg>`;
+}
+function heroBogen() {
+  const c = bogenCalc(600), s = 230 / 600, by = 178;
+  let o = `<rect width="340" height="220" fill="#4a3a2e"/><rect x="18" y="8" width="304" height="176" fill="url(#g-night)"/>${snowDots(340, 180, 40, 77, '#fff', .6)}<rect x="166" y="8" width="8" height="176" fill="#5b4636"/>`;
+  o += halo(170, 110, 140, 90, .55);
+  o += bogenArt(c, {s, cx: 170, by, lit: true, dark: true, tone: 'oak'});
+  o += `<rect y="${by + 10}" width="340" height="${220 - by - 10}" fill="#e7dccb"/><rect y="${by + 10}" width="340" height="3" fill="#fff" opacity=".6"/>`;
+  return heroSVG(o, 'Schwibbogen mit leuchtenden Kerzen im Fenster');
+}
+const bogen = {
+  id: 'bogen', cat: 'holz', title: 'Schwibbogen mit LED-Kerzen', teaser: 'Der erzgebirgische Lichterbogen zum Selberbauen: Halbkreis aus Holz, Winterdorf-Silhouette und leuchtende Kerzen.',
+  tags: ['Stichsäge', 'Schnurzirkel', '1 Tag'],
+  presets: [400, 600, 800], range: [300, 1000], sizeLabel: 'Breite des Bogens',
+  calc: () => bogenCalc(state.bogen.H), thumb: () => heroBogen(), sizeExtra: () => '',
+  ziel(c) { return `<div class="panel"><h3>Was baue ich?</h3><p>Ein Halbkreis-Bogen aus einer Holzplatte, darunter eine ausgesägte Silhouette mit Tannen und Häusern, oben ${c.n} Holzkerzen mit kleinen LEDs. Den Bogen zeichnest du mit einem <b>Schnurzirkel</b> – ganz ohne Schablone.</p>
+    <div class="facts"><div class="fact"><b>${fmt(c.B / 10)} cm</b><span>breit</span></div><div class="fact"><b>${fmt(c.R / 10)} cm</b><span>hoch (Bogen)</span></div><div class="fact"><b>${c.n}</b><span>Kerzen</span></div><div class="fact"><b>${fmt(c.a / 10, 1)} cm</b><span>Bogenbreite</span></div></div>
+    <div class="drawing">${bogenSVG(c)}${legend([`<b>Kerzen:</b> Rundstab Ø 12 mm, ${c.cl} mm lang, zeigen von der Bogenmitte nach außen`, `<b>Bogen:</b> Außenradius ${fmt(c.R)} mm, Innenradius ${fmt(c.r)} mm`, '<b>Silhouette</b> mit der Stichsäge ausgesägt', '<b>Sockel</b> hält Bogen und Silhouette'])}</div>
+    <div class="note">Die Silhouette überträgst du mit der <b>Rastermethode</b> (siehe „Zuschnitt“) – das klappt auch ohne Zeichentalent.</div></div>`; },
+  material(c) { return {wood: [`Leimholz- oder Sperrholzplatte <b>18 mm</b>, mindestens <b>${fmt(c.plate[0] / 10)} × ${fmt(c.plate[1] / 10)} cm</b> (Bogen, Silhouette und Sockel)`, `Rundstab Buche <b>Ø 12 mm</b>: ${c.n} × ${c.cl} mm = ${m(c.n * (c.cl + 5))}`],
+    small: [`LED-Lichterkette mit mindestens ${c.n} LEDs (Micro-LED/Draht, warmweiß, Batterie mit Timer)`, 'Holzleim, 4 Schrauben 4 × 40 mm, 2 Holzdübel Ø 8 mm', 'Kleine Krampen oder Heißkleber für den Draht', 'Weiße Acrylfarbe für die Kerzen, Holzöl oder Lasur'],
+    tools: ['Stichsäge mit Kurvenblatt', 'Schnurzirkel: Nagel, Schnur, Bleistift', 'Akkuschrauber, Bohrer Ø 12 mm (Forstner) und Ø 10 mm für das Startloch', 'Geodreieck, Zwingen, Schleifpapier K80–K180'], extra: ''}; },
+  zuschnitt(c) {
+    const rows = [['Bogen', 1, `Außenradius <b>${fmt(c.R)}</b> · Innenradius <b>${fmt(c.r)}</b>`, 'aus Platte, Halbkreis'], ['Silhouette', 1, `<b>${fmt(c.mw)} × ${fmt(c.hm)}</b>`, 'passt zwischen die Bogenbeine'], ['Sockel', 1, `<b>${fmt(c.base.L)} × ${c.base.D}</b>`, 'gerade, Kanten gerundet'], ['Kerzen', c.n, `Ø 12 · <b>${c.cl}</b> lang`, 'Rundstab, oben leicht anfasen']];
+    const g = 20, gw = c.mw / g, gh = c.hm / g;
+    const sc = 300 / c.mw, mp = motifPts(c.mw * sc, c.hm * sc).map(q => [20 + q[0], 20 + c.hm * sc + q[1]]);
+    let grid = ''; const step = 50 * sc;
+    for (let x = 0; x <= c.mw * sc + 0.1; x += step) grid += `<line x1="${f1(20 + x)}" y1="20" x2="${f1(20 + x)}" y2="${f1(20 + c.hm * sc)}" stroke="#cdbfa9" stroke-width=".7"/>`;
+    for (let y = 0; y <= c.hm * sc + 0.1; y += step) grid += `<line x1="20" y1="${f1(20 + c.hm * sc - y)}" x2="${f1(20 + c.mw * sc)}" y2="${f1(20 + c.hm * sc - y)}" stroke="#cdbfa9" stroke-width=".7"/>`;
+    return `<div class="panel"><h3>Zuschnittliste · Schwibbogen ${fmt(c.B / 10)} cm</h3>${partsTable(rows)}
+      <h4>Silhouette mit der Rastermethode</h4><div class="drawing"><svg viewBox="0 0 340 ${f1(c.hm * sc + 44)}" role="img" aria-label="Raster für die Silhouette">${grid}<polygon points="${P2(mp)}" fill="#3a2a1e" fill-opacity=".85"/><text x="170" y="${f1(c.hm * sc + 38)}" text-anchor="middle" font-size="13" fill="#2b2118">Raster: 1 Kästchen = 5 × 5 cm auf dem Holz</text></svg></div>
+      <p class="small muted">So geht's: Auf das Holz ein Gitter mit 5-cm-Kästchen zeichnen. Dann Kästchen für Kästchen abzeichnen, was in der Vorlage im gleichen Kästchen ist.</p></div>`; },
+  winkel(c) { return `<div class="panel"><h3>Bogen und Kerzen-Winkel</h3>
+    <div class="anglecard"><div class="badge alt"><b>R</b><span>Schnur</span></div><div><b>Schnurzirkel:</b> Nagel in die Mitte der Unterkante, Schnur mit ${fmt(c.R)} mm bis zum Bleistift – Halbkreis ziehen. Dann Schnur auf ${fmt(c.r)} mm kürzen für den Innenbogen.</div></div>
+    <div class="anglecard"><div class="badge"><b>${c.n}×</b><span>Kerzen</span></div><div>Vom Mittelpunkt aus mit dem Geodreieck folgende Winkel anzeichnen (von rechts unten gemessen): <b>${c.angles.map(a => fmt(a, 0) + '°').join(' · ')}</b>. Wo die Linien den Außenbogen treffen, sitzen die Kerzen.</div></div>
+    <div class="anglecard"><div class="badge hand"><b>90°</b><span>zur Kante</span></div><div>Die Löcher (Ø 12, 10 mm tief) werden <b>senkrecht zur Bogenkante</b> gebohrt – also genau in Richtung Mittelpunkt. So zeigen die Kerzen strahlenförmig nach außen.</div></div></div>`; },
+  steps(c) { return [
+    {t: 'Bogen anzeichnen', b: `<p>Auf der Platte eine gerade Unterkante, Mittelpunkt markieren, Nagel rein. Schnurzirkel ${fmt(c.R)} mm → Außenbogen, ${fmt(c.r)} mm → Innenbogen.</p>`},
+    {t: 'Bogen aussägen', b: `<p>Erst den Außenbogen sägen. Für den Innenbogen ein 10-mm-Startloch innen bohren, Stichsägeblatt einführen, langsam rundherum sägen.</p>`},
+    {t: 'Silhouette', b: `<p>Mit der Rastermethode auf den Rest der Platte übertragen (${fmt(c.mw)} × ${fmt(c.hm)} mm) und aussägen. Fenster der Häuser mit 10-mm-Bohrer + Stichsäge.</p>`},
+    {t: 'Sockel und Kerzen', b: `<p>Sockel ${fmt(c.base.L)} × ${c.base.D} mm sägen. ${c.n} Kerzen à ${c.cl} mm vom Rundstab, oben leicht anfasen, weiß streichen.</p>`},
+    {t: 'Kerzenlöcher bohren', b: `<p>Winkel anzeichnen (${c.angles.map(a => fmt(a, 0) + '°').join(', ')}), Löcher Ø 12 mm, 10 mm tief, Richtung Mittelpunkt. Kerzen einleimen.</p>`},
+    {t: 'Schleifen und ölen', b: '<p>Alle Kanten, besonders die Sägekanten, gründlich schleifen. Ölen oder lasieren.</p>'},
+    {t: 'Zusammenbauen', b: '<p>Bogen und Silhouette auf den Sockel stellen, von unten verschrauben (vorbohren) bzw. mit Dübeln verleimen.</p>'},
+    {t: 'LEDs anbringen', b: `<p>Je eine LED oben auf jede Kerze (Heißkleber), den Draht hinten am Bogen mit kleinen Krampen führen, Batteriefach hinter den Sockel.</p>`}]; }
+};
+
+/* ---- Adventsbalken (Junior) ---- */
+function balkenCalc(L, q) {
+  q = +q; const m0 = L / 8, sp = (L - 2 * m0) / 3;
+  return {L, q, m0, sp, holes: [0, 1, 2, 3].map(i => m0 + i * sp), dh: 40, depth: 18};
+}
+function balkenArt(c, o) {
+  const s = o.s, x0 = o.x0, y0 = o.y0, L = c.L * s, h = c.q * s * 0.9, d = c.q * s * 0.45;
+  let g = `<polygon points="${P2([[x0, y0], [x0 + L, y0], [x0 + L + d * .6, y0 - d], [x0 + d * .6, y0 - d]])}" fill="url(#g-oak)" stroke="#8a6034" stroke-width=".8"/>`;
+  g += woodPoly([[x0, y0], [x0 + L, y0], [x0 + L, y0 + h], [x0, y0 + h]], 'wood');
+  g += `<polygon points="${P2([[x0 + L, y0], [x0 + L + d * .6, y0 - d], [x0 + L + d * .6, y0 - d + h], [x0 + L, y0 + h]])}" fill="#c99a62" stroke="#8a6034" stroke-width=".8"/>`;
+  g += `<ellipse cx="${f1(x0 + L + d * .3)}" cy="${f1(y0 + h / 2 - d / 2)}" rx="${f1(d * .22)}" ry="${f1(h * .35)}" fill="none" stroke="#8a6034" stroke-opacity=".4"/>`;
+  let top = '';
+  c.holes.forEach((hx, i) => {
+    const cx = x0 + hx * s + d * .3, cy = y0 - d / 2, rx = c.dh / 2 * s, ry = rx * 0.45;
+    top += `<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(rx)}" ry="${f1(ry)}" fill="#cfd3d8" stroke="#9aa0a7"/><rect x="${f1(cx - rx * .8)}" y="${f1(cy - rx * .5)}" width="${f1(rx * 1.6)}" height="${f1(rx * .5)}" fill="#f8f4ea"/><ellipse cx="${f1(cx)}" cy="${f1(cy - rx * .5)}" rx="${f1(rx * .8)}" ry="${f1(ry * .8)}" fill="#fffaf0"/>`;
+    if (o.lit && i < o.lit) top += candleFlame(cx, cy - rx * .5 - 7 * s * 3, s * 3);
+    if (o.num) top += `<text x="${f1(x0 + hx * s)}" y="${f1(y0 + h * .65)}" text-anchor="middle" font-family="${SCRIPT}" font-weight="700" font-size="${f1(h * .45)}" fill="#7a4a22" opacity=".85">${i + 1}</text>`;
+  });
+  return `<g filter="url(#f-sh)">${g}</g>${top}`;
+}
+function balkenSVG(c) {
+  const s = 290 / c.L, x0 = 20, q = c.q * s;
+  let o = `<text x="${x0}" y="22" font-size="13" font-weight="700" fill="#6f6254">Draufsicht</text>`;
+  o += `<rect x="${x0}" y="30" width="${f1(c.L * s)}" height="${f1(q)}" fill="url(#g-oak)" stroke="#9c7442"/>`;
+  c.holes.forEach((hx, i) => { o += `<circle cx="${f1(x0 + hx * s)}" cy="${f1(30 + q / 2)}" r="${f1(c.dh / 2 * s)}" fill="#fff" stroke="#9c7442"/><line x1="${f1(x0 + hx * s)}" y1="${f1(30 + q + 6)}" x2="${f1(x0 + hx * s)}" y2="${f1(30 + q + 20)}" stroke="#2b2118"/>`; });
+  const yd = 30 + q + 14;
+  o += `<line x1="${x0}" y1="${f1(yd)}" x2="${f1(x0 + c.holes[0] * s)}" y2="${f1(yd)}" stroke="#2b2118"/><text x="${f1(x0 + c.holes[0] * s / 2)}" y="${f1(yd + 16)}" text-anchor="middle" font-size="13" fill="#2b2118">${fmt(c.m0)}</text>`;
+  o += `<line x1="${f1(x0 + c.holes[0] * s)}" y1="${f1(yd)}" x2="${f1(x0 + c.holes[1] * s)}" y2="${f1(yd)}" stroke="#2b2118"/><text x="${f1(x0 + (c.holes[0] + c.holes[1]) * s / 2)}" y="${f1(yd + 16)}" text-anchor="middle" font-size="13" font-weight="700" fill="#2b2118">${fmt(c.sp)}</text>`;
+  o += badge(x0 + c.holes[3] * s, 30 + q / 2, 1);
+  const ys = yd + 46;
+  o += `<text x="${x0}" y="${f1(ys - 8)}" font-size="13" font-weight="700" fill="#6f6254">Seitenansicht</text><rect x="${x0}" y="${f1(ys)}" width="${f1(c.L * s)}" height="${f1(q)}" fill="url(#g-oak)" stroke="#9c7442"/>`;
+  c.holes.forEach(hx => { o += `<rect x="${f1(x0 + (hx - c.dh / 2) * s)}" y="${f1(ys)}" width="${f1(c.dh * s)}" height="${f1(c.depth * s)}" fill="#fff" stroke="#9c7442" stroke-dasharray="3 2"/>`; });
+  o += badge(x0 + c.holes[1] * s, ys + c.depth * s + 16, 2);
+  o += `<text x="170" y="${f1(ys + q + 26)}" text-anchor="middle" font-size="15" font-weight="700" fill="#2b2118">${fmt(c.L / 10)} cm · Kantholz ${c.q} × ${c.q} mm</text>`;
+  return `<svg viewBox="0 0 340 ${f1(ys + q + 40)}" role="img" aria-label="Adventsbalken">${o}</svg>`;
+}
+function heroBalken() {
+  const c = balkenCalc(500, 70);
+  let o = `<rect width="340" height="220" fill="url(#g-night)"/>` + halo(170, 120, 150, 90, .55) + `<rect y="150" width="340" height="70" fill="url(#g-table)"/>`;
+  o += floorShadow(160, 182, 130);
+  o += balkenArt(c, {s: 0.52, x0: 32, y0: 140, lit: 2, num: true});
+  o += branch(30, 178, 90, 200, 7) + branch(300, 176, 80, -20, 9) + cone(300, 186, 9) + cone(40, 188, 8);
+  return heroSVG(o, 'Adventsbalken mit Teelichtern');
+}
+const balken = {
+  id: 'balken', cat: 'holz', junior: true, title: 'Adventsbalken für 4 Teelichter', teaser: 'Ein Holzbalken mit vier Löchern für Teelichter – dazu die Zahlen 1 bis 4. Schnell gebaut, schön verschenkt.',
+  tags: ['ab 10 Jahren', 'Forstnerbohrer', '1–2 Stunden'],
+  presets: [400, 500, 600], range: [300, 900], sizeLabel: 'Länge des Balkens',
+  calc: () => balkenCalc(state.balken.H, state.balken.q), thumb: () => heroBalken(),
+  sizeExtra() { return `<label class="custom">Kantholz <select data-k="q">${[70, 90].map(v => `<option ${+state.balken.q === v ? 'selected' : ''} value="${v}">${v} × ${v} mm</option>`).join('')}</select></label>`; },
+  ziel(c) { return `<div class="panel"><h3>Was baust du?</h3><p>Ein Stück Kantholz bekommt vier runde Löcher für Teelichter – genau gleich weit auseinander. Die Zahlen 1–4 malst oder brennst du vorne drauf. Mit Moos, Zapfen und Tannengrün wird ein Adventskranz daraus.</p>
+    <div class="facts"><div class="fact"><b>${fmt(c.L / 10)} cm</b><span>lang</span></div><div class="fact"><b>${fmt(c.sp)} mm</b><span>Lochabstand</span></div><div class="fact"><b>Ø ${c.dh} mm</b><span>Bohrer</span></div><div class="fact"><b>${c.depth} mm</b><span>tief</span></div></div>
+    <div class="drawing">${balkenSVG(c)}${legend(['<b>Löcher</b> Ø 40 mm – passt für normale Teelichter', `<b>Tiefe ${c.depth} mm</b> – das Teelicht steht etwas heraus`])}</div>${junNote}
+    <div class="warn"><b>Teelichter nur in der Alu-Hülle</b> und nie unbeaufsichtigt brennen lassen. Mit LED-Teelichtern ist es kinderleicht sicher.</div></div>`; },
+  material(c) { return {wood: [`Kantholz <b>${c.q} × ${c.q} mm</b>, ${fmt(c.L / 10)} cm lang (Fichte, Douglasie oder ein Reststück Balken)`], small: ['4 Teelichter (am besten LED)', 'Lackstift, Stempel oder Brandmalkolben für die Zahlen', 'Holzöl oder Wachs', 'Deko: Moos, Zapfen, Tannengrün, Sternanis'], tools: ['Forstnerbohrer Ø 40 mm und Akkubohrer oder Ständerbohrmaschine (mit Erwachsenem)', 'Säge zum Ablängen', 'Zwingen, Zollstock, Anschlagwinkel', 'Schleifpapier K80, K120'], extra: ''}; },
+  zuschnitt(c) { return `<div class="panel"><h3>Maße</h3>${partsTable([['Balken', 1, `<b>${fmt(c.L)}</b> lang`, `Kantholz ${c.q} × ${c.q}`], ['Löcher', 4, `Ø <b>${c.dh}</b> · <b>${c.depth}</b> tief`, `Mitte bei ${c.holes.map(x => fmt(x)).join(' · ')} mm`]])}
+    <div class="note">Rechen-Trick: Der Rand ist ein Achtel der Länge (${fmt(c.m0)} mm), der Rest wird in 3 gleiche Abstände geteilt (${fmt(c.sp)} mm).</div></div>`; },
+  winkel(c) { return `<div class="panel"><h3>Bohren und Winkel</h3>
+    <div class="anglecard"><div class="badge alt"><b>90°</b><span>senkrecht</span></div><div>Der Forstnerbohrer muss genau senkrecht stehen. Tipp: Ein Anschlagwinkel neben den Bohrer stellen – oder eine Ständerbohrmaschine verwenden.</div></div>
+    <div class="anglecard"><div class="badge"><b>${c.depth}</b><span>mm tief</span></div><div>Klebeband als Tiefenmarke um den Bohrer wickeln: ${c.depth} mm über der Schneide.</div></div>
+    <div class="anglecard"><div class="badge hand"><b>Mitte</b><span>finden</span></div><div>Die Mitte der Balkenbreite: zwei Diagonalen über das Quadrat zeichnen – wo sie sich kreuzen, ist die Mitte (${c.q / 2} mm von der Kante).</div></div></div>`; },
+  steps(c) { return [
+    {t: 'Ablängen', b: `<p>Kantholz auf ${fmt(c.L)} mm sägen, beide Enden gerade.</p>`},
+    {t: 'Löcher anzeichnen', b: `<p>Mittellinie längs ziehen (${c.q / 2} mm von der Kante). Lochmitten bei ${c.holes.map(x => fmt(x)).join(', ')} mm vom Ende.</p>`},
+    {t: 'Bohren', b: `<p>Balken festspannen. Mit dem Forstnerbohrer Ø ${c.dh} mm ${c.depth} mm tief bohren – langsam, senkrecht, ein Erwachsener hilft.</p>`},
+    {t: 'Schleifen', b: '<p>Alle Kanten mit K80 rund schleifen, dann mit K120 glätten.</p>'},
+    {t: 'Zahlen', b: '<p>Vorne unter jedes Loch eine Zahl 1–4 malen, stempeln oder einbrennen.</p>'},
+    {t: 'Ölen und schmücken', b: '<p>Ölen, trocknen lassen, Teelichter rein, Moos und Zapfen drumherum.</p>'}]; }
+};
+
+/* ---- Rentier aus Baumstämmen ---- */
+function stammCalc(L) {
+  const r5 = v => Math.round(v / 5) * 5;
+  const c = {L, Db: r5(Math.max(100, 0.22 * L)), Ll: r5(0.62 * L), Dl: drillFor(0.055 * L), Ln: r5(0.38 * L), Dn: drillFor(Math.min(50, 0.11 * L)), Lh: r5(0.3 * L), Dh: r5(0.15 * L), La: r5(0.42 * L), Da: drillFor(0.025 * L)};
+  c.depthL = Math.max(40, r5(0.07 * L)); c.depthN = Math.max(40, r5(0.07 * L));
+  return c;
+}
+function logH(x1, y1, len, dia, ang, endFace = true) {
+  const a = ang * DEG, ux = Math.cos(a), uy = Math.sin(a), nx = -uy, ny = ux, r = dia / 2;
+  const P = [[x1 + nx * r, y1 + ny * r], [x1 + ux * len + nx * r, y1 + uy * len + ny * r], [x1 + ux * len - nx * r, y1 + uy * len - ny * r], [x1 - nx * r, y1 - ny * r]];
+  let o = `<polygon points="${P2(P)}" fill="url(#g-barkfill)" stroke="#3d2a1a" stroke-width=".8"/>`;
+  for (let i = 1; i < 4; i++) { const f = i / 4 - .5; o += `<line x1="${f1(x1 + nx * dia * f + ux * len * .08)}" y1="${f1(y1 + ny * dia * f + uy * len * .08)}" x2="${f1(x1 + nx * dia * f + ux * len * .9)}" y2="${f1(y1 + ny * dia * f + uy * len * .9)}" stroke="#2b1c10" stroke-opacity=".35" stroke-width=".8"/>`; }
+  if (endFace) o += `<ellipse cx="${f1(x1 + ux * len)}" cy="${f1(y1 + uy * len)}" rx="${f1(r * .35)}" ry="${f1(r)}" fill="#e9cf9f" stroke="#a07a4a" stroke-width=".8" transform="rotate(${f1(ang)} ${f1(x1 + ux * len)} ${f1(y1 + uy * len)})"/><ellipse cx="${f1(x1 + ux * len)}" cy="${f1(y1 + uy * len)}" rx="${f1(r * .18)}" ry="${f1(r * .5)}" fill="none" stroke="#a07a4a" stroke-width=".6" transform="rotate(${f1(ang)} ${f1(x1 + ux * len)} ${f1(y1 + uy * len)})"/>`;
+  return o;
+}
+function stammArt(c, o) {
+  const s = o.s, x0 = o.x0, yb = o.yb, L = c.L * s, legL = c.Ll * s, legD = c.Dl * s, Db = c.Db * s;
+  const bodyY = yb - legL * Math.cos(10 * DEG) - Db * 0.35;
+  let g = '';
+  for (const [fx, sg] of [[0.18, -1], [0.82, 1]]) for (const dz of [-1, 1]) g += logH(x0 + fx * L + dz * legD * .4, bodyY + Db * .3, legL, legD * (dz < 0 ? .95 : 1), 90 + sg * 8 + dz * 3, false);
+  g += logH(x0, bodyY, L, Db, 0);
+  g += `<ellipse cx="${f1(x0)}" cy="${f1(bodyY)}" rx="${f1(Db * .17)}" ry="${f1(Db / 2)}" fill="#e9cf9f" stroke="#a07a4a"/>`;
+  const nx = x0 + L * .86, ny = bodyY - Db * .3;
+  g += logH(nx, ny, c.Ln * s, c.Dn * s, -50);
+  const hx = nx + c.Ln * s * Math.cos(-50 * DEG), hy = ny + c.Ln * s * Math.sin(-50 * DEG);
+  g += logH(hx - c.Dh * s * .3, hy, c.Lh * s, c.Dh * s, 15);
+  const kx = hx - c.Dh * s * .3 + c.Lh * s * Math.cos(15 * DEG), ky = hy + c.Lh * s * Math.sin(15 * DEG);
+  for (const [ang, off] of [[-110, -0.05], [-70, 0.08]]) {
+    const ax = hx + off * L, ay = hy - c.Dh * s * .4, a = ang * DEG, len = c.La * s;
+    g += `<path d="M${f1(ax)} ${f1(ay)} l${f1(len * Math.cos(a))} ${f1(len * Math.sin(a))} M${f1(ax + len * .45 * Math.cos(a))} ${f1(ay + len * .45 * Math.sin(a))} l${f1(len * .35 * Math.cos(a + .6))} ${f1(len * .35 * Math.sin(a + .6))} M${f1(ax + len * .7 * Math.cos(a))} ${f1(ay + len * .7 * Math.sin(a))} l${f1(len * .25 * Math.cos(a - .6))} ${f1(len * .25 * Math.sin(a - .6))}" stroke="#4a3220" stroke-width="${f1(Math.max(1.2, c.Da * s))}" stroke-linecap="round" fill="none"/>`;
+  }
+  if (o.scarf) g += `<path d="M${f1(nx - Db * .1)} ${f1(ny - Db * .05)} l${f1(c.Dn * s * 1.2)} ${f1(-c.Dn * s * .5)} l${f1(Db * .05)} ${f1(Db * .2)} l${f1(-c.Dn * s * 1.2)} ${f1(c.Dn * s * .5)}Z M${f1(nx)} ${f1(ny)} l${f1(-Db * .08)} ${f1(Db * .45)} l${f1(Db * .1)} 0 l${f1(Db * .02)} ${f1(-Db * .4)}Z" fill="#c62828"/>`;
+  if (o.nose) g += `<circle cx="${f1(kx)}" cy="${f1(ky)}" r="${f1(c.Dh * s * .18)}" fill="#d0342c" filter="url(#f-glow)"/>`;
+  return {g: `<g filter="url(#f-sh)">${g}</g>`, bodyY, nx, ny, hx, hy};
+}
+function stammSVG(c) {
+  const s = 240 / (c.L * 1.3), x0 = 50, yb = 370;
+  const {g, bodyY, nx, ny, hx, hy} = stammArt(c, {s, x0, yb});
+  let o = g + `<line x1="20" y1="${yb}" x2="320" y2="${yb}" stroke="#bfae94"/>`;
+  o += badge(x0 + c.L * s * .5, bodyY - c.Db * s * .7, 1) + badge(x0 + c.L * s * .18 - 22, yb - c.Ll * s * .5, 2) + badge(nx + 26, ny - c.Ln * s * .3, 3) + badge(hx + c.Lh * s * .5, hy + c.Dh * s, 4) + badge(hx - 30, hy - c.La * s * .6, 5);
+  return `<svg viewBox="0 0 340 390" role="img" aria-label="Rentier aus Baumstämmen">${o}</svg>`;
+}
+function heroStamm() {
+  let o = `<rect width="340" height="220" fill="url(#g-dusk)"/>${snowDots(340, 180, 60, 31, '#fff', .8)}<path d="M0 180 Q120 168 340 178 V220 H0Z" fill="#f4f7fb"/>`;
+  o += halo(120, 130, 120, 70, .35);
+  o += stammArt(stammCalc(900), {s: 0.15, x0: 40, yb: 196, scarf: true, nose: true}).g;
+  o += stammArt(stammCalc(600), {s: 0.15, x0: 215, yb: 194, scarf: false}).g;
+  const pts = Array.from({length: 13}, (_, i) => [10 + i * 26, 30 + Math.sin(i * .9) * 8]);
+  o += wire(pts) + glowDots(sampleLine(pts, 9), 1.7);
+  return heroSVG(o, 'Rentiere aus Baumstämmen im Schnee');
+}
+const stammrentier = {
+  id: 'stammrentier', cat: 'holz', title: 'Rentier aus Baumstämmen', teaser: 'Der Klassiker für den Garten: ein Rentier aus Kaminholz und Ästen – mit rotem Schal und leuchtender Nase.',
+  tags: ['für draußen', 'Akkubohrer', '½ Tag'],
+  presets: [500, 700, 900], range: [300, 1200], sizeLabel: 'Länge des Körpers',
+  calc: () => stammCalc(state.stammrentier.H), thumb: () => heroStamm(), sizeExtra: () => '',
+  ziel(c) { return `<div class="panel"><h3>Was baue ich?</h3><p>Ein dicker Stamm ist der Körper, vier Äste die Beine, ein mittlerer Ast der Hals, ein kurzes Stammstück der Kopf, zwei Astgabeln das Geweih. Alles wird <b>gesteckt</b>: Du bohrst Löcher und steckst die Äste hinein. Am schönsten im Doppelpack: groß und klein.</p>
+    <div class="facts"><div class="fact"><b>${fmt(c.L / 10)} cm</b><span>Körper</span></div><div class="fact"><b>Ø ${fmt(c.Db / 10)} cm</b><span>Stammdicke</span></div><div class="fact"><b>ca. ${fmt((c.Ll * .98 + c.Db + c.Ln * .8 + c.La * .8) / 10)} cm</b><span>hoch mit Geweih</span></div><div class="fact"><b>9 Teile</b><span>Holz</span></div></div>
+    <div class="drawing">${stammSVG(c)}${legend(['<b>Körper:</b> Stammstück', `<b>Beine:</b> 4 Äste, Löcher Ø ${c.Dl} mm schräg gebohrt`, `<b>Hals:</b> Ast Ø ${c.Dn} mm, Loch im 45°-Winkel`, '<b>Kopf:</b> kurzes Stammstück', '<b>Geweih:</b> zwei Astgabeln'])}</div></div>`; },
+  material(c) { return {wood: [`Körper: Stamm Ø ca. <b>${fmt(c.Db / 10)} cm</b>, ${fmt(c.L / 10)} cm lang (Birke sieht toll aus)`, `Beine: 4 Äste Ø ca. ${c.Dl} mm, je ${fmt(c.Ll / 10)} cm`, `Hals: Ast Ø ca. ${c.Dn} mm, ${fmt(c.Ln / 10)} cm · Kopf: Stamm Ø ca. ${fmt(c.Dh / 10)} cm, ${fmt(c.Lh / 10)} cm`, `Geweih: 2 Astgabeln, ca. ${fmt(c.La / 10)} cm`],
+    small: ['Holzleim D3 oder Montagekleber', 'roter Schal oder Filzstreifen, roter Pompon/LED-Nase', 'optional: Lichterkette (außen, IP44)'],
+    tools: [`Akkubohrer mit Forst- oder Schlangenbohrer Ø ${c.Dl}, ${c.Dn} und ${c.Da} mm`, 'Säge (Bügelsäge oder Kappsäge)', 'Zwingen oder Keil-Unterlage gegen Wegrollen', 'Klebeband als Tiefenmarke'], extra: ''}; },
+  zuschnitt(c) { return `<div class="panel"><h3>Teile und Bohrungen</h3>${partsTable([
+    ['Körper', 1, `Ø <b>${fmt(c.Db)}</b> · <b>${fmt(c.L)}</b> lang`, 'Stammstück'],
+    ['Beine', 4, `Ø <b>${c.Dl}</b> · <b>${fmt(c.Ll)}</b> lang`, `Löcher Ø ${c.Dl}, ${c.depthL} mm tief`],
+    ['Hals', 1, `Ø <b>${c.Dn}</b> · <b>${fmt(c.Ln)}</b> lang`, `Loch Ø ${c.Dn}, ${c.depthN} mm tief`],
+    ['Kopf', 1, `Ø <b>${fmt(c.Dh)}</b> · <b>${fmt(c.Lh)}</b> lang`, `unten Loch Ø ${c.Dn} für den Hals`],
+    ['Geweih', 2, `ca. <b>${fmt(c.La)}</b> lang`, `Löcher Ø ${c.Da}, 30 mm tief`]])}
+    <div class="note">Die Äste müssen nicht genau so dick sein: Wähle den Bohrer, dann spitzt du das Astende mit Messer oder Raspel an, bis es stramm passt.</div></div>`; },
+  winkel(c) { return `<div class="panel"><h3>Bohr-Winkel</h3>
+    <div class="anglecard"><div class="badge alt"><b>10°</b><span>Beine</span></div><div>Die Beinlöcher schräg: etwa 10° nach außen und leicht nach vorn bzw. hinten. So steht das Rentier breitbeinig und kippt nicht.</div></div>
+    <div class="anglecard"><div class="badge"><b>45°</b><span>Hals</span></div><div>Das Halsloch vorne oben im Winkel von 45° bohren. Tipp: Einen 45°-Klotz (Reststück, auf der Kappsäge abgeschnitten) neben den Bohrer halten.</div></div>
+    <div class="anglecard"><div class="badge hand"><b>15°</b><span>Kopf</span></div><div>Im Kopf das Halsloch leicht schräg (ca. 15°), damit der Kopf nach vorne schaut. Geweih-Löcher oben, ca. 20° nach außen.</div></div>
+    <div class="note">Damit der runde Stamm beim Bohren nicht wegrollt: zwei Keile unterlegen oder in eine Kiste mit Sand stellen.</div></div>`; },
+  steps(c) { return [
+    {t: 'Holz sammeln und ablängen', b: '<p>Stamm und Äste nach Liste zusägen. Beinäste möglichst gerade, Geweih mit schönen Gabeln.</p>'},
+    {t: 'Beinlöcher', b: `<p>Körper sichern. Vier Löcher Ø ${c.Dl} mm, ${c.depthL} mm tief, je etwa 15 % vom Ende, 10° nach außen.</p>`},
+    {t: 'Beine einsetzen', b: '<p>Äste anspitzen, mit Leim einschlagen. Hinstellen – wackelt es, ein Bein unten etwas kürzen.</p>'},
+    {t: 'Hals', b: `<p>Vorne oben Loch Ø ${c.Dn} mm im 45°-Winkel bohren, Hals einleimen.</p>`},
+    {t: 'Kopf und Geweih', b: `<p>Kopf unten anbohren und auf den Hals stecken. Oben zwei Löcher Ø ${c.Da} mm für das Geweih.</p>`},
+    {t: 'Dekorieren', b: '<p>Roter Schal, rote Nase, vielleicht eine Lichterkette ums Geweih – fertig für den Vorgarten.</p>'}]; }
+};
+
+/* ---- Pop-up-Tannenkarte ---- */
+function popupCalc(Wc) {
+  const W = Wc, h = Wc === 148 ? 105 : 148.5;
+  const boxes = [[.25, .16, .2], [.5, .2, .32], [.76, .14, .13]].map(([x, w, d]) => { const bw = Math.round(w * W), dd = Math.round(d * h), cx = x * W; return {cx, w: bw, d: dd, x1: Math.round(cx - bw / 2), x2: Math.round(cx + bw / 2), T: Math.round(h - dd - 6)}; });
+  return {W, h, boxes, outer: [W + 4, 2 * h + 4]};
+}
+function popupFlatSVG(c) {
+  const s = 300 / c.W, x0 = 20, y0 = 20, H = 2 * c.h * s;
+  let o = `<rect x="${x0}" y="${y0}" width="${f1(c.W * s)}" height="${f1(H)}" fill="#fdfbf6" stroke="#2b2118"/>`;
+  const fy = y0 + c.h * s;
+  let lastX = x0;
+  c.boxes.forEach(b => { o += `<line x1="${f1(lastX)}" y1="${f1(fy)}" x2="${f1(x0 + b.x1 * s)}" y2="${f1(fy)}" stroke="#3b5b8a" stroke-dasharray="6 4" stroke-width="1.3"/>`; lastX = x0 + b.x2 * s; });
+  o += `<line x1="${f1(lastX)}" y1="${f1(fy)}" x2="${f1(x0 + c.W * s)}" y2="${f1(fy)}" stroke="#3b5b8a" stroke-dasharray="6 4" stroke-width="1.3"/>`;
+  c.boxes.forEach((b, i) => {
+    const X1 = x0 + b.x1 * s, X2 = x0 + b.x2 * s, D = b.d * s;
+    o += `<line x1="${f1(X1)}" y1="${f1(fy - D)}" x2="${f1(X1)}" y2="${f1(fy + D)}" stroke="#c62828" stroke-width="2"/><line x1="${f1(X2)}" y1="${f1(fy - D)}" x2="${f1(X2)}" y2="${f1(fy + D)}" stroke="#c62828" stroke-width="2"/>`;
+    o += `<line x1="${f1(X1)}" y1="${f1(fy - D)}" x2="${f1(X2)}" y2="${f1(fy - D)}" stroke="#2f7a4a" stroke-dasharray="2 3" stroke-width="1.5"/><line x1="${f1(X1)}" y1="${f1(fy + D)}" x2="${f1(X2)}" y2="${f1(fy + D)}" stroke="#2f7a4a" stroke-dasharray="2 3" stroke-width="1.5"/>`;
+    o += `<line x1="${f1(X1)}" y1="${f1(fy)}" x2="${f1(X2)}" y2="${f1(fy)}" stroke="#2f7a4a" stroke-dasharray="2 3" stroke-width="1.5"/>`;
+    o += badge((X1 + X2) / 2, fy - D - 16, i + 1);
+  });
+  o += `<text x="${x0}" y="${f1(y0 + H + 22)}" font-size="13" fill="#c62828" font-weight="700">— schneiden</text><text x="${x0 + 110}" y="${f1(y0 + H + 22)}" font-size="13" fill="#3b5b8a" font-weight="700">- - Talfalte</text><text x="${x0 + 210}" y="${f1(y0 + H + 22)}" font-size="13" fill="#2f7a4a" font-weight="700">··· Box falten</text>`;
+  return `<svg viewBox="0 0 340 ${f1(y0 + H + 34)}" role="img" aria-label="Schnittmuster Pop-up-Karte">${o}</svg>`;
+}
+function popup3D(c, o) {
+  const s = o.s, x0 = o.x0, y0 = o.y0, W = c.W * s, h = c.h * s, dx = 0.45, dy = 0.35;
+  const P = (x, y, z) => [x0 + x * s + z * s * dx, y0 - y * s - z * s * dy];   // x Breite, y Höhe, z Tiefe (nach hinten)
+  let g = `<polygon points="${P2([P(0, 0, 0), P(c.W, 0, 0), P(c.W, 0, c.h), P(0, 0, c.h)])}" fill="#f6f1e6" stroke="#d8ccb3"/>`;
+  g += `<polygon points="${P2([P(0, 0, c.h), P(c.W, 0, c.h), P(c.W, c.h, c.h), P(0, c.h, c.h)])}" fill="#fbf8f1" stroke="#d8ccb3"/>`;
+  if (o.sky) g += `<polygon points="${P2([P(0, 0, c.h), P(c.W, 0, c.h), P(c.W, c.h, c.h), P(0, c.h, c.h)])}" fill="#dfe9f5" opacity=".8"/>${[0.2, .5, .8].map(f => `<circle cx="${f1(P(c.W * f, c.h * .8, c.h)[0])}" cy="${f1(P(c.W * f, c.h * .8, c.h)[1])}" r="2" fill="#fff"/>`).join('')}`;
+  const order = [...c.boxes].sort((a, b) => b.d - a.d);
+  order.forEach(b => {
+    const z = c.h - b.d;
+    g += `<polygon points="${P2([P(b.x1, b.d, z), P(b.x2, b.d, z), P(b.x2, b.d, c.h), P(b.x1, b.d, c.h)])}" fill="#ece3d1" stroke="#cdbfa3"/>`;
+    g += `<polygon points="${P2([P(b.x1, 0, z), P(b.x2, 0, z), P(b.x2, b.d, z), P(b.x1, b.d, z)])}" fill="#f4ede0" stroke="#cdbfa3"/>`;
+    const tw = b.T * 0.62, base = P(b.cx, 0, z - 1);
+    const tri = (y1, y2, wf, col) => `<polygon points="${P2([[base[0], base[1] - y2 * s], [base[0] + wf * tw * s / 2, base[1] - y1 * s], [base[0] - wf * tw * s / 2, base[1] - y1 * s]])}" fill="${col}"/>`;
+    g += `<g filter="url(#f-sh)">${tri(b.T * .05, b.T * .55, 1, '#2f6b3a')}${tri(b.T * .35, b.T * .8, .75, '#3f8a4b')}${tri(b.T * .6, b.T, .5, '#5aa064')}<rect x="${f1(base[0] - tw * s * .06)}" y="${f1(base[1] - b.T * .05 * s)}" width="${f1(tw * s * .12)}" height="${f1(b.T * .05 * s)}" fill="#6b4425"/></g>`;
+    g += `<g filter="url(#f-glow)">${starShape(base[0], base[1] - b.T * s - 3, Math.max(2.5, 5 * s * 2.2), '#f6c453')}</g>`;
+  });
+  return g;
+}
+function heroPopup() {
+  const c = popupCalc(148);
+  let o = `<rect width="340" height="220" fill="url(#g-wall)"/><rect y="160" width="340" height="60" fill="url(#g-table)"/>`;
+  o += `<ellipse cx="170" cy="182" rx="135" ry="12" fill="#000" opacity=".18" filter="url(#f-blur)"/>`;
+  o += `<g filter="url(#f-sh)">${popup3D(c, {s: 1.4, x0: 22, y0: 178, sky: true})}</g>`;
+  return heroSVG(o, 'Pop-up-Karte mit Tannen');
+}
+const popup = {
+  id: 'popup', cat: 'papier', title: 'Pop-up-Tannenkarte', teaser: 'Beim Aufklappen springen drei Tannen aus der Karte. Nur zwei Schnitte pro Baum – der Rest ist Falten.',
+  tags: ['für alle', 'ab 8 Jahren', '45 Minuten'],
+  presets: [148, 210], range: [148, 210], noCustom: true, sizeLabel: 'Kartenbreite (A5 oder A4 gefaltet)',
+  calc: () => popupCalc(+state.popup.H), thumb: () => heroPopup(), sizeExtra: () => '',
+  ziel(c) { return `<div class="panel"><h3>Was bastle ich?</h3><p>Eine Klappkarte mit drei kleinen „Kisten“, die beim Öffnen herausspringen. Auf jede Kiste klebst du eine Papiertanne. Die Kisten entstehen durch je <b>zwei parallele Schnitte</b> über die Mittelfalz – die Seite rechnet für deine Kartengröße alle Schnittlängen aus.</p>
+    <div class="facts"><div class="fact"><b>${fmt(c.W / 10, 1)} × ${fmt(c.h / 10, 1)}</b><span>Karte geschlossen (cm)</span></div><div class="fact"><b>3</b><span>Pop-up-Tannen</span></div><div class="fact"><b>6</b><span>Schnitte</span></div><div class="fact"><b>0</b><span>Kleber für die Kisten</span></div></div>
+    <div class="drawing"><svg viewBox="0 0 340 260" role="img" aria-label="Pop-up-Karte geöffnet">${popup3D(c, {s: 300 / c.W * 0.78, x0: 30, y0: 236, sky: true})}</svg>${legend(['<b>Kisten:</b> zwei Schnitte über die Falz, dann nach innen drücken', '<b>Tannen</b> aus grünem Papier auf die Vorderseite der Kisten', '<b>Außenkarte</b> aus Tonkarton dahinter kleben – verdeckt die Löcher'])}</div>${pnote}</div>`; },
+  material(c) { return {wood: [`Innenkarte: weißes Papier 160–200 g/m², <b>${fmt(c.W / 10, 1)} × ${fmt(2 * c.h / 10, 1)} cm</b>`, `Außenkarte: Tonkarton, <b>${fmt(c.outer[0] / 10, 1)} × ${fmt(c.outer[1] / 10, 1)} cm</b>`, 'Grünes Papier in 2–3 Tönen für die Tannen, etwas Goldpapier für Sterne'], small: ['Klebestift', `Umschlag ${c.W === 148 ? 'C6 (11,4 × 16,2 cm)' : 'C5 (16,2 × 22,9 cm)'}`], tools: ['Cutter und Schneidematte (oder spitze Schere)', 'Lineal mit Metallkante', 'Falzbein oder leere Kugelschreibermine zum Vorritzen', 'Bleistift'], extra: ''}; },
+  zuschnitt(c) { return `<div class="panel"><h3>Schnittmuster Innenkarte</h3><div class="drawing">${popupFlatSVG(c)}</div>
+    ${partsTable(c.boxes.map((b, i) => [`Kiste ${i + 1}`, 1, `Schnitte bei <b>${b.x1}</b> und <b>${b.x2} mm</b> von links`, `je <b>${b.d} mm</b> nach oben und unten über die Mittelfalz · Tanne max. ${b.T} mm hoch`]))}
+    <div class="note">Regel für Pop-ups: Die Tanne darf höchstens so hoch sein wie Kartenhälfte minus Kistentiefe – sonst schaut sie beim Zuklappen oben heraus.</div></div>`; },
+  winkel(c) { return `<div class="panel"><h3>Falten und Winkel</h3>
+    <div class="anglecard"><div class="badge alt"><b>90°</b><span>offen</span></div><div>Die Karte wird im rechten Winkel aufgestellt – dann stehen die Kisten wie kleine Treppenstufen.</div></div>
+    <div class="anglecard"><div class="badge"><b>Tal</b><span>Mitte</span></div><div>Die Mittelfalz der Karte ist eine <b>Talfalte</b> (nach innen). Die Kisten werden genau andersherum gefaltet: Ihre Mitte springt nach vorn.</div></div>
+    <div class="anglecard"><div class="badge hand"><b>Ritzen</b><span>vorher</span></div><div>Alle Faltlinien mit Falzbein und Lineal vorritzen – dann knicken sie genau dort und nirgendwo sonst.</div></div></div>`; },
+  steps(c) { return [
+    {t: 'Innenkarte zuschneiden', b: `<p>Weißes Papier ${fmt(c.W)} × ${fmt(2 * c.h)} mm, Mittellinie leicht anzeichnen.</p>`},
+    {t: 'Schnitte', b: `<p>Für jede Kiste zwei senkrechte Schnitte über die Mittellinie (Maße unter „Zuschnitt“). Mit Cutter und Lineal, ein Erwachsener hilft.</p>`},
+    {t: 'Vorritzen und falten', b: '<p>Faltlinien vorritzen. Karte zur Hälfte falten. Dann jede Kiste nach innen drücken und scharf falzen. Aufklappen – die Kisten springen heraus!</p>'},
+    {t: 'Tannen ausschneiden', b: `<p>Drei Tannen aus grünem Papier, höchstens ${c.boxes.map(b => b.T + ' mm').join(', ')} hoch. Goldstern oben drauf.</p>`},
+    {t: 'Tannen aufkleben', b: '<p>Jede Tanne unten bündig auf die Vorderseite ihrer Kiste kleben. Zuklappen und prüfen, ob nichts heraussteht.</p>'},
+    {t: 'Außenkarte', b: '<p>Innenkarte auf die Außenkarte kleben – aber nicht im Bereich der Kisten! Außen beschriften, fertig.</p>'}]; }
+};
+
+/* ---- Lichtertüten ---- */
+function lichtCalc(H, n) {
+  const bw = Math.round(0.55 * H), bd = Math.round(0.32 * H), fold = Math.round(0.15 * H);
+  return {H, n: +n, bw, bd, fold, star: Math.round(0.55 * bw), small: Math.round(0.18 * bw), sy: Math.round(0.42 * H)};
+}
+function tuetenArt(cx, yb, c, s, lit = true, seed = 1) {
+  const w = c.bw * s, h = (c.H - c.fold) * s, d = c.bd * s * .5, f = c.fold * s;
+  let g = `<polygon points="${P2([[cx - w / 2, yb], [cx + w / 2, yb], [cx + w / 2 + d * .6, yb - d * .4], [cx + w / 2 + d * .6, yb - h - d * .4], [cx + w / 2, yb - h], [cx - w / 2, yb - h]])}" fill="${lit ? '#d9a868' : '#c99a62'}"/>`;
+  g += `<rect x="${f1(cx - w / 2)}" y="${f1(yb - h)}" width="${f1(w)}" height="${f1(h)}" fill="${lit ? 'url(#g-glowbag)' : '#d6b07e'}" stroke="#a87a4a" stroke-width=".7"/>`;
+  g += `<rect x="${f1(cx - w / 2)}" y="${f1(yb - h)}" width="${f1(w)}" height="${f1(f * .6)}" fill="#c08d55" opacity=".7"/>`;
+  const sy = yb - c.sy * s;
+  g += `<g ${lit ? 'filter="url(#f-glow)"' : ''}>${starShape(cx, sy, c.star / 2 * s, lit ? '#fff2c2' : '#f5efe6')}${[[-.3, -.32], [.3, -.28], [.32, .25], [-.28, .3]].map(([dx, dy]) => starShape(cx + dx * w, sy + dy * w * 1.3, c.small / 2 * s, lit ? '#fff2c2' : '#f5efe6')).join('')}</g>`;
+  return g;
+}
+function lichtSVG(c) {
+  const s = 220 / c.H, cx = 150, yb = 260;
+  let o = tuetenArt(cx, yb, c, s, false);
+  o += `<line x1="${f1(cx - c.bw * s / 2)}" y1="${yb + 14}" x2="${f1(cx + c.bw * s / 2)}" y2="${yb + 14}" stroke="#2b2118"/><text x="${cx}" y="${yb + 32}" text-anchor="middle" font-size="14" font-weight="700" fill="#2b2118">${fmt(c.bw / 10, 1)} cm</text>`;
+  o += `<line x1="${f1(cx + c.bw * s / 2 + 40)}" y1="${f1(yb - (c.H - c.fold) * s)}" x2="${f1(cx + c.bw * s / 2 + 40)}" y2="${yb}" stroke="#2b2118"/><text x="${f1(cx + c.bw * s / 2 + 48)}" y="${f1(yb - (c.H - c.fold) * s / 2)}" font-size="14" font-weight="700" fill="#2b2118">${fmt((c.H - c.fold) / 10, 1)} cm</text>`;
+  o += badge(cx + c.star * s / 2 + 14, yb - c.sy * s, 1) + badge(cx - c.bw * s / 2 - 16, yb - (c.H - c.fold) * s + 8, 2);
+  return `<svg viewBox="0 0 340 ${yb + 44}" role="img" aria-label="Lichtertüte">${o}</svg>`;
+}
+function heroLicht() {
+  const c = lichtCalc(250, 5);
+  let o = `<rect width="340" height="220" fill="url(#g-night)"/>${snowDots(340, 140, 40, 12, '#fff', .6)}`;
+  o += `<path d="M0 150 H120 V170 H230 V190 H340 V220 H0Z" fill="#e8eef6"/><path d="M0 150 H120 V170 H230 V190 H340" stroke="#b9c8da" fill="none"/>`;
+  o += halo(60, 120, 60, 50, .5) + halo(175, 140, 55, 45, .5) + halo(285, 160, 55, 45, .5);
+  o += tuetenArt(60, 150, c, .42, true) + tuetenArt(175, 170, c, .42, true) + tuetenArt(285, 190, c, .42, true);
+  return heroSVG(o, 'Leuchtende Lichtertüten auf einer Treppe');
+}
+const licht = {
+  id: 'licht', cat: 'papier', title: 'Lichtertüten mit Sternen', teaser: 'Papiertüten mit ausgeschnittenen Sternen und LED-Licht – auf der Treppe, am Fenster oder als Tischdeko.',
+  tags: ['für alle', 'ab 6 mit Hilfe', '20 Minuten'],
+  presets: [210, 250, 300], range: [150, 400], sizeLabel: 'Höhe der Papiertüte',
+  calc: () => lichtCalc(state.licht.H, state.licht.n), thumb: () => heroLicht(),
+  sizeExtra() { return `<label class="custom">Anzahl <select data-k="n">${[3, 5, 8, 12].map(v => `<option ${+state.licht.n === v ? 'selected' : ''}>${v}</option>`).join('')}</select> Tüten</label>`; },
+  ziel(c) { return `<div class="panel"><h3>Was bastle ich?</h3><p>Braune oder weiße Papiertüten mit Boden bekommen einen großen und vier kleine Sterne als Fenster. Oben wird der Rand umgeschlagen, innen steht ein LED-Teelicht – fertig ist eine warm leuchtende Laterne. ${c.n} Stück sehen auf der Treppe wunderschön aus.</p>
+    <div class="facts"><div class="fact"><b>${c.n}</b><span>Tüten</span></div><div class="fact"><b>Ø ${fmt(c.star / 10, 1)} cm</b><span>großer Stern</span></div><div class="fact"><b>${fmt(c.fold / 10, 1)} cm</b><span>Rand umschlagen</span></div><div class="fact"><b>LED</b><span>nur LED-Licht!</span></div></div>
+    <div class="drawing">${lichtSVG(c)}${legend([`<b>Großer Stern</b> Ø ${fmt(c.star)} mm, Mitte ${fmt(c.sy)} mm über dem Boden`, `<b>Rand</b> ${fmt(c.fold)} mm nach außen umschlagen – die Tüte wird stabiler`])}</div>${pnote}<div class="warn"><b>Nur LED-Teelichter!</b> Papier und echte Flammen vertragen sich nicht.</div></div>`; },
+  material(c) { return {wood: [`<b>${c.n} Papiertüten</b> mit Boden, ca. ${fmt(c.H / 10)} cm hoch, ${fmt(c.bw / 10)} cm breit (Kraftpapier oder weiß)`, 'Etwas Transparentpapier (optional, hinter die Sterne kleben)'], small: [`${c.n} LED-Teelichter`, 'Klebestift', 'Pappe für die Sternschablone', 'optional: Sand oder Reis als Gewicht für draußen'], tools: ['Cutter und Schneidematte (Erwachsene) oder Motivstanzer Stern', 'Lineal, Bleistift', 'Ein Stück Pappe in die Tüte schieben (Schneideunterlage)'], extra: ''}; },
+  zuschnitt(c) { return `<div class="panel"><h3>Schablonen und Maße</h3>${partsTable([['Großer Stern', c.n, `Ø <b>${fmt(c.star)}</b> mm`, `Mitte ${fmt(c.sy)} mm über dem Boden`], ['Kleine Sterne', 4 * c.n, `Ø <b>${fmt(c.small)}</b> mm`, 'rundherum verteilt'], ['Umschlag', c.n, `<b>${fmt(c.fold)}</b> mm`, 'nach außen falten']])}
+    <div class="drawing"><svg viewBox="0 0 340 170" role="img" aria-label="Sternschablonen">${starShape(90, 85, 70, '#fff')}<g fill="none">${starShape(90, 85, 70, 'none')}</g>${starShape(250, 85, 26, '#fff')}<text x="90" y="166" text-anchor="middle" font-size="13" fill="#2b2118">großer Stern (verkleinert)</text><text x="250" y="166" text-anchor="middle" font-size="13" fill="#2b2118">kleiner Stern</text></svg></div>
+    <p class="small muted">Schablone aus Pappe ausschneiden: Kreis mit dem Durchmesser zeichnen, 5 Punkte im Abstand von 72° markieren und jeden zweiten verbinden.</p></div>`; },
+  winkel() { return `<div class="panel"><h3>Winkel</h3>
+    <div class="anglecard"><div class="badge alt"><b>72°</b><span>Stern</span></div><div>Ein fünfzackiger Stern: 360° : 5 = 72°. Mit dem Geodreieck 5 Punkte auf einem Kreis markieren und jeden zweiten verbinden.</div></div>
+    <div class="anglecard"><div class="badge"><b>36°</b><span>Spitze</span></div><div>Jede Sternspitze hat 36° – das ist derselbe Winkel wie beim großen Holzstern!</div></div></div>`; },
+  steps(c) { return [
+    {t: 'Schablonen', b: `<p>Großen Stern (Ø ${fmt(c.star)} mm) und kleinen Stern (Ø ${fmt(c.small)} mm) auf Pappe zeichnen und ausschneiden.</p>`},
+    {t: 'Anzeichnen', b: `<p>Pappe in die flache Tüte schieben. Großen Stern ${fmt(c.sy)} mm über dem Boden mittig aufzeichnen, vier kleine Sterne drumherum.</p>`},
+    {t: 'Ausschneiden', b: '<p>Mit dem Cutter auf der Pappe ausschneiden (Erwachsene) – oder Kinder nehmen einen Motivstanzer.</p>'},
+    {t: 'Optional: Transparentpapier', b: '<p>Hinter die Sterne innen ein Stück gelbes Transparentpapier kleben – das leuchtet besonders schön.</p>'},
+    {t: 'Rand umschlagen', b: `<p>Tüte aufstellen, oben ${fmt(c.fold)} mm nach außen umschlagen.</p>`},
+    {t: 'Licht rein', b: '<p>LED-Teelicht hinein, draußen etwas Sand auf den Boden als Gewicht.</p>'}]; }
+};
+
+/* ---- Malerei: Weihnachtsstern (Poinsettie) ---- */
+function poinGeo(c) { return {cx: c.W / 2, cy: 0.44 * c.H, R: Math.min(0.42 * c.W, 0.32 * c.H)}; }
+function leafPath(cx, cy, len, w, ang) {
+  const a = ang * DEG, ux = Math.cos(a), uy = Math.sin(a), nx = -uy, ny = ux, tx = cx + ux * len, ty = cy + uy * len, mx = cx + ux * len * .45, my = cy + uy * len * .45;
+  return `M${f1(cx)} ${f1(cy)} Q${f1(mx + nx * w)} ${f1(my + ny * w)} ${f1(tx)} ${f1(ty)} Q${f1(mx - nx * w)} ${f1(my - ny * w)} ${f1(cx)} ${f1(cy)}Z`;
+}
+function paintPoin(c) {
+  const {cx, cy, R} = poinGeo(c), r = rng(501);
+  let o = paperBg(c) + splatter(c, 40, '#d4a52a', 503, 2);
+  let leaves = '';
+  for (let i = 0; i < 5; i++) { const a = -150 + i * 75 + (r() - .5) * 20; leaves += `<path d="${leafPath(cx, cy, R * 1.05, R * .22, a)}" fill="${['#2f6b3a', '#3f8a4b'][i % 2]}" fill-opacity=".85"/>`; }
+  for (let i = 0; i < 8; i++) { const a = i * 45 + 20 + (r() - .5) * 14, len = R * (0.85 + .2 * r()); leaves += `<path d="${leafPath(cx, cy, len, len * .24, a)}" fill="${['#c62828', '#d93636', '#b71c1c'][i % 3]}" fill-opacity=".9"/><path d="M${f1(cx)} ${f1(cy)} l${f1(len * .85 * Math.cos(a * DEG))} ${f1(len * .85 * Math.sin(a * DEG))}" stroke="#8e1b1b" stroke-width="1.2" opacity=".6"/>`; }
+  for (let i = 0; i < 6; i++) { const a = i * 60 + (r() - .5) * 18, len = R * (0.45 + .12 * r()); leaves += `<path d="${leafPath(cx, cy, len, len * .26, a)}" fill="${['#e53935', '#ef5350'][i % 2]}" fill-opacity=".92"/>`; }
+  o += `<g filter="url(#f-wc2)">${leaves}</g>`;
+  for (let i = 0; i < 9; i++) { const a = i * 40, rr = R * (i % 3 ? .08 : .03); o += `<circle cx="${f1(cx + rr * Math.cos(a * DEG))}" cy="${f1(cy + rr * Math.sin(a * DEG))}" r="${f1(R * .028)}" fill="#e8c44a" stroke="#7a8a2a" stroke-width=".6"/>`; }
+  o += pText(c, c.W / 2, c.H - 0.08 * c.H, 'Frohe Weihnachten', 0.1 * c.W, '#2f6b3a');
+  return o;
+}
+const poinsettie = mal2({
+  id: 'poinsettie', group: 'karten', title: 'Weihnachtsstern (Poinsettie)', teaser: 'Die klassische Weihnachtsblume: leuchtend rote Blätter strahlenförmig um eine gelbe Mitte – mit nur einer Pinselbewegung pro Blatt.',
+  tags: ['für alle', 'Pinselblätter', '40 Minuten'],
+  intro: 'Der Weihnachtsstern besteht aus drei Kränzen spitzer Blätter: hinten grüne, in der Mitte große rote, vorne kleinere hellrote. In die Mitte kommen kleine gelbe Pünktchen. Jedes Blatt ist eine einzige Pinselbewegung: aufsetzen, drücken, abheben.',
+  legend: ['<b>Grüne Blätter</b> zuerst, ganz hinten', '<b>8 große rote Blätter</b> strahlenförmig', '<b>6 kleine Blätter</b> vorne, heller', '<b>Mitte:</b> gelbe Pünktchen, Blattadern mit dunklem Rot'],
+  paint: paintPoin,
+  guides: c => { const {cx, cy, R} = poinGeo(c); let o = guideCircle(cx, cy, R) + guideCircle(cx, cy, R * .5); for (let i = 0; i < 8; i++) { const a = (i * 45 + 20) * DEG; o += guideLine(cx, cy, cx + R * Math.cos(a), cy + R * Math.sin(a)); } return o + badge(cx + R * .7 + 10, cy - R * .7 - 6, 1) + badge(cx + R * .35 + 8, cy - R * .35 - 6, 2); },
+  measures: c => { const {cx, cy, R} = poinGeo(c); return [['Äußerer Kreis', 1, `Ø <b>${cmOf(c, 2 * R)} cm</b> · Mitte <b>${cmOf(c, cy)} cm</b> von oben`, 'bis hierhin reichen die großen Blätter'], ['Innerer Kreis', 1, `Ø <b>${cmOf(c, R)} cm</b>`, 'für die kleinen Blätter'], ['Strahlen', 8, 'alle 45°', 'Richtung der großen Blätter']]; },
+  extra: [], tools: [],
+  tech: [['Blatt', 'Druck', 'Pinselspitze in der Mitte aufsetzen, nach außen ziehen und dabei aufdrücken, dann zur Spitze hin abheben.'], ['Zwei', 'Rot', 'Kräftiges Rot für große Blätter, mit etwas Gelb aufgehelltes Rot für die kleinen vorne. Ein Tupfer Dunkelrot in die nasse Blattbasis gibt Tiefe.'], ['Adern', 'zum Schluss', 'Mit feinem Pinsel und Dunkelrot eine Mittellinie in jedes trockene Blatt.']],
+  stepsF: c => [
+    {t: 'Hilfslinien', b: `<p>Kreis Ø ${cmOf(c, 2 * poinGeo(c).R)} cm und 8 Strahlen ganz leicht vorzeichnen.</p>`},
+    {t: 'Grüne Blätter', b: '<p>Fünf große grüne Blätter als „Hintergrund“, trocknen lassen.</p>'},
+    {t: 'Große rote Blätter', b: '<p>Entlang der Strahlen acht spitze rote Blätter, die Basis dunkler tupfen.</p>'},
+    {t: 'Kleine Blätter', b: '<p>Wenn trocken: sechs kleinere hellrote Blätter darüber.</p>'},
+    {t: 'Mitte und Adern', b: '<p>Gelbe Pünktchen in die Mitte, Blattadern in Dunkelrot.</p>'},
+    {t: 'Gruß', b: '<p>Goldspritzer und unten „Frohe Weihnachten“.</p>'}]
+});
+
+/* ---- Malerei: Kerzenschein ---- */
+function kerzenGeo(c) { const {W, H} = c; const yb = 0.78 * H; return {yb, candles: [[.2, .34], [.4, .27], [.6, .2], [.8, .13]].map(([x, h]) => ({x: x * W, h: h * H, w: 0.1 * W}))}; }
+function paintKerzen(c) {
+  const {W, H} = c, g = kerzenGeo(c);
+  let o = skyWash(c, [[0, '#1a2440'], [1, '#33406a']], H);
+  g.candles.forEach(k => { const top = g.yb - k.h; const rg = radGrad([[0, '#fff3c4'], [.35, '#f6c453'], [1, '#33406a']], .5, .5); o += `<defs>${rg.def}</defs><circle cx="${f1(k.x)}" cy="${f1(top - .05 * H)}" r="${f1(0.13 * W)}" fill="url(#${rg.id})" opacity=".85" filter="url(#f-wc)"/>`; });
+  g.candles.forEach((k, i) => {
+    const top = g.yb - k.h, cg = linGrad([[0, '#fffaf0'], [.6, '#f3e6cc'], [1, '#d9c39b']], 1, 0);
+    o += `<defs>${cg.def}</defs><path d="M${f1(k.x - k.w / 2)} ${f1(g.yb)} V${f1(top + 4)} Q${f1(k.x)} ${f1(top - 4)} ${f1(k.x + k.w / 2)} ${f1(top + 4)} V${f1(g.yb)}Z" fill="url(#${cg.id})" filter="url(#f-wc2)"/>`;
+    o += `<path d="M${f1(k.x + k.w * .2)} ${f1(top + 3)} q2 ${f1(k.h * .15)} 0 ${f1(k.h * .25)}" stroke="#fffaf0" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    o += `<line x1="${f1(k.x)}" y1="${f1(top + 2)}" x2="${f1(k.x)}" y2="${f1(top - 6)}" stroke="#333" stroke-width="1.2"/>`;
+    o += candleFlame(k.x, top - 16, 3.2);
+    o += pText(c, k.x, g.yb - k.h * .4, String(i + 1), k.w * .7, '#b08d2c');
+  });
+  o += `<g transform="scale(1)">${branch(-10, g.yb + 6, W * .55, -4, 511)}${branch(W + 10, g.yb + 8, W * .55, 184, 512)}${branch(W * .3, g.yb + 14, W * .4, 8, 513)}</g>`;
+  [.15, .5, .72, .9].forEach((x, i) => { o += `<circle cx="${f1(x * W)}" cy="${f1(g.yb + 10 + (i % 2) * 6)}" r="${f1(W * .022)}" fill="#c62828"/>`; });
+  o += pText(c, W / 2, H - 0.06 * H, 'Eine schöne Adventszeit', 0.085 * W, '#f6d77a');
+  return o;
+}
+const kerzen = mal2({
+  id: 'kerzen', group: 'karten', title: 'Kerzenschein im Advent', teaser: 'Vier Adventskerzen leuchten vor dunklem Himmel – der Lichtschein entsteht durch weiche Übergänge nass in nass.',
+  tags: ['stimmungsvoll', 'Leuchten', '50 Minuten'],
+  intro: 'Vier Kerzen in verschiedenen Höhen – wie am Adventskranz, wenn sie schon unterschiedlich lange gebrannt haben. Um jede Flamme liegt ein warmer Lichtschein, der weich in den dunkelblauen Hintergrund übergeht. Unten Tannengrün mit roten Beeren.',
+  legend: ['<b>Lichtschein</b> zuerst: gelbe Kreise, außen weich auslaufend', '<b>Hintergrund</b> dunkelblau um die Lichter herum', '<b>Kerzen</b> cremeweiß, eine Seite leicht schattiert', '<b>Flammen</b> weiß aussparen, außen gelb-orange'],
+  paint: paintKerzen,
+  guides: c => { const g = kerzenGeo(c); return guideLine(0, g.yb, c.W, g.yb) + badge(16, g.yb - 16, 1) + g.candles.map((k, i) => `<rect x="${f1(k.x - k.w / 2)}" y="${f1(g.yb - k.h)}" width="${f1(k.w)}" height="${f1(k.h)}" fill="none" stroke="#555" stroke-dasharray="4 3"/>`).join('') + badge(g.candles[0].x + 22, g.yb - g.candles[0].h - 10, 2); },
+  measures: c => { const g = kerzenGeo(c); return [['Standlinie', 1, `<b>${cmOf(c, g.yb)} cm</b> von oben`, 'auf ihr stehen alle Kerzen'], ...g.candles.map((k, i) => [`Kerze ${i + 1}`, 1, `<b>${cmOf(c, k.w)} × ${cmOf(c, k.h)} cm</b>`, `Mitte ${cmOf(c, k.x)} cm von links`])]; },
+  extra: ['Goldener Stift oder Goldfarbe für die Zahlen und Schrift'], tools: [],
+  tech: [['Licht', 'aussparen', 'Licht entsteht durch Dunkel drumherum: Erst die Lichtscheine gelb nass in nass malen, trocknen lassen, dann den Himmel dunkel bis an den gelben Rand heranführen und weich verwischen.'], ['Weich', 'Übergang', 'Den Rand des Lichtscheins mit sauberem, feuchtem Pinsel ausfransen – so wirkt das Licht, als würde es strahlen.'], ['Flam', 'me', 'Den Kern der Flamme weiß lassen, außen Gelb und ein Hauch Orange.']],
+  stepsF: c => [
+    {t: 'Vorzeichnen', b: '<p>Standlinie und vier Kerzen-Rechtecke in verschiedenen Höhen leicht vorzeichnen.</p>'},
+    {t: 'Lichtscheine', b: '<p>Um jede Flammenposition einen hellgelben Kreis nass in nass, außen weich auslaufen lassen.</p>'},
+    {t: 'Dunkler Hintergrund', b: '<p>Wenn trocken: Dunkelblau um die Lichter und Kerzen herum malen, zum Licht hin verdünnen.</p>'},
+    {t: 'Kerzen', b: '<p>Kerzen cremeweiß, rechts ein Hauch Ocker als Schatten. Docht schwarz, Flammenkern weiß lassen.</p>'},
+    {t: 'Tannengrün', b: '<p>Unten Tannenzweige mit kurzen Nadelstrichen und ein paar rote Beeren.</p>'},
+    {t: 'Gold', b: '<p>Zahlen 1–4 und „Eine schöne Adventszeit“ in Gold.</p>'}]
+});
+
+const PROJECTS = {tanne, stern, latte, bogen, stammrentier, advent, rentier, balken, masu, fenster, flocke, tuete, popup, licht, aqtanne, kugeln, kranz, robin, poinsettie, kerzen, schnee, wichtel, kette, lebkuchen, dorf, nebel, polar, huette};
 const GROUPS = {mal: [['karten', 'Weihnachtskarten-Werkstatt', 'Kartenmotive in Aquarell. Tipp: Postkarte A6 passt in einen C6-Umschlag, Quadratkarten 14,5 cm in 15,5 × 15,5 cm. Mit dem Format-Schalter rechnet jede Anleitung die Maße um.'], ['lustig', 'Lustige Motive', 'Zum Lachen – und perfekt für Kinder.'], ['land', 'Weihnachtliche Landschaften', 'Stimmungsvolle Winterbilder im Querformat – als Karte oder gerahmt als Geschenk.']]};
 const tabName = (p, t) => (p.tabNames && p.tabNames[t[0]]) || t[1];
 const TABS = [['ziel', 'Was möchte ich?'], ['material', 'Was brauche ich?'], ['zuschnitt', 'Zuschnitt'], ['winkel', 'Winkel'], ['anleitung', 'Schritt für Schritt']];
 
 /* ---------------- Filter, Merkliste, Teilen, Drucken ---------------- */
-const META = {tanne: {out: 1}, stern: {}, latte: {kids: 1, out: 1}, advent: {kids: 1}, rentier: {kids: 1}, masu: {kids: 1, quick: 1}, fenster: {kids: 1, quick: 1}, flocke: {kids: 1, quick: 1}, tuete: {kids: 1, quick: 1}, aqtanne: {kids: 1}, kugeln: {kids: 1}, kranz: {kids: 1}, robin: {kids: 1}, schnee: {kids: 1, quick: 1}, wichtel: {kids: 1}, kette: {kids: 1, quick: 1}, lebkuchen: {kids: 1, quick: 1}, dorf: {}, nebel: {kids: 1}, polar: {}, huette: {kids: 1}};
+const META = {tanne: {out: 1}, stern: {}, latte: {kids: 1, out: 1}, advent: {kids: 1}, rentier: {kids: 1}, masu: {kids: 1, quick: 1}, fenster: {kids: 1, quick: 1}, flocke: {kids: 1, quick: 1}, tuete: {kids: 1, quick: 1}, aqtanne: {kids: 1}, kugeln: {kids: 1}, kranz: {kids: 1}, robin: {kids: 1}, schnee: {kids: 1, quick: 1}, wichtel: {kids: 1}, kette: {kids: 1, quick: 1}, lebkuchen: {kids: 1, quick: 1}, dorf: {}, nebel: {kids: 1}, polar: {}, huette: {kids: 1}, bogen: {}, balken: {kids: 1}, stammrentier: {kids: 1, out: 1}, popup: {kids: 1}, licht: {kids: 1, quick: 1, out: 1}, poinsettie: {kids: 1}, kerzen: {}};
 const FILTERS = [['all', 'Alle'], ['kids', 'Mit Kindern'], ['quick', 'Bis 30 Minuten'], ['out', 'Für draußen']];
 state.fav = state.fav || {};
 state.filter = state.filter || 'all';
@@ -2197,7 +2659,7 @@ function render() {
   } else {
     html = `<div class="sizebar"><div class="lbl">${p.sizeLabel || 'Größe (Gesamthöhe)'}</div><div class="chips">
     ${p.presets.map(h => `<button class="chip ${+st.H === h ? 'on' : ''}" data-h="${h}">${fmt(h / 10)} cm</button>`).join('')}
-    <label class="custom">eigene: <input type="number" inputmode="numeric" min="${p.range[0] / 10}" max="${p.range[1] / 10}" step="1" value="${isPreset ? '' : fmt(st.H / 10)}" placeholder="cm" id="hcustom"> cm</label></div>
+    ${p.noCustom ? '' : `<label class="custom">eigene: <input type="number" inputmode="numeric" min="${p.range[0] / 10}" max="${p.range[1] / 10}" step="1" value="${isPreset ? '' : fmt(st.H / 10)}" placeholder="cm" id="hcustom"> cm</label>`}</div>
     ${p.sizeExtra(c) ? `<div class="row2">${p.sizeExtra(c)}</div>` : ''}`;
   }
   html += `<div class="toolbar"><button class="tbtn ${state.fav[pid] ? 'on' : ''}" data-fav="1">${state.fav[pid] ? '★ Gemerkt' : '☆ Merken'}</button><button class="tbtn" data-share="1">Teilen</button><a class="tbtn" href="#/${pid}/druck">Drucken / PDF</a></div></div>`;

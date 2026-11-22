@@ -6,13 +6,15 @@ Interaktive Bastel- und Werkanleitungen mit Größenrechner, Konzeptzeichnungen 
 - **Holz-Tannen mit Lichterkette** – Rahmen aus Kantholz, Stäbe überlappen innen, Seiten 67,5°, alle Schnitte 22,5°
 - **Holzstern als Rahmen** – 10 gleiche Brettstücke, Innenecken 36°, Spitzen 18° zur Kante
 - **Latten-Tanne zum Hinstellen** – waagerechte Latten auf Stamm mit Kreuzfuß
-- Junior (ab 10): **Advents-Tanne zum Aufhängen**, **Rentier aus Ästen**
+- **Schwibbogen mit LED-Kerzen** – Halbkreis mit Schnurzirkel, Silhouette per Rastermethode
+- **Rentier aus Baumstämmen** – gesteckt, mit Bohrwinkeln
+- Junior (ab 10): **Advents-Tanne zum Aufhängen**, **Rentier aus Ästen**, **Adventsbalken für 4 Teelichter**
 
 ## Papier
-- **Masu-Schachtel mit Deckel**, **Fensterstern aus Transparentpapier**, **Schneeflocken schneiden**, **Stern aus Brottüten**
+- **Masu-Schachtel mit Deckel**, **Fensterstern aus Transparentpapier**, **Schneeflocken schneiden**, **Stern aus Brottüten**, **Pop-up-Tannenkarte**, **Lichtertüten mit Sternen**
 
 ## Malerei
-- Weihnachtskarten-Werkstatt: **Aquarell-Tannen mit Goldschrift**, **Leuchtende Christbaumkugeln**, **Aquarell-Kranz**, **Rotkehlchen im Schnee**
+- Weihnachtskarten-Werkstatt: **Aquarell-Tannen mit Goldschrift**, **Leuchtende Christbaumkugeln**, **Aquarell-Kranz**, **Rotkehlchen im Schnee**, **Weihnachtsstern (Poinsettie)**, **Kerzenschein im Advent**
 - Lustige Motive: **Schneemann von unten**, **Wichtel-Familie**, **Fingerabdruck-Lichterkette**, **Lebkuchenmann mit Pflaster**
 - Weihnachtliche Landschaften: **Verschneites Dorf bei Nacht**, **Winterwald im Nebel**, **Polarlicht über dem Winterwald**, **Hütte im Abendrot**
 
