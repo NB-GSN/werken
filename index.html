@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Werkstatt – Holzprojekte Schritt für Schritt</title>
+<meta name="description" content="Werkanleitungen mit Größenrechner: Holz-Tannen mit Lichterkette und Holzstern-Rahmen.">
+<style>
+:root{
+  --bg:#f5efe6; --card:#fffdf9; --ink:#2b2118; --muted:#6f6254; --line:#e3d8c8;
+  --wood:#d9b07c; --wood-d:#a8743f; --accent:#9b4a1f; --accent-l:#f3e1d2; --green:#3d6b4a; --green-l:#e3efe5;
+  --warn:#b4541a; --r:14px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+header{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px}
+header .back{background:none;border:0;color:#fff;font-size:22px;padding:4px 8px;cursor:pointer;border-radius:8px}
+header .back:hover{background:#ffffff1a}
+header h1{font-size:18px;margin:0;font-weight:650;letter-spacing:.2px}
+header .sub{font-size:12.5px;opacity:.7}
+main{max-width:860px;margin:0 auto;padding:16px 14px 80px}
+.hero{padding:18px 4px 6px}
+.hero h2{font-size:26px;margin:0 0 6px}
+.hero p{margin:0;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:18px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;text-decoration:none;color:inherit;display:block;transition:transform .12s, box-shadow .12s}
+.pcard:hover{transform:translateY(-2px);box-shadow:0 6px 18px #2b211814}
+.pcard .thumb{background:#2f2620;display:flex;justify-content:center;padding:14px;height:210px}
+.pcard .thumb svg{height:100%;width:auto}
+.pcard .body{padding:14px 16px 16px}
+.pcard h3{margin:0 0 4px;font-size:19px}
+.pcard p{margin:0;color:var(--muted);font-size:14.5px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{font-size:12.5px;background:var(--accent-l);color:var(--accent);border-radius:99px;padding:2px 10px}
+.sizebar{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:4px 0 12px}
+.sizebar .lbl{font-size:13px;color:var(--muted);margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 14px;font-size:15px;cursor:pointer;color:var(--ink)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.custom{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)}
+.custom input,.custom select{width:84px;padding:6px 8px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;background:#fff;color:var(--ink)}
+.custom select{width:auto}
+.row2{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;position:sticky;top:52px;z-index:4;background:var(--bg);padding:6px 0 8px;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{flex:0 0 auto;border:0;background:transparent;padding:8px 12px;border-radius:10px;font-size:15px;cursor:pointer;color:var(--muted);font-weight:550}
+nav.tabs button.on{background:var(--ink);color:#fff}
+nav.tabs .n{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;border-radius:50%;background:#0000000f;font-size:12px;margin-right:6px}
+nav.tabs button.on .n{background:#ffffff26}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 16px 18px;margin-bottom:12px}
+.panel h3{margin:0 0 8px;font-size:18px}
+.panel h4{margin:16px 0 6px;font-size:15.5px}
+.muted{color:var(--muted)}
+.small{font-size:13.5px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0 4px}
+.fact{background:var(--bg);border-radius:12px;padding:10px 12px}
+.fact b{display:block;font-size:20px}
+.fact span{font-size:12.5px;color:var(--muted)}
+.drawing{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;margin:10px 0}
+.drawing svg{display:block;width:100%;height:auto;max-height:70vh}
+.legend{margin:6px 0 2px;padding-left:0;list-style:none;counter-reset:l;font-size:14.5px}
+.legend li{counter-increment:l;display:flex;gap:10px;align-items:flex-start;padding:4px 0}
+.legend li::before{content:counter(l);flex:0 0 22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:600}
+td.num,.num{font-variant-numeric:tabular-nums;font-weight:600}
+table.parts td:first-child{width:34%}
+.tblwrap{overflow-x:auto}
+.check{display:flex;gap:10px;align-items:flex-start;padding:9px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+.check:last-child{border-bottom:0}
+.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--green);flex:0 0 auto}
+.check.done span{color:var(--muted);text-decoration:line-through}
+.anglecard{display:grid;grid-template-columns:88px 1fr;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.anglecard:last-child{border-bottom:0}
+.badge{background:var(--accent);color:#fff;border-radius:12px;text-align:center;padding:10px 4px}
+.badge b{display:block;font-size:24px;line-height:1.1}
+.badge span{font-size:11px;opacity:.85}
+.badge.alt{background:var(--green)}
+.badge.hand{background:var(--wood-d)}
+.note{background:var(--green-l);border-left:4px solid var(--green);padding:10px 12px;border-radius:8px;margin:10px 0;font-size:14.5px}
+.warn{background:#fbe7d8;border-left:4px solid var(--warn);padding:10px 12px;border-radius:8px;margin:10px 0;font-size:14.5px}
+.progress{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:4px 0 12px}
+.progress div{height:100%;background:var(--green);transition:width .2s}
+.stepnav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.stepnav button{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:14px;cursor:pointer;color:var(--ink)}
+.stepnav button.on{border-color:var(--accent);background:var(--accent);color:#fff}
+.stepnav button.ok{border-color:var(--green);background:var(--green-l)}
+.stepnav button.on.ok{background:var(--accent)}
+.step h3{display:flex;gap:10px;align-items:baseline}
+.step .num{color:var(--accent);font-size:15px;font-weight:700;white-space:nowrap}
+.step ul{padding-left:20px;margin:8px 0}
+.step li{margin:4px 0}
+.btns{display:flex;justify-content:space-between;gap:10px;margin-top:14px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:11px 16px;font-size:15px;cursor:pointer;font-weight:600}
+.btn.pri{background:var(--accent);color:#fff}
+.btn.sec{background:var(--line);color:var(--ink)}
+.btn.ok{background:var(--green);color:#fff}
+.btn:disabled{opacity:.4;cursor:default}
+.next{display:block;text-align:right;margin-top:6px}
+footer{max-width:860px;margin:0 auto;padding:0 16px 30px;color:var(--muted);font-size:12.5px}
+@media print{header,nav.tabs,.sizebar .chips,.btns,.stepnav{display:none}.panel{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header>
+  <button class="back" id="back" aria-label="Zurück" hidden>←</button>
+  <div><h1 id="htitle">Werkstatt</h1><div class="sub" id="hsub">Holzprojekte Schritt für Schritt</div></div>
+</header>
+<main id="app"></main>
+<footer>Maße in mm, gemessen entlang der Kante. Vor dem Zusägen immer einen Probeschnitt an einem Reststück machen.</footer>
+
+<script>
+'use strict';
+const DEG = Math.PI / 180;
+const fmt = (x, d = 0) => (Math.round(x * 10 ** d) / 10 ** d).toLocaleString('de-DE', {minimumFractionDigits: d, maximumFractionDigits: d});
+const mm = x => fmt(x) + ' mm';
+const cm = x => fmt(x / 10, x < 1000 ? 0 : 0) + ' cm';
+const m = x => fmt(x / 1000, 1) + ' m';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------------- Speicher ---------------- */
+const STORE = 'werkstatt-v1';
+let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, done: {}, buy: {}, step: {tanne: 0, stern: 0}};
+try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) state = Object.assign(state, s); } catch (e) {}
+const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
+
+/* ---------------- Zuschnittplan (Stangen aufteilen) ---------------- */
+function cutPlan(pieces, stock, kerf = 4) {
+  const list = pieces.slice().sort((a, b) => b.len - a.len);
+  const bars = [];
+  for (const p of list) {
+    let bar = bars.find(b => b.rest >= p.len + kerf);
+    if (!bar) { bar = {rest: stock, items: []}; bars.push(bar); }
+    bar.items.push(p); bar.rest -= p.len + kerf;
+  }
+  return bars;
+}
+function planHTML(bars, stock) {
+  const W = 400, H = 40, gap = 10;
+  let y = 6, out = '';
+  bars.forEach((b, i) => {
+    let x = 28;
+    out += `<text x="4" y="${y + 26}" font-size="15" fill="#6f6254">${i + 1}.</text>`;
+    out += `<rect x="28" y="${y}" width="${W - 28}" height="${H}" rx="5" fill="#f5efe6" stroke="#e3d8c8"/>`;
+    b.items.forEach((p, k) => {
+      const w = p.len / stock * (W - 28);
+      out += `<rect x="${x}" y="${y}" width="${Math.max(w - 1.5, 2)}" height="${H}" rx="4" fill="${k % 2 ? '#c99a63' : '#d9b07c'}" stroke="#a8743f" stroke-width=".8"/>`;
+      if (w > 44) out += `<text x="${x + w / 2}" y="${y + 25}" font-size="13.5" text-anchor="middle" fill="#2b2118">${esc(p.short)} ${fmt(p.len)}</text>`;
+      else if (w > 16) out += `<text x="${x + w / 2}" y="${y + 25}" font-size="12" text-anchor="middle" fill="#2b2118">${esc(p.short)}</text>`;
+      x += w + 4 / stock * (W - 28);
+    });
+    y += H + gap;
+  });
+  return `<svg viewBox="0 0 ${W} ${y}" role="img" aria-label="Zuschnittplan">${out}</svg>`;
+}
+
+const partsTable = rows => `<table class="parts"><tr><th>Teil</th><th>Maß und Schnitte</th></tr>${rows.map(r => `<tr><td><b>${r[0]}</b><br><span class="muted small">${r[1]} Stück</span></td><td><div class="num">${r[2]}</div><div class="small muted">${r[3]}</div></td></tr>`).join('')}</table>`;
+
+/* ---------------- Bauteil-Zeichnung ---------------- */
+// Viereck: Außenkante oben von 0 bis outer, Innenkante unten von off bis off+inner
+function pieceSVG(o) {
+  const minX = Math.min(0, o.off), maxX = Math.max(o.outer, o.off + o.inner);
+  const span = maxX - minX, W = 460, padL = 12, padR = 12;
+  const s = (W - padL - padR) / span;
+  const th = Math.max(o.thick * s, 34);
+  const X = x => padL + (x - minX) * s, y0 = 40, y1 = y0 + th;
+  const pts = `${X(0)},${y0} ${X(o.outer)},${y0} ${X(o.off + o.inner)},${y1} ${X(o.off)},${y1}`;
+  return `<svg viewBox="0 0 ${W} ${y1 + 72}" role="img" aria-label="${esc(o.title)}">
+    <polygon points="${pts}" fill="#e7c89f" stroke="#a8743f" stroke-width="1.5"/>
+    <line x1="${X(0)}" y1="${y0 - 12}" x2="${X(o.outer)}" y2="${y0 - 12}" stroke="#2b2118" stroke-width="1"/>
+    <line x1="${X(0)}" y1="${y0 - 17}" x2="${X(0)}" y2="${y0 - 7}" stroke="#2b2118"/><line x1="${X(o.outer)}" y1="${y0 - 17}" x2="${X(o.outer)}" y2="${y0 - 7}" stroke="#2b2118"/>
+    <text x="${(X(0) + X(o.outer)) / 2}" y="${y0 - 19}" text-anchor="middle" font-size="19" font-weight="700" fill="#2b2118">${esc(o.outerLabel)}: ${fmt(o.outer)}</text>
+    <line x1="${X(o.off)}" y1="${y1 + 12}" x2="${X(o.off + o.inner)}" y2="${y1 + 12}" stroke="#2b2118" stroke-width="1"/>
+    <line x1="${X(o.off)}" y1="${y1 + 7}" x2="${X(o.off)}" y2="${y1 + 17}" stroke="#2b2118"/><line x1="${X(o.off + o.inner)}" y1="${y1 + 7}" x2="${X(o.off + o.inner)}" y2="${y1 + 17}" stroke="#2b2118"/>
+    <text x="${(X(o.off) + X(o.off + o.inner)) / 2}" y="${y1 + 36}" text-anchor="middle" font-size="19" font-weight="700" fill="#2b2118">${esc(o.innerLabel)}: ${fmt(o.inner)}</text>
+    <text x="${padL}" y="${y1 + 62}" font-size="17" fill="#9b4a1f" font-weight="600">◀ ${esc(o.left)}</text>
+    <text x="${W - padR}" y="${y1 + 62}" font-size="17" fill="#9b4a1f" font-weight="600" text-anchor="end">${esc(o.right)} ▶</text>
+  </svg>`;
+}
+
+/* ================= PROJEKT: TANNEN ================= */
+function tanneCalc(H, wSel) {
+  const w = wSel === 'auto' ? (H >= 800 ? 44 : 28) : +wSel;
+  const A = 75 * DEG, sa = Math.sin(A), ta = Math.tan(A);
+  const wh = w / sa, h = H - 3 * w;
+  const c = {H, w, h, wh, auto: wSel === 'auto'};
+  c.Tout = 0.4 * h / sa;
+  c.Tin = (0.4 * h - wh * ta) / sa;
+  c.MB = 0.45 * h / sa;
+  c.ov = 0.15 * h / sa;
+  c.cbTop = 2 * (h / ta + 2 * wh);
+  c.cbBot = c.cbTop + 2 * w * Math.tan(15 * DEG);
+  c.f1 = 0.30 * c.cbBot; c.f2 = 0.42 * c.cbBot; c.fq = 0.30 * H;
+  c.apexMark = w * ta;            // Länge des Spitzenschnitts entlang der Kante
+  c.hcut = w / ta;                // Versatz des 15°-Schnitts entlang der Kante
+  c.stepM = 0.75 * h + 3 * w; c.stepB = 0.45 * h + 3 * w;
+  c.screwOv = w >= 44 ? '4 × 80 mm' : w >= 34 ? '4 × 60 mm' : '3,5 × 50 mm';
+  c.screwBase = w >= 44 ? '5 × 80 mm' : w >= 34 ? '4 × 70 mm' : '4 × 50 mm';
+  c.stock = 2400;
+  // Lichterkette: Zickzack alle 8 cm
+  const xT = y => (h - y) / ta, tip = h - wh * ta;
+  let L = 0;
+  for (let y = 40; y < tip; y += 80) {
+    const xi = y >= 0.6 * h ? xT(y) - wh : y >= 0.3 * h ? xT(y) : xT(y) + wh;
+    L += 2 * xi / Math.cos(10 * DEG);
+  }
+  c.lights = L;
+  c.pieces = [
+    {short: 'O', name: 'Oberstab', n: 2, len: c.Tout},
+    {short: 'M', name: 'Mittelstab', n: 2, len: c.MB + c.hcut},
+    {short: 'U', name: 'Unterstab', n: 2, len: c.MB + c.hcut},
+    {short: 'Q', name: 'Querholz', n: 1, len: c.cbBot},
+    {short: 'F1', name: 'Fuß oben', n: 1, len: c.f1},
+    {short: 'F2', name: 'Fuß unten', n: 1, len: c.f2}
+  ];
+  c.wood = c.pieces.reduce((s, p) => s + p.n * p.len, 0);
+  c.bad = c.Tin < 2 * w;
+  return c;
+}
+
+function tanneSVG(c, labels = true) {
+  const {h, w, wh, H} = c, A = 75 * DEG, ta = Math.tan(A);
+  const s = 470 / H, cx = 170, floor = 30 + H * s;
+  const X = x => (cx + x * s).toFixed(1), Y = y => (floor - (y + 3 * w) * s).toFixed(1);
+  const xT = y => (h - y) / ta, tip = h - wh * ta;
+  const bar = (sg, off, y0, y1) => `M${X(sg * (xT(y0) + off))} ${Y(y0)} L${X(sg * (xT(y1) + off))} ${Y(y1)} L${X(sg * (xT(y1) + off - wh))} ${Y(y1)} L${X(sg * (xT(y0) + off - wh))} ${Y(y0)}Z`;
+  let d = '';
+  for (const sg of [1, -1]) {
+    d += bar(sg, 2 * wh, 0, 0.45 * h) + bar(sg, wh, 0.3 * h, 0.75 * h);
+    d += `M${X(sg * xT(0.6 * h))} ${Y(0.6 * h)} L${X(0)} ${Y(h)} L${X(0)} ${Y(tip)} L${X(sg * (xT(0.6 * h) - wh))} ${Y(0.6 * h)}Z`;
+  }
+  const ct = c.cbTop / 2, cbb = c.cbBot / 2;
+  d += `M${X(-ct)} ${Y(0)} L${X(ct)} ${Y(0)} L${X(cbb)} ${Y(-w)} L${X(-cbb)} ${Y(-w)}Z`;
+  for (const [L, yt] of [[c.f1, -w], [c.f2, -2 * w]]) d += `M${X(-L / 2 + w)} ${Y(yt)} L${X(L / 2 - w)} ${Y(yt)} L${X(L / 2)} ${Y(yt - w)} L${X(-L / 2)} ${Y(yt - w)}Z`;
+  // Lichterkette angedeutet
+  let zig = '', side = 1;
+  for (let y = 40; y < tip; y += 80) {
+    const xi = (y >= 0.6 * h ? xT(y) - wh : y >= 0.3 * h ? xT(y) : xT(y) + wh) - 4;
+    zig += (zig ? 'L' : 'M') + X(side * xi) + ' ' + Y(y) + ' ';
+    side = -side;
+  }
+  const lights = `<path d="${zig}" fill="none" stroke="#e8a317" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round" opacity="${labels ? .9 : 1}"/>`;
+  const fill = labels ? '#e7c89f' : '#d9a066', stroke = labels ? '#a8743f' : '#f0c890';
+  let lab = '', svgW = 340, svgH = floor + 20, vx = 0;
+  if (labels) {
+    const cbb2 = c.cbBot / 2 * s;
+    vx = cx - cbb2 - 70; svgW = 2 * cbb2 + 140; svgH = floor + 50;
+    const yv = v => +Y(v);
+    lab += badge(+X(0) + 20, yv(h) + 6, 1);
+    lab += badge(+X(xT(0.75 * h) + 2 * wh) + 18, yv(0.75 * h) + 4, 2);
+    lab += badge(+X(xT(0.45 * h) + 3 * wh) + 18, yv(0.45 * h) + 4, 2);
+    const ix = +X(xT(0) + wh), iy = +Y(0), r = 34;
+    lab += `<path d="M${ix - r} ${iy} A${r} ${r} 0 0 1 ${(ix - r * Math.cos(75 * DEG)).toFixed(1)} ${(iy - r * Math.sin(75 * DEG)).toFixed(1)}" fill="none" stroke="#9b4a1f" stroke-width="2.5"/>`;
+    lab += badge(ix - r - 18, iy - 16, 3);
+    lab += badge(+X(cbb) + 18, yv(-w / 2), 4);
+    lab += badge(+X(c.f2 / 2) + 18, yv(-1.5 * w), 5);
+    const x0 = cx - cbb2 - 40;
+    lab += `<line x1="${x0}" y1="${Y(h)}" x2="${x0}" y2="${floor}" stroke="#2b2118"/><line x1="${x0 - 6}" y1="${Y(h)}" x2="${x0 + 6}" y2="${Y(h)}" stroke="#2b2118"/><line x1="${x0 - 6}" y1="${floor}" x2="${x0 + 6}" y2="${floor}" stroke="#2b2118"/>`;
+    lab += `<text transform="translate(${x0 - 10} ${(+Y(h) + floor) / 2}) rotate(-90)" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(H / 10)} cm</text>`;
+    lab += `<line x1="${X(-cbb)}" y1="${floor + 16}" x2="${X(cbb)}" y2="${floor + 16}" stroke="#2b2118"/><line x1="${X(-cbb)}" y1="${floor + 10}" x2="${X(-cbb)}" y2="${floor + 22}" stroke="#2b2118"/><line x1="${X(cbb)}" y1="${floor + 10}" x2="${X(cbb)}" y2="${floor + 22}" stroke="#2b2118"/>`;
+    lab += `<text x="${cx}" y="${floor + 40}" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(c.cbBot / 10)} cm</text>`;
+  }
+  return `<svg viewBox="${vx} 0 ${svgW} ${svgH}" role="img" aria-label="Holztanne ${fmt(H / 10)} cm"><path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="1.2" stroke-linejoin="round"/>${lights}${lab}</svg>`;
+}
+const badge = (x, y, n) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="13" fill="#9b4a1f"/><text x="${x.toFixed(1)}" y="${(y + 5.5).toFixed(1)}" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">${n}</text>`;
+const legend = items => `<ol class="legend">${items.map(t => `<li><span>${t}</span></li>`).join('')}</ol>`;
+const TANNE_LEGEND = c => legend(['<b>Spitze:</b> senkrecht – anzeichnen und von Hand sägen', '<b>Ast-Stufen:</b> waagerechter Schnitt · Kappsäge 15°', '<b>Seitenneigung 75°</b> zur Waagerechten (ergibt sich von selbst)', '<b>Querholz:</b> Enden 15°, gegengleich', '<b>Fuß:</b> zwei Lagen, Enden 45°']);
+
+const tanne = {
+  id: 'tanne',
+  title: 'Holz-Tannen mit Lichterkette',
+  teaser: 'Offene Tannen aus Kantholz, drei Etagen pro Seite, innen eine Lichterkette im Zickzack. Drinnen und draußen.',
+  tags: ['Kapp­säge 15°', 'Kantholz', '½ Tag pro Baum'],
+  presets: [1200, 900, 600],
+  range: [500, 1600],
+  calc: () => tanneCalc(state.tanne.H, state.tanne.w),
+  thumb: () => tanneSVG(tanneCalc(1200, 'auto'), false),
+  sizeExtra(c) {
+    return `<label class="custom">Holz <select data-k="w">
+      ${['auto', '28', '34', '44'].map(v => `<option value="${v}" ${String(state.tanne.w) === v ? 'selected' : ''}>${v === 'auto' ? 'automatisch' : v + ' × ' + v + ' mm'}</option>`).join('')}
+      </select></label>`;
+  },
+  ziel(c) {
+    return `<div class="panel"><h3>Was baue ich?</h3>
+      <p>Eine Tanne als offener Rahmen: Jede Seite besteht aus <b>drei schrägen Stäben</b>, die nach unten jeweils eine Holzbreite nach außen versetzt sind – so entstehen die „Äste“. Unten steht der Rahmen auf einem Querholz und einem zweilagigen Fuß. Innen wird eine Lichterkette im Zickzack eingehängt.</p>
+      <div class="facts">
+        <div class="fact"><b>${fmt(c.H / 10)} cm</b><span>Höhe gesamt</span></div>
+        <div class="fact"><b>${fmt(c.cbBot / 10)} cm</b><span>Breite unten</span></div>
+        <div class="fact"><b>${c.w} × ${c.w}</b><span>Kantholz in mm</span></div>
+        <div class="fact"><b>9 Teile</b><span>pro Baum</span></div>
+      </div>
+      <div class="drawing">${tanneSVG(c)}${TANNE_LEGEND(c)}</div>
+      ${c.bad ? `<div class="warn">Bei dieser Höhe ist das Holz zu dick: Der Spitzenschnitt würde den Oberstab fast ganz auffressen. Wähle dünneres Holz oder einen größeren Baum.</div>` : ''}
+      <div class="note">Tipp: Mehrere Größen nebeneinander wirken am schönsten – z. B. 120, 90 und 60 cm. Oben die Größe wechseln, alles rechnet sich automatisch neu.</div>
+    </div>`;
+  },
+  material(c) {
+    const set = [1200, 900, 600].map(H => tanneCalc(H, 'auto'));
+    const set44 = set.filter(s => s.w === 44).reduce((s, x) => s + x.wood, 0), set28 = set.filter(s => s.w === 28).reduce((s, x) => s + x.wood, 0);
+    return {
+      wood: [
+        `Kantholz/Rahmenholz <b>${c.w} × ${c.w} mm</b>, gehobelt – Douglasie oder Lärche (für draußen), sonst Fichte: <b>${m(c.wood)}</b> netto → <b>${Math.ceil((c.wood * 1.1) / c.stock)} × 2,40 m</b>`
+      ],
+      small: [
+        `Holzleim wasserfest (D3)`,
+        `8 Edelstahl-Holzschrauben <b>${c.screwOv}</b> (Überlappungen)`,
+        `6 Edelstahl-Holzschrauben <b>${c.screwBase}</b> (Querholz und Fuß)`,
+        `1 kleiner Flachverbinder / Lochplatte für die Spitze (hinten)`,
+        `LED-Lichterkette, ca. <b>${m(c.lights)}</b> plus Zuleitung (draußen: mindestens IP44)`,
+        `kleine Messingnägel oder Schraubhaken (ca. ${Math.ceil(c.h / 80) + 2} Stück)`,
+        `optional: Holzöl/Lasur, kleiner Holzstern für die Spitze`
+      ],
+      tools: ['Kapp- und Gehrungssäge (15° und 45°)', 'Japansäge oder Stichsäge (Spitze)', 'Akkuschrauber, Holzbohrer 3 und 4 mm, Senker', 'Zollstock, Bleistift, Anschlagwinkel', 'Schraubzwingen, Schleifpapier K120'],
+      extra: `<div class="note"><b>Set 120 + 90 + 60 cm:</b> ${m(set44)} Kantholz 44 × 44 mm (→ 4 Stangen à 2,40 m) und ${m(set28)} Quadratleiste 28 × 28 mm (→ 1–2 Leisten à 2,40 m).</div>`
+    };
+  },
+  zuschnitt(c) {
+    const rows = [
+      ['Oberstab', 2, `Außenkante <b>${fmt(c.Tout)}</b><br>Innenkante <b>${fmt(c.Tin)}</b>`, 'unten 15°, oben Spitze'],
+      ['Mittelstab', 2, `<b>${fmt(c.MB)}</b>`, 'beide Enden 15°, parallel'],
+      ['Unterstab', 2, `<b>${fmt(c.MB)}</b>`, 'beide Enden 15°, parallel'],
+      ['Querholz', 1, `oben <b>${fmt(c.cbTop)}</b><br>unten <b>${fmt(c.cbBot)}</b>`, 'beide Enden 15°, gegengleich'],
+      ['Fuß obere Lage', 1, `<b>${fmt(c.f1)}</b> (lange Kante unten)`, 'Enden 45°'],
+      ['Fuß untere Lage', 1, `<b>${fmt(c.f2)}</b> (lange Kante unten)`, 'Enden 45° · freistehend: quer, ' + fmt(c.fq) + ' mm, gerade']
+    ];
+    return `<div class="panel"><h3>Zuschnittliste · Tanne ${fmt(c.H / 10)} cm</h3>
+      <p class="small muted">Alle Maße in mm, entlang der Kante gemessen. Holz ${c.w} × ${c.w} mm.</p>
+      ${partsTable(rows)}
+      <div class="facts">
+        <div class="fact"><b>${fmt(c.ov)} mm</b><span>Überlappung der Stäbe</span></div>
+        <div class="fact"><b>${fmt(c.stepM / 10)} cm</b><span>obere Ast-Stufe (Höhe)</span></div>
+        <div class="fact"><b>${fmt(c.stepB / 10)} cm</b><span>untere Ast-Stufe (Höhe)</span></div>
+      </div>
+      <div class="note">Weil das Holz quadratisch ist, sind linke und rechte Teile <b>identisch</b> – ein Teil für die andere Seite einfach umdrehen.</div>
+      <h4>Aufteilung auf Stangen à 2,40 m</h4>
+      <div class="drawing">${planHTML(cutPlan(c.pieces.flatMap(p => Array(p.n).fill(p)), c.stock), c.stock)}</div>
+      <p class="small muted">Mit 4 mm Sägeschnitt gerechnet. O = Oberstab, M = Mittel-, U = Unterstab, Q = Querholz, F = Fuß.</p>
+    </div>`;
+  },
+  winkel(c) {
+    return `<div class="panel"><h3>Die Winkel</h3>
+      <div class="anglecard"><div class="badge alt"><b>75°</b><span>Seiten</span></div><div>Alle Seitenstäbe stehen 75° zur Waagerechten. Die Spitze hat damit 30°. Diesen Winkel stellst du nirgends ein – er entsteht von selbst durch die 15°-Schnitte.</div></div>
+      <div class="anglecard"><div class="badge"><b>15°</b><span>Kappsäge</span></div><div><b>Jeder waagerechte Schnitt:</b> Ast-Stufen, Stabenden oben und unten, Querholz-Enden. Säge auf 15° (meist mit Rastung).</div></div>
+      <div class="anglecard"><div class="badge hand"><b>Lot</b><span>von Hand</span></div><div><b>Spitze:</b> senkrechter Schnitt, damit sich beide Oberstäbe auf der Mittellinie treffen. Das wären an der Kappsäge 75° – geht nicht. Darum <b>anzeichnen</b>: Der Schnitt läuft über <b>${fmt(c.apexMark)} mm</b> entlang der Kante (= 3,73 × Holzbreite).</div></div>
+      <div class="anglecard"><div class="badge"><b>45°</b><span>Kappsäge</span></div><div><b>Fußhölzer:</b> Enden 45° angeschrägt, lange Kante unten.</div></div>
+      <h4>Oberstab (2 ×)</h4><div class="drawing">${pieceSVG({title: 'Oberstab', outer: c.Tout, inner: c.Tin, off: c.hcut, thick: c.w, outerLabel: 'Außenkante', innerLabel: 'Innenkante', left: 'unten: Säge 15°', right: 'Spitze: anzeichnen'})}</div>
+      <h4>Mittel- und Unterstab (je 2 ×)</h4><div class="drawing">${pieceSVG({title: 'Mittelstab', outer: c.MB, inner: c.MB, off: c.hcut, thick: c.w, outerLabel: 'Außenkante', innerLabel: 'Innenkante', left: 'Säge 15°', right: 'Säge 15°, parallel'})}</div>
+      <div class="warn"><b>Parallelogramm, kein Trapez:</b> Beide 15°-Schnitte zeigen in dieselbe Richtung. Nach dem ersten Schnitt das Holz nur verschieben, nicht umdrehen.</div>
+      <h4>Querholz (1 ×)</h4><div class="drawing">${pieceSVG({title: 'Querholz', outer: c.cbTop, inner: c.cbBot, off: -c.w * Math.tan(15 * DEG), thick: c.w, outerLabel: 'oben', innerLabel: 'unten', left: 'Säge 15°', right: 'Säge 15°, gegengleich'})}</div>
+    </div>`;
+  },
+  steps(c) {
+    return [
+      {t: 'Probeschnitt bei 15°', b: `<p>Säge auf <b>15°</b> stellen. Zwei Reststücke so abschneiden und aneinanderhalten, wie sie später an einer Ast-Stufe liegen: Ein Stab, schräg gehalten (75°), muss mit dem Schnitt flach auf dem Tisch stehen.</p>`},
+      {t: 'Mittel- und Unterstäbe sägen', b: `<ul><li>4 Stück, je <b>${fmt(c.MB)} mm</b> entlang der Kante.</li><li>Beide Enden 15°, <b>parallel</b> (Parallelogramm).</li><li>Tipp: Anschlag-Klotz auf ${fmt(c.MB)} mm setzen, dann werden alle vier gleich.</li></ul>`},
+      {t: 'Oberstäbe sägen und Spitze anzeichnen', b: `<ul><li>Unten 15° abschneiden.</li><li>Von dieser Schnittkante aus messen: Außenkante <b>${fmt(c.Tout)} mm</b> → Punkt = Spitze. Innenkante <b>${fmt(c.Tin)} mm</b> → zweiter Punkt.</li><li>Beide Punkte verbinden, Linie auf Ober- und Unterseite übertragen.</li><li>Holz einspannen und mit Japan- oder Stichsäge auf der Linie sägen. Kanten leicht schleifen.</li></ul>`},
+      {t: 'Querholz und Fuß sägen', b: `<ul><li>Querholz: oben <b>${fmt(c.cbTop)} mm</b>, beide Enden 15° gegengleich (unten wird es ${fmt(c.cbBot)} mm).</li><li>Fuß oben: <b>${fmt(c.f1)} mm</b>, Fuß unten: <b>${fmt(c.f2)} mm</b>, Enden 45°, lange Kante unten.</li><li>Freistehend? Untere Lage stattdessen <b>quer</b>, ${fmt(c.fq)} mm, gerade Enden.</li><li>Alle Teile mit Bleistift beschriften (O, M, U, Q, F).</li></ul>`},
+      {t: 'Spitze verbinden', b: `<p>Beide Oberstäbe flach auf den Boden legen, an der Spitze verleimen und hinten mit einer kleinen Lochplatte verschrauben. Kontrolle: Die unteren 15°-Kanten liegen auf einer Linie.</p>`},
+      {t: 'Mittelstäbe ansetzen', b: `<ul><li>Mittelstab <b>außen</b> direkt neben den Oberstab legen.</li><li>Er überlappt den Oberstab um <b>${fmt(c.ov)} mm</b>: So weit liegt das Oberstab-Ende unter dem oberen Ende des Mittelstabs.</li><li>Kontrolle: Die 15°-Schnitte von Oberstab-Ende und Mittelstab-Ende liegen parallel.</li><li>Leimen, Zwinge drauf, von außen 2 Schrauben <b>${c.screwOv}</b> (vorbohren!).</li></ul>`},
+      {t: 'Unterstäbe ansetzen', b: `<p>Genauso außen an die Mittelstäbe, Überlappung wieder <b>${fmt(c.ov)} mm</b>, 2 Schrauben pro Seite.</p>`},
+      {t: 'Aufs Querholz setzen', b: `<p>Rahmen aufs Querholz stellen: Die waagerechten Schnitte der Unterstäbe sitzen flach auf, die Querholz-Enden laufen bündig in der Außenkante weiter. Von unten je 1–2 Schrauben <b>${c.screwBase}</b>, vorbohren und versenken.</p>`},
+      {t: 'Gerade? Diagonalen messen', b: `<p>Von der Spitze zur linken und zur rechten unteren Ecke messen – beide Maße müssen gleich sein. Sonst jetzt noch leicht korrigieren, bevor der Leim fest ist.</p>`},
+      {t: 'Fuß montieren', b: `<p>Obere Fußlage mittig unter das Querholz, untere Lage darunter, jeweils von unten verschrauben (${c.screwBase}). Draußen zusätzlich mit Erdanker, Winkel oder Hering gegen Wind sichern.</p>`},
+      {t: 'Schleifen und Oberfläche', b: `<p>Kanten mit K120 brechen. Für draußen ölen oder lasieren – Douglasie ohne Öl wird mit der Zeit silbergrau.</p>`},
+      {t: 'Lichterkette einhängen', b: `<ul><li>An den Innenkanten abwechselnd links/rechts alle ca. 8 cm (in der Höhe) einen kleinen Nagel oder Haken setzen.</li><li>Kette von oben nach unten im Zickzack einhängen – ca. <b>${m(c.lights)}</b>.</li><li>Batteriebox oder Trafo hinten ans Querholz schrauben, Kabel an der Innenkante entlang.</li></ul>`}
+    ];
+  }
+};
+
+/* ================= PROJEKT: STERN ================= */
+function sternCalc(H, t, d) {
+  const c = {H, t, d};
+  c.R = H / (1 + Math.cos(36 * DEG));
+  c.r = c.R * Math.sin(18 * DEG) / Math.sin(126 * DEG);
+  c.a = Math.sqrt(c.R ** 2 + c.r ** 2 - 2 * c.R * c.r * Math.cos(36 * DEG));
+  c.tipOff = t / Math.tan(18 * DEG);
+  c.inOff = t / Math.tan(54 * DEG);
+  c.Lin = c.a - c.tipOff + c.inOff;
+  c.ext = c.a + c.inOff;
+  c.W = 2 * c.R * Math.sin(72 * DEG);
+  c.chord = 2 * c.R * Math.sin(36 * DEG);
+  c.Ri = c.R - t / Math.sin(18 * DEG);
+  c.ri = c.r - t / Math.sin(54 * DEG);
+  c.stock = 2000;
+  c.pieces = Array.from({length: 10}, () => ({short: 'S', name: 'Stab', n: 1, len: c.ext}));
+  c.wood = 10 * c.ext;
+  c.bad = c.Lin < 2.5 * t;
+  return c;
+}
+function starPts(R, r, cx, cy, s) {
+  return Array.from({length: 10}, (_, k) => {
+    const ang = (90 + 36 * k) * DEG, rad = k % 2 ? r : R;
+    return [cx + rad * Math.cos(ang) * s, cy - rad * Math.sin(ang) * s];
+  });
+}
+function sternSVG(c, labels = true) {
+  const s = 300 / c.W, cx = 170, cy = 40 + c.R * s;
+  const P = starPts(c.R, c.r, cx, cy, s), Q = starPts(c.Ri, c.ri, cx, cy, s);
+  const f = p => p[0].toFixed(1) + ',' + p[1].toFixed(1);
+  let polys = '';
+  for (let k = 0; k < 10; k++) {
+    const k2 = (k + 1) % 10;
+    polys += `<polygon points="${f(P[k])} ${f(P[k2])} ${f(Q[k2])} ${f(Q[k])}" fill="${labels ? (k % 2 ? '#e7c89f' : '#dcb886') : (k % 2 ? '#d9a066' : '#c98f55')}" stroke="${labels ? '#a8743f' : '#f0c890'}" stroke-width="1.1" stroke-linejoin="round"/>`;
+  }
+  const yb = cy + c.R * Math.cos(36 * DEG) * s;
+  let lab = '', vb = `0 0 340 ${(yb + 20).toFixed(0)}`;
+  if (labels) {
+    const out = (p, dist) => { const dx = p[0] - cx, dy = p[1] - cy, L = Math.hypot(dx, dy); return [p[0] + dx / L * dist, p[1] + dy / L * dist]; };
+    const b1 = out(P[0], 22), b2 = out(P[9], 26), mid = [(P[8][0] + P[9][0]) / 2, (P[8][1] + P[9][1]) / 2], b3 = out(mid, 22);
+    lab += badge(b1[0] + 18, b1[1] + 6, 1) + badge(b2[0], b2[1], 2) + badge(b3[0], b3[1], 3);
+    const hw = c.W / 2 * s;
+    lab += `<line x1="${(cx - hw).toFixed(1)}" y1="${(yb + 18).toFixed(1)}" x2="${(cx + hw).toFixed(1)}" y2="${(yb + 18).toFixed(1)}" stroke="#2b2118"/>`;
+    lab += `<text x="${cx}" y="${(yb + 42).toFixed(1)}" text-anchor="middle" font-size="17" font-weight="700" fill="#2b2118">${fmt(c.W / 10)} cm breit · ${fmt(c.H / 10)} cm hoch</text>`;
+    vb = `0 0 340 ${(yb + 54).toFixed(0)}`;
+  }
+  return `<svg viewBox="${vb}" role="img" aria-label="Holzstern ${fmt(c.H / 10)} cm">${polys}${lab}</svg>`;
+}
+const STERN_LEGEND = c => legend([`<b>Zackenspitze 36°:</b> jedes Teil 18° zur Kante – anzeichnen, von Hand oder mit Hilfskeil`, `<b>Innenecke 108°:</b> Säge auf 36°`, `<b>Außenseite</b> je Teil ${fmt(c.a)} mm – alle 10 Teile gleich`]);
+
+const stern = {
+  id: 'stern',
+  title: 'Holzstern als Rahmen',
+  teaser: 'Fünfzackiger Stern aus 10 gleichen Brettstücken, tief wie ein Regal – zum Hinstellen, mit Zapfen, Grün oder Licht.',
+  tags: ['Säge 36°', 'Bretter', '½ Tag'],
+  presets: [600, 450, 300],
+  range: [200, 900],
+  calc: () => sternCalc(state.stern.H, +state.stern.t, +state.stern.d),
+  thumb: () => sternSVG(sternCalc(600, 18, 80), false),
+  sizeExtra() {
+    return `<label class="custom">Brettstärke <select data-k="t">${[12, 15, 18, 20].map(v => `<option ${+state.stern.t === v ? 'selected' : ''}>${v}</option>`).join('')}</select> mm</label>
+      <label class="custom">Tiefe <select data-k="d">${[60, 80, 100, 120].map(v => `<option ${+state.stern.d === v ? 'selected' : ''}>${v}</option>`).join('')}</select> mm</label>`;
+  },
+  ziel(c) {
+    return `<div class="panel"><h3>Was baue ich?</h3>
+      <p>Einen fünfzackigen Stern als offenen Rahmen aus <b>10 gleichen Brettstücken</b>. Die Bretter stehen „hochkant“, so hat der Stern eine Tiefe wie ein kleines Regal und steht von allein – innen ist Platz für Zapfen, Nüsse, Tannengrün oder eine Lichterkette.</p>
+      <div class="facts">
+        <div class="fact"><b>${fmt(c.H / 10)} cm</b><span>Höhe (steht auf 2 Zacken)</span></div>
+        <div class="fact"><b>${fmt(c.W / 10)} cm</b><span>Breite</span></div>
+        <div class="fact"><b>${c.t} × ${c.d}</b><span>Brett in mm</span></div>
+        <div class="fact"><b>10 Teile</b><span>alle gleich</span></div>
+      </div>
+      <div class="drawing">${sternSVG(c)}${STERN_LEGEND(c)}</div>
+      ${c.bad ? `<div class="warn">Für diese Größe ist das Brett zu dick – die Teile werden innen sehr kurz. Wähle ein dünneres Brett oder einen größeren Stern.</div>` : ''}
+      <div class="note">Schwierigste Stelle sind die spitzen Zacken (18°-Schnitt). Dafür gibt es unter „Winkel“ zwei Wege – mit Handsäge oder mit Hilfskeil an der Kappsäge.</div>
+    </div>`;
+  },
+  material(c) {
+    return {
+      wood: [`Brett <b>${c.t} mm</b> stark, <b>${c.d} mm</b> breit – Eiche (wie im Shop-Foto), Buche oder Fichte-Leimholz. Tipp: Leimholzplatte im Baumarkt in Streifen schneiden lassen. Bedarf: <b>${m(c.wood)}</b> netto → <b>${Math.ceil(c.wood * 1.1 / c.stock)} × 2,00 m</b>`],
+      small: ['Holzleim (D3 für draußen)', 'Stauchkopfnägel / Stifte 1,6 × 35 mm (2 je Ecke)', 'Spanngurt oder Bandspanner zum Verleimen', 'Packpapier oder Pappe für die Schablone', 'Malerkrepp', 'optional: Holzöl, Deko (Zapfen, Nüsse, Grün), LED-Lichterkette'],
+      tools: ['Kapp- und Gehrungssäge mit Neigung (36°)', 'Japansäge (Zugsäge) und Schraubstock oder Zwingen', 'Zollstock, Bleistift, Geodreieck, Zirkel oder Schnur', 'Hammer, Versenker', 'Schleifklotz K120/K180'],
+      extra: ''
+    };
+  },
+  zuschnitt(c) {
+    return `<div class="panel"><h3>Zuschnittliste · Stern ${fmt(c.H / 10)} cm</h3>
+      <p class="small muted">Alle 10 Teile sind gleich. Längen in mm, gemessen auf der breiten Fläche (Außen- bzw. Innenseite des Sterns).</p>
+      ${partsTable([['Stab', 10, `Außenseite <b>${fmt(c.a)}</b><br>Innenseite <b>${fmt(c.Lin)}</b>`, 'Spitzen-Ende 18° zur Kante · Innen-Ende Säge 36°']])}
+      <div class="facts">
+        <div class="fact"><b>${fmt(c.R)} mm</b><span>Radius bis Zackenspitze</span></div>
+        <div class="fact"><b>${fmt(c.r)} mm</b><span>Radius bis Innenecke</span></div>
+        <div class="fact"><b>${fmt(c.tipOff)} mm</b><span>Länge des Spitzenschnitts</span></div>
+      </div>
+      <h4>Aufteilung auf Bretter à 2,00 m</h4>
+      <div class="drawing">${planHTML(cutPlan(c.pieces, c.stock), c.stock)}</div>
+      <p class="small muted">Mit 4 mm Sägeschnitt gerechnet. Ein Teil mehr zum Üben schadet nicht.</p>
+    </div>`;
+  },
+  winkel(c) {
+    return `<div class="panel"><h3>Die Winkel</h3>
+      <div class="warn"><b>Wichtig:</b> Der Winkel liegt in der <b>Brettstärke</b> (${c.t} mm), nicht in der Breite. Man sieht ihn vorne am Stern. Liegt das Brett flach auf der Säge, ist es also ein <b>Neigungsschnitt</b> (Sägeblatt kippen). Steht das Brett hochkant am Anschlag, ist es ein Gehrungsschnitt – dafür muss die Säge ${c.d} mm hoch schneiden können.</div>
+      <div class="anglecard"><div class="badge alt"><b>36°</b><span>Zacke</span></div><div>An jeder Zackenspitze treffen sich zwei Teile im Winkel von 36°. Jedes Teil bekommt die Hälfte: <b>18° zur Kante</b> (= 72° an der Säge – das schafft keine normale Kappsäge).</div></div>
+      <div class="anglecard"><div class="badge"><b>36°</b><span>Säge</span></div><div><b>Innenecke:</b> Hier treffen sich zwei Teile mit 108°. Jedes Teil wird mit <b>36° an der Säge</b> geschnitten (54° zur Kante). Geht mit jeder Kappsäge.</div></div>
+      <div class="anglecard"><div class="badge hand"><b>18°</b><span>Weg A</span></div><div><b>Spitze mit der Handsäge:</b> Brett hochkant einspannen, Linie oben und unten auf den Schmalseiten anzeichnen (sie ist ${fmt(c.tipOff)} mm lang), mit der Japansäge senkrecht nach unten sägen, nachschleifen. Am genauesten mit einem Führungsklotz.</div></div>
+      <div class="anglecard"><div class="badge hand"><b>45+27</b><span>Weg B</span></div><div><b>Spitze mit Hilfskeil:</b> Einen Klotz mit 45°-Ende als zweiten Anschlag fest an den Sägeanschlag spannen und das Brett daran anlegen. Säge zusätzlich auf <b>27°</b> in dieselbe Richtung → zusammen 72°. Unbedingt erst am Reststück testen und das Werkstück festspannen.</div></div>
+      <h4>Ein Stab (10 ×)</h4>
+      <div class="drawing">${pieceSVG({title: 'Sternteil', outer: c.a, inner: c.Lin, off: c.tipOff, thick: c.t, outerLabel: 'Außenseite', innerLabel: 'Innenseite', left: 'Spitze: 18° zur Kante', right: 'Innenecke: Säge 36°'})}</div>
+      <div class="note">Die beiden Schnitte neigen sich in <b>dieselbe Richtung</b>. Alle 10 Teile sind gleich – für die Nachbar-Zacke wird das Teil einfach umgedreht.</div>
+    </div>`;
+  },
+  steps(c) {
+    return [
+      {t: 'Schablone zeichnen', b: `<ul><li>Auf Packpapier oder Pappe einen Kreis mit <b>Radius ${fmt(c.R)} mm</b> zeichnen (Zirkel oder Schnur mit Bleistift).</li><li>Mit dem Zirkel <b>${fmt(c.chord)} mm</b> abgreifen und einmal rund um den Kreis abtragen → 5 Punkte.</li><li>Jeden zweiten Punkt mit dem Lineal verbinden → Pentagramm. Die äußere Linie ist die Außenkante deines Sterns.</li></ul>`},
+      {t: 'Probeschnitt 36°', b: `<p>Säge auf <b>36° Neigung</b> (Brett flach) stellen. Zwei Reststücke abschneiden und zur Innenecke zusammenhalten: Außen muss ein Winkel von 108° entstehen – mit der Schablone vergleichen.</p>`},
+      {t: 'Innen-Enden sägen', b: `<p>An allen <b>10 Teilen</b> zuerst das Innen-Ende mit 36° schneiden. Dabei liegt die <b>Außenseite</b> immer gleich herum (z. B. oben), damit sich die Schnitte richtig neigen.</p>`},
+      {t: 'Länge anzeichnen', b: `<ul><li>Vom Innen-Ende aus auf der <b>Außenseite ${fmt(c.a)} mm</b> messen → Spitze.</li><li>Auf der <b>Innenseite ${fmt(c.Lin)} mm</b> messen → zweiter Punkt.</li><li>Punkte auf beiden Schmalseiten verbinden: Die Linie ist ${fmt(c.tipOff)} mm lang.</li></ul>`},
+      {t: 'Spitzen sägen', b: `<p>Brett hochkant einspannen und auf der Linie sägen (Weg A), oder mit Hilfskeil an der Kappsäge (Weg B, siehe „Winkel“). Lieber knapp neben der Linie sägen und bis zum Strich schleifen.</p>`},
+      {t: 'Trocken auslegen', b: `<p>Alle 10 Teile ohne Leim auf die Schablone legen. Kleine Spalten an den Spitzen jetzt mit dem Schleifklotz ausgleichen. Fehler verteilen sich auf 10 Fugen – also lieber an mehreren Stellen ein wenig als an einer viel.</p>`},
+      {t: '5 Zacken verleimen', b: `<p>Je zwei Teile an der Spitze verleimen, mit Malerkrepp zusammenhalten und mit 2 Stiften sichern (vorbohren, Eiche spaltet leicht). Auf der Schablone trocknen lassen.</p>`},
+      {t: 'Stern schließen', b: `<p>Die 5 Zacken an den Innenecken verleimen, Spanngurt außen herum und vorsichtig anziehen. Je Innenecke 2 Stifte. Austretenden Leim sofort abwischen.</p>`},
+      {t: 'Schleifen und Oberfläche', b: `<p>Nach dem Trocknen Stifte versenken, Löcher kitten, mit K120 und K180 schleifen, Kanten brechen. Ölen – Eiche wird dadurch schön warm.</p>`},
+      {t: 'Dekorieren', b: `<p>Zapfen, Nüsse, Tannengrün auf die unteren Schenkel legen oder eine kleine Lichterkette innen entlang führen.</p>`}
+    ];
+  }
+};
+
+const PROJECTS = {tanne, stern};
+const TABS = [['ziel', 'Was möchte ich?'], ['material', 'Was brauche ich?'], ['zuschnitt', 'Zuschnitt'], ['winkel', 'Winkel'], ['anleitung', 'Schritt für Schritt']];
+
+/* ---------------- Rendering ---------------- */
+const app = document.getElementById('app');
+function route() {
+  const [, pid, tab] = (location.hash || '#/').split('/');
+  return {pid: PROJECTS[pid] ? pid : null, tab: TABS.some(t => t[0] === tab) ? tab : 'ziel'};
+}
+function render() {
+  const {pid, tab} = route();
+  const back = document.getElementById('back');
+  if (!pid) {
+    back.hidden = true;
+    document.getElementById('htitle').textContent = 'Werkstatt';
+    document.getElementById('hsub').textContent = 'Holzprojekte Schritt für Schritt';
+    app.innerHTML = `<div class="hero"><h2>Was baust du heute?</h2><p>Projekt wählen, Größe einstellen – Materialliste, Zuschnitt, Winkel und Anleitung rechnen sich automatisch.</p></div>
+      <div class="cards">${Object.values(PROJECTS).map(p => `<a class="pcard" href="#/${p.id}/ziel"><div class="thumb">${p.thumb()}</div><div class="body"><h3>${p.title}</h3><p>${p.teaser}</p><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div></div></a>`).join('')}</div>`;
+    return;
+  }
+  const p = PROJECTS[pid], st = state[pid], c = p.calc();
+  back.hidden = false;
+  document.getElementById('htitle').textContent = p.title;
+  document.getElementById('hsub').textContent = `Größe: ${fmt(st.H / 10)} cm`;
+  const isPreset = p.presets.includes(+st.H);
+  let html = `<div class="sizebar"><div class="lbl">Größe (Gesamthöhe)</div><div class="chips">
+    ${p.presets.map(h => `<button class="chip ${+st.H === h ? 'on' : ''}" data-h="${h}">${h / 10} cm</button>`).join('')}
+    <label class="custom">eigene: <input type="number" inputmode="numeric" min="${p.range[0] / 10}" max="${p.range[1] / 10}" step="1" value="${isPreset ? '' : fmt(st.H / 10)}" placeholder="cm" id="hcustom"> cm</label></div>
+    <div class="row2">${p.sizeExtra(c)}</div></div>`;
+  html += `<nav class="tabs">${TABS.map((t, i) => `<button data-tab="${t[0]}" class="${t[0] === tab ? 'on' : ''}"><span class="n">${i + 1}</span>${t[1]}</button>`).join('')}</nav>`;
+  html += `<div id="content">${renderTab(p, tab, c)}</div>`;
+  app.innerHTML = html;
+  const on = app.querySelector('nav.tabs .on'); if (on) on.parentNode.scrollLeft = on.offsetLeft - 40;
+}
+function renderTab(p, tab, c) {
+  const idx = TABS.findIndex(t => t[0] === tab), nxt = TABS[idx + 1];
+  const nextLink = nxt ? `<a class="next" href="#/${p.id}/${nxt[0]}">Weiter: ${nxt[1]} →</a>` : '';
+  if (tab === 'ziel') return p.ziel(c) + nextLink;
+  if (tab === 'zuschnitt') return p.zuschnitt(c) + nextLink;
+  if (tab === 'winkel') return p.winkel(c) + nextLink;
+  if (tab === 'material') {
+    const mat = p.material(c), key = p.id + '-' + c.H;
+    const buy = state.buy[key] || [];
+    const list = (arr, off) => arr.map((t, i) => `<label class="check ${buy.includes(off + i) ? 'done' : ''}"><input type="checkbox" data-buy="${off + i}" ${buy.includes(off + i) ? 'checked' : ''}><span>${t}</span></label>`).join('');
+    return `<div class="panel"><h3>Einkaufs- und Werkzeugliste</h3><p class="small muted">Zum Abhaken – wird auf diesem Gerät gespeichert.</p>
+      <h4>Holz</h4>${list(mat.wood, 0)}${mat.extra}
+      <h4>Kleinteile</h4>${list(mat.small, 100)}
+      <h4>Werkzeug</h4>${list(mat.tools, 200)}</div>` + nextLink;
+  }
+  if (tab === 'anleitung') {
+    const steps = p.steps(c), done = state.done[p.id] || [];
+    let i = Math.min(state.step[p.id] || 0, steps.length - 1);
+    const s = steps[i], ok = done.includes(i);
+    const pct = Math.round(done.length / steps.length * 100);
+    return `<div class="panel step">
+      <div class="small muted">${done.length} von ${steps.length} erledigt</div>
+      <div class="progress"><div style="width:${pct}%"></div></div>
+      <div class="stepnav">${steps.map((_, k) => `<button data-step="${k}" class="${k === i ? 'on' : ''} ${done.includes(k) ? 'ok' : ''}" aria-label="Schritt ${k + 1}">${done.includes(k) ? '✓' : k + 1}</button>`).join('')}</div>
+      <h3><span class="num">Schritt ${i + 1}</span> ${s.t}</h3>
+      ${s.b}
+      <div class="btns">
+        <button class="btn sec" data-go="${i - 1}" ${i === 0 ? 'disabled' : ''}>← Zurück</button>
+        <button class="btn ${ok ? 'sec' : 'ok'}" data-done="${i}">${ok ? 'Doch nicht erledigt' : '✓ Erledigt'}</button>
+        <button class="btn pri" data-go="${i + 1}" ${i === steps.length - 1 ? 'disabled' : ''}>Weiter →</button>
+      </div></div>
+      ${pct === 100 ? `<div class="note"><b>Fertig!</b> Viel Freude damit. 🎄</div>` : ''}`;
+  }
+  return '';
+}
+
+/* ---------------- Ereignisse ---------------- */
+app.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  const {pid, tab} = route();
+  if (b.dataset.h) { state[pid].H = +b.dataset.h; save(); render(); }
+  else if (b.dataset.tab) { location.hash = `#/${pid}/${b.dataset.tab}`; }
+  else if (b.dataset.step != null) { state.step[pid] = +b.dataset.step; save(); render(); }
+  else if (b.dataset.go != null) { state.step[pid] = +b.dataset.go; save(); render(); window.scrollTo({top: 0, behavior: 'smooth'}); }
+  else if (b.dataset.done != null) {
+    const i = +b.dataset.done, d = state.done[pid] = state.done[pid] || [];
+    const k = d.indexOf(i);
+    if (k >= 0) d.splice(k, 1); else { d.push(i); const n = PROJECTS[pid].steps(PROJECTS[pid].calc()).length; if (i < n - 1) state.step[pid] = i + 1; }
+    save(); render();
+  }
+});
+app.addEventListener('change', e => {
+  const {pid} = route();
+  const el = e.target;
+  if (el.id === 'hcustom') {
+    const p = PROJECTS[pid], v = Math.round(parseFloat(String(el.value).replace(',', '.')) * 10);
+    if (v >= p.range[0] && v <= p.range[1]) { state[pid].H = v; save(); render(); }
+    else { el.value = ''; alert(`Bitte eine Höhe zwischen ${p.range[0] / 10} und ${p.range[1] / 10} cm eingeben.`); }
+  } else if (el.dataset.k) {
+    state[pid][el.dataset.k] = el.value; save(); render();
+  } else if (el.dataset.buy != null) {
+    const key = pid + '-' + state[pid].H, arr = state.buy[key] = state.buy[key] || [], i = +el.dataset.buy;
+    const k = arr.indexOf(i); if (el.checked && k < 0) arr.push(i); if (!el.checked && k >= 0) arr.splice(k, 1);
+    el.closest('.check').classList.toggle('done', el.checked); save();
+  }
+});
+document.getElementById('back').addEventListener('click', () => { location.hash = '#/'; });
+window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
+render();
+</script>
+</body>
+</html>
