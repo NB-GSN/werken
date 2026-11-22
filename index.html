@@ -324,7 +324,7 @@ const heroSVG = (inner, label) => `<svg viewBox="0 0 340 220" preserveAspectRati
 
 /* ---------------- Speicher ---------------- */
 const STORE = 'werkstatt-v1';
-let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, masu: {H: 80}, fenster: {H: 300, lagen: '2'}, flocke: {H: 150}, tuete: {H: 280, n: '10'}, aqtanne: {H: 105}, schnee: {H: 105}, wichtel: {H: 145}, kette: {H: 145}, kugeln: {H: 105}, kranz: {H: 145}, robin: {H: 105}, lebkuchen: {H: 105}, dorf: {H: 2100}, nebel: {H: 2100}, polar: {H: 2100}, huette: {H: 2100}, bogen: {H: 600}, balken: {H: 500, q: '70'}, stammrentier: {H: 700}, popup: {H: 148}, licht: {H: 250, n: '5'}, poinsettie: {H: 145}, kerzen: {H: 105}, faden: {H: 250, motiv: 'stern'}, fmathe: {H: 250, N: '36', pat: 'stern'}, done: {}, buy: {}, step: {}};
+let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, masu: {H: 80}, fenster: {H: 300, lagen: '2'}, flocke: {H: 150}, tuete: {H: 280, n: '10'}, aqtanne: {H: 105}, schnee: {H: 105}, wichtel: {H: 145}, kette: {H: 145}, kugeln: {H: 105}, kranz: {H: 145}, robin: {H: 105}, lebkuchen: {H: 105}, dorf: {H: 2100}, nebel: {H: 2100}, polar: {H: 2100}, huette: {H: 2100}, bogen: {H: 600}, balken: {H: 500, q: '70'}, stammrentier: {H: 700}, popup: {H: 148}, licht: {H: 250, n: '5'}, garnwichtel: {H: 200, farbe: 'natur', art: 'luftig'}, poinsettie: {H: 145}, kerzen: {H: 105}, faden: {H: 250, motiv: 'stern'}, fmathe: {H: 250, N: '36', pat: 'stern'}, done: {}, buy: {}, step: {}};
 try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) { const d = JSON.parse(JSON.stringify(state)); state = Object.assign(state, s); for (const k of Object.keys(d)) if (d[k] && typeof d[k] === 'object' && 'H' in d[k]) state[k] = Object.assign({}, d[k], s[k]); state.step = Object.assign({}, s.step); } } catch (e) {}
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
 
@@ -2493,6 +2493,180 @@ const licht = {
     {t: 'Licht rein', b: '<p>LED-Teelicht hinein, draußen etwas Sand auf den Boden als Gewicht.</p>'}]; }
 };
 
+/* ---- Garn-Wichtel ---- */
+const GW_COL = {
+  natur: [['Tannengrün', '#2f5a3c', '#46785a'], ['Creme', '#e6d8bb', '#f6eedb'], ['Haselnuss', '#a9835b', '#c7a27a']],
+  klassisch: [['Rot', '#b3261e', '#d9473c'], ['Weiß', '#ece8e0', '#ffffff'], ['Tannengrün', '#2f5a3c', '#46785a']],
+  winter: [['Nachtblau', '#2d4a73', '#46679a'], ['Eisgrau', '#b9c3cc', '#dde4ea'], ['Weiß', '#ece8e0', '#ffffff']]
+};
+const GW_K = [1, 0.78, 0.6], GW_NAME = ['groß', 'mittel', 'klein'];
+function gwCalc(H, farbe, art) {
+  const c = {H: +H, farbe: GW_COL[farbe] ? farbe : 'natur', art: art === 'fest' ? 'fest' : 'luftig'};
+  c.q = 0.2;                                          // Radius = 0,2 · Höhe → schlanker Kegel
+  c.theta = 360 * c.q / Math.hypot(1, c.q);           // Abwicklungswinkel, bei allen Größen gleich
+  c.apex = 2 * Math.atan(c.q) / DEG;                  // Öffnungswinkel der Spitze
+  c.sizes = GW_K.map((k, i) => {
+    const h = c.H * k, r = c.q * h, s = Math.hypot(h, r);
+    const bead = [12, 15, 20, 25, 30].reduce((a, b) => Math.abs(b - 0.11 * h) < Math.abs(a - 0.11 * h) ? b : a);
+    const area = Math.PI * r * s;                      // Mantelfläche in mm²
+    const yarn = area / 3 * (c.art === 'fest' ? 1.15 : 0.55) / 1000; // 3 mm Garn
+    return {k, name: GW_NAME[i], h, r, s, d: 2 * r, bead, beardH: 0.47 * h, beardW: 2.1 * r, beardY: 0.42 * h, noseY: 0.4 * h, yarn, col: GW_COL[c.farbe][i]};
+  });
+  c.yarnSum = c.sizes.reduce((a, z) => a + z.yarn, 0);
+  // Vorlage (mm): Spitze oben, Bogen unten
+  const S = c.sizes[0].s, half = c.theta / 2 * DEG, M = 8, tab = 10;
+  c.tw = 2 * S * Math.sin(half);
+  c.apexXY = [M + c.tw / 2, M];
+  c.TW = Math.ceil(c.tw + 2 * M + tab + 4); c.TH = Math.ceil(S + 2 * M); c.B = c.TW;
+  const fits = (w, h, a, b) => (w <= a && h <= b) || (w <= b && h <= a);
+  c.sheet = fits(c.tw + tab, S, 287, 200) ? 'A4' : fits(c.tw + tab, S, 410, 287) ? 'A3' : '50 × 70 cm';
+  return c;
+}
+// Ein Wichtel, Bodenmitte (cx, yb), Höhe h in Pixeln
+function gnomeArt(cx, yb, h, col, seed, o = {}) {
+  const r = 0.2 * h, id = uid('gw'), rr = rng(seed);
+  const tip = [cx + (o.lean || 0) * h, yb - h];
+  let g = floorShadow(cx, yb + 2, r * 1.5);
+  g += `<clipPath id="${id}"><polygon points="${P2([tip, [cx + r, yb], [cx - r, yb]])}"/></clipPath>`;
+  g += `<polygon points="${P2([tip, [cx + r, yb], [cx - r, yb]])}" fill="${col[1]}"/>`;
+  // Garn: kreuz und quer laufende Wicklungen
+  let y = '';
+  const n = Math.round(h / 3.2);
+  for (let i = 0; i < n; i++) {
+    const t = i / n, yy = yb - h * t, dir = i % 2 ? 1 : -1, sl = (0.10 + 0.08 * rr()) * h * dir;
+    y += `<line x1="${f1(cx - r * 1.3)}" y1="${f1(yy + sl)}" x2="${f1(cx + r * 1.3)}" y2="${f1(yy - sl)}" stroke="${i % 3 ? col[2] : col[1]}" stroke-width="${f1(Math.max(.7, h / 90))}" stroke-linecap="round" opacity="${(.55 + .4 * rr()).toFixed(2)}"/>`;
+  }
+  g += `<g clip-path="url(#${id})">${y}<polygon points="${P2([tip, [cx + r, yb], [cx + r * .25, yb]])}" fill="#000" opacity=".16"/></g>`;
+  g += `<polygon points="${P2([tip, [cx + r, yb], [cx - r, yb]])}" fill="none" stroke="#000" stroke-opacity=".18" stroke-width=".6"/>`;
+  // Bommel
+  if (o.pom !== false) g += `<circle cx="${f1(tip[0])}" cy="${f1(tip[1] - h * .02)}" r="${f1(h * .045)}" fill="#f4efe4" stroke="#d6cdbb" stroke-width=".6"/>`;
+  // Bart: welliger Rand oben, rund nach unten
+  const by = yb - 0.42 * h, bw = 1.05 * r, bot = yb + 0.05 * h;
+  let d = `M${f1(cx - bw)} ${f1(by + h * .03)}`;
+  for (let i = 0; i <= 6; i++) { const x = cx - bw + 2 * bw * i / 6; d += ` Q${f1(x - bw / 6)} ${f1(by - h * .025)} ${f1(x)} ${f1(by + (i % 2 ? -.01 : .015) * h)}`; }
+  d += ` C${f1(cx + bw * 1.05)} ${f1(by + h * .25)} ${f1(cx + bw * .4)} ${f1(bot)} ${f1(cx)} ${f1(bot)} C${f1(cx - bw * .4)} ${f1(bot)} ${f1(cx - bw * 1.05)} ${f1(by + h * .25)} ${f1(cx - bw)} ${f1(by + h * .03)}Z`;
+  g += `<path d="${d}" fill="#f7f4ee" stroke="#d9d2c4" stroke-width=".7"/>`;
+  for (let i = 0; i < 9; i++) { const x = cx - bw * .8 + bw * 1.6 * i / 8; g += `<path d="M${f1(x)} ${f1(by + h * .04)} q${f1((rr() - .5) * 4)} ${f1(h * .15)} ${f1((cx - x) * .35)} ${f1(h * (.25 + .12 * rr()) * (1 - Math.abs(x - cx) / bw * .5))}" stroke="#ddd5c6" stroke-width=".7" fill="none"/>`; }
+  // Nase
+  const nr = 0.055 * h, ny = yb - 0.4 * h;
+  g += `<circle cx="${f1(cx)}" cy="${f1(ny)}" r="${f1(nr)}" fill="#e2b08a" stroke="#b9845d" stroke-width=".6"/><circle cx="${f1(cx - nr * .35)}" cy="${f1(ny - nr * .35)}" r="${f1(nr * .3)}" fill="#fff" opacity=".55"/>`;
+  return g;
+}
+function heroGarnwichtel() {
+  const cols = GW_COL.natur;
+  let o = sceneWall(340, 220, 182);
+  o += `<g opacity=".9">${branch(8, 186, 70, -20, 7)}${branch(332, 186, 70, 200, 9)}</g>`;
+  o += halo(170, 120, 150, 90, .35);
+  o += gnomeArt(112, 184, 150, cols[0], 3) + gnomeArt(196, 184, 118, cols[1], 5) + gnomeArt(262, 184, 92, cols[2], 8);
+  o += glowDots(sampleLine([[0, 30], [80, 45], [170, 38], [260, 48], [340, 34]], 22), 2.2);
+  return heroSVG(o, 'Drei Garn-Wichtel in Grün, Creme und Haselnuss');
+}
+function gwSVG(c) {
+  const z = c.sizes[0], s = 230 / z.h, cx = 150, yb = 260, h = z.h * s, r = z.r * s;
+  let o = gnomeArt(cx, yb, h, z.col, 3, {pom: false});
+  const dim = (x1, y1, x2, y2, t, tx, ty, anchor = 'start') => `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(x2)}" y2="${f1(y2)}" stroke="#2b2118" stroke-width="1"/><text x="${f1(tx)}" y="${f1(ty)}" font-size="14" font-weight="700" fill="#2b2118" text-anchor="${anchor}">${t}</text>`;
+  o += dim(cx + r + 34, yb - h, cx + r + 34, yb, `${fmt(z.h / 10, 1)} cm`, cx + r + 40, yb - h / 2);
+  o += `<line x1="${f1(cx + 6)}" y1="${f1(yb - h)}" x2="${f1(cx + r + 40)}" y2="${f1(yb - h)}" stroke="#2b2118" stroke-dasharray="3 3" stroke-width=".7"/>`;
+  o += dim(cx - r, yb + 24, cx + r, yb + 24, `Ø ${fmt(z.d / 10, 1)} cm`, cx, yb + 42, 'middle');
+  o += badge(cx - r - 34, yb - h * .6, 1) + badge(cx - r * 1.05 - 28, yb - h * .2, 2) + badge(cx + 0.055 * h + 22, yb - .4 * h - 10, 3);
+  return `<svg viewBox="0 0 340 ${yb + 50}" role="img" aria-label="Garn-Wichtel mit Maßen">${o}</svg>`;
+}
+// Abwicklung (Kreisausschnitt) verkleinert
+function gwSectorSVG(c) {
+  const S = c.sizes[0].s, sc = 230 / S, ax = 150, ay = 18, half = c.theta / 2 * DEG;
+  const P = (rad, a) => [ax + rad * sc * Math.sin(a), ay + rad * sc * Math.cos(a)];
+  let o = '';
+  const sect = (rad, fill, stroke, w) => { const A = P(rad, -half), B = P(rad, half); return `<path d="M${ax} ${ay} L${f1(A[0])} ${f1(A[1])} A${f1(rad * sc)} ${f1(rad * sc)} 0 0 0 ${f1(B[0])} ${f1(B[1])}Z" fill="${fill}" stroke="${stroke}" stroke-width="${w}"/>`; };
+  // Klebelasche rechts
+  const t1 = P(S, half), t0 = P(18, half), nx = Math.cos(half) * 10 * sc * 1.2, ny = -Math.sin(half) * 10 * sc * 1.2;
+  o += `<polygon points="${P2([t0, t1, [t1[0] + nx, t1[1] + ny], [t0[0] + nx, t0[1] + ny]])}" fill="#e9d9bf" stroke="#a8743f" stroke-dasharray="4 3"/>`;
+  o += sect(S, '#f6ecd9', '#9b4a1f', 1.8);
+  c.sizes.slice(1).forEach(z => { const A = P(z.s, -half), B = P(z.s, half); o += `<path d="M${f1(A[0])} ${f1(A[1])} A${f1(z.s * sc)} ${f1(z.s * sc)} 0 0 0 ${f1(B[0])} ${f1(B[1])}" fill="none" stroke="#3d6b4a" stroke-width="1.4" stroke-dasharray="6 4"/>`; });
+  // Winkelbogen
+  const a0 = P(40, -half), a1 = P(40, half);
+  o += `<path d="M${f1(a0[0])} ${f1(a0[1])} A${f1(40 * sc)} ${f1(40 * sc)} 0 0 0 ${f1(a1[0])} ${f1(a1[1])}" fill="none" stroke="#2b2118" stroke-width="1.2"/><text x="${ax}" y="${f1(ay + 40 * sc + 18)}" text-anchor="middle" font-size="14" font-weight="700" fill="#2b2118">${fmt(c.theta, 1)}°</text>`;
+  o += `<text x="${ax}" y="${f1(ay + S * sc * .47)}" text-anchor="middle" font-size="13" font-weight="700" fill="#9b4a1f">Radius groß: ${fmt(S / 10, 1)} cm</text>`;
+  c.sizes.forEach((z, i) => { const q = P(z.s, 0); o += `<text x="${f1(q[0])}" y="${f1(q[1] - 6)}" text-anchor="middle" font-size="12" fill="${i ? '#3d6b4a' : '#9b4a1f'}" font-weight="700">${z.name}</text>`; });
+  o += `<text x="${f1(t1[0] + nx + 4)}" y="${f1(t1[1] + ny - 30)}" font-size="12" fill="#7a5a36">Lasche 1 cm</text>`;
+  o += `<circle cx="${ax}" cy="${ay}" r="3" fill="#2b2118"/>`;
+  return `<svg viewBox="0 0 340 ${f1(ay + S * sc + 14)}" role="img" aria-label="Abwicklung des Kegels">${o}</svg>`;
+}
+function gwTemplateInner(c) {
+  const [ax, ay] = c.apexXY, half = c.theta / 2 * DEG, S = c.sizes[0].s;
+  const P = (rad, a) => [ax + rad * Math.sin(a), ay + rad * Math.cos(a)];
+  let o = '';
+  const t0 = P(15, half), t1 = P(S, half), nx = Math.cos(half) * 10, ny = -Math.sin(half) * 10;
+  o += `<polygon points="${P2([t0, t1, [t1[0] + nx, t1[1] + ny], [t0[0] + nx, t0[1] + ny]])}" fill="#eee" stroke="#000" stroke-width=".35" stroke-dasharray="2 1.5"/>`;
+  o += `<text x="${f1((t0[0] + t1[0]) / 2 + nx * .5)}" y="${f1((t0[1] + t1[1]) / 2 + ny * .5)}" font-size="3.2" fill="#555" transform="rotate(${f1(90 - c.theta / 2)} ${f1((t0[0] + t1[0]) / 2 + nx * .5)} ${f1((t0[1] + t1[1]) / 2 + ny * .5)})" text-anchor="middle">Klebelasche</text>`;
+  c.sizes.forEach((z, i) => {
+    const A = P(z.s, -half), B = P(z.s, half);
+    o += `<path d="M${f1(ax)} ${f1(ay)} L${f1(A[0])} ${f1(A[1])} A${f1(z.s)} ${f1(z.s)} 0 0 0 ${f1(B[0])} ${f1(B[1])}${i ? '' : 'Z'}" fill="none" stroke="#000" stroke-width="${i ? .35 : .5}" ${i ? 'stroke-dasharray="4 2"' : ''}/>`;
+    const q = P(z.s - 6, 0);
+    o += `<text x="${f1(q[0])}" y="${f1(q[1])}" font-size="4.2" text-anchor="middle" font-weight="700">${z.name} · ${fmt(z.h / 10, 1)} cm hoch</text>`;
+  });
+  o += `<circle cx="${f1(ax)}" cy="${f1(ay)}" r=".8"/><text x="${f1(ax)}" y="${f1(ay + 26)}" font-size="4" text-anchor="middle">${fmt(c.theta, 1)}°</text>`;
+  const a0 = P(20, -half), a1 = P(20, half);
+  o += `<path d="M${f1(a0[0])} ${f1(a0[1])} A20 20 0 0 0 ${f1(a1[0])} ${f1(a1[1])}" fill="none" stroke="#000" stroke-width=".3"/>`;
+  return o;
+}
+const garnwichtel = {
+  id: 'garnwichtel', cat: 'papier', title: 'Garn-Wichtel (Wichtelgruppe)', teaser: 'Drei Wichtel in drei Größen: Garn mit Leim um einen Pappkegel wickeln, trocknen lassen, Rauschebart und Holznase dran – fertig ist die Wichtelfamilie.',
+  tags: ['für alle', 'ab 8 Jahren', '1 Stunde + 1 Nacht trocknen'],
+  presets: [150, 200, 250], range: [100, 350], sizeLabel: 'Höhe des größten Wichtels',
+  calc: () => gwCalc(state.garnwichtel.H, state.garnwichtel.farbe, state.garnwichtel.art), thumb: () => heroGarnwichtel(), templateInner: gwTemplateInner,
+  sizeExtra() {
+    const st = state.garnwichtel;
+    return `<label class="custom">Farben <select data-k="farbe">${[['natur', 'Natur (Grün, Creme, Haselnuss)'], ['klassisch', 'Klassisch (Rot, Weiß, Grün)'], ['winter', 'Winter (Blau, Grau, Weiß)']].map(([v, n]) => `<option value="${v}" ${st.farbe === v ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label class="custom">Art <select data-k="art">${[['luftig', 'Luftiges Garnnetz'], ['fest', 'Fest gewickelt']].map(([v, n]) => `<option value="${v}" ${st.art === v ? 'selected' : ''}>${n}</option>`).join('')}</select></label>`;
+  },
+  ziel(c) {
+    const z = c.sizes;
+    return `<div class="panel"><h3>Was bastle ich?</h3><p>Eine kleine Wichtelfamilie: Drei spitze Mützen aus Garn in ${z.map(q => q.col[0]).join(', ').replace(/, ([^,]*)$/, ' und $1')}, darunter ein flauschiger Rauschebart und eine runde Holzperle als Nase. Mehr Gesicht braucht ein Wichtel nicht!</p>
+      <p>${c.art === 'luftig' ? 'Bei der <b>luftigen</b> Variante wickelst du das Garn über Frischhaltefolie und nimmst die Hülle nach dem Trocknen ab. Mit einem LED-Licht darunter leuchtet das Garnnetz.' : 'Bei der <b>festen</b> Variante wickelst du das Garn dicht direkt auf den Pappkegel – der bleibt drin. So steht der Wichtel stabil, ideal für Kinder.'}</p>
+      <div class="facts"><div class="fact"><b>${z.map(q => fmt(q.h / 10)).join(' · ')} cm</b><span>drei Größen</span></div><div class="fact"><b>${fmt(c.theta, 1)}°</b><span>Kegel-Zuschnitt</span></div><div class="fact"><b>ca. ${fmt(Math.ceil(c.yarnSum))} m</b><span>Garn für alle drei</span></div><div class="fact"><b>1 Nacht</b><span>trocknen lassen</span></div></div>
+      <div class="drawing">${gwSVG(c)}${legend([`<b>Mütze:</b> Garnkegel, ${fmt(z[0].h / 10, 1)} cm hoch, unten Ø ${fmt(z[0].d / 10, 1)} cm`, `<b>Bart:</b> Kunstfell oder Märchenwolle, ca. ${fmt(z[0].beardW / 10, 1)} × ${fmt(z[0].beardH / 10, 1)} cm`, `<b>Nase:</b> Holzperle Ø ${z[0].bead} mm, sitzt auf der Oberkante des Barts`])}</div><div class="safe"><b>Für Groß und Klein:</b> Ab ca. 8 Jahren klappt das Wickeln allein, Jüngere helfen beim Leim. Weißleim lässt sich mit Wasser abwaschen – trotzdem alte Kleidung anziehen! Bart und Nase mit Heißkleber klebt ein Erwachsener.</div></div>`;
+  },
+  material(c) {
+    const z = c.sizes;
+    return {wood: [`Wolle oder Garn (mittelstark, ca. 3 mm): ${z.map(q => `<b>${q.col[0]}</b> ca. ${fmt(Math.ceil(q.yarn))} m`).join(', ')}`, `Fotokarton 300 g/m² für die Kegel, <b>${c.sheet}</b>${c.art === 'luftig' ? ' (lässt sich danach wiederverwenden)' : ''}`, `Kunstfell (weiß oder grau) oder Märchenwolle, ca. ${fmt(z[0].beardW / 10 + 2)} × ${fmt(z.reduce((a, q) => a + q.beardH, 0) / 10 + 2)} cm`],
+      small: [`Holzperlen als Nasen: ${z.map(q => `Ø ${q.bead} mm`).join(', ')}`, 'Weißleim (Bastel- oder Holzleim) und eine kleine Schale', ...(c.art === 'luftig' ? ['Frischhaltefolie', 'optional: LED-Teelichter oder Mini-Lichterkette mit Batterie'] : []), '3 kleine weiße Pompons für die Mützenspitzen (optional)', 'Klebeband, Heißkleber oder Alleskleber für Bart und Nase'],
+      tools: ['Schere', 'Bleistift, Lineal, Geodreieck', 'Pinsel für den Leim', 'Wäscheklammern zum Festhalten', 'Unterlage (Zeitung oder Backpapier)'], extra: ''};
+  },
+  zuschnitt(c) {
+    const z = c.sizes;
+    return `<div class="panel"><h3>Kegel-Zuschnitt</h3><p>Jeder Kegel entsteht aus einem <b>Kreisausschnitt</b>. Weil alle drei Wichtel gleich schlank sind, haben alle denselben Winkel – nur der Radius ist verschieden. Deshalb passen alle drei Größen auf eine Vorlage.</p>
+      <div class="drawing">${gwSectorSVG(c)}</div>
+      ${partsTable(z.map(q => [`Kegel ${q.name}`, 1, `Radius <b>${fmt(q.s)} mm</b> · Winkel <b>${fmt(c.theta, 1)}°</b>`, `ergibt ${fmt(q.h)} mm Höhe, unten Ø ${fmt(q.d)} mm · plus 1 cm Klebelasche`]))}
+      <a class="btn pri" style="display:inline-block;text-decoration:none" href="#/garnwichtel/vorlage">Vorlage 1:1 öffnen und drucken</a>
+      <h4>Bart und Nase</h4>
+      ${partsTable(z.map(q => [`Bart ${q.name}`, 1, `<b>${fmt(q.beardW)} × ${fmt(q.beardH)} mm</b>`, `oben wellig, unten rund · Oberkante ${fmt(q.beardY)} mm über dem Boden · Nase Ø ${q.bead} mm`]))}
+      <div class="note">Kunstfell immer von der Rückseite mit Cutter oder Scherenspitze schneiden – nur den Stoff, nicht die Haare. Dann bleibt der Bart flauschig.</div></div>`;
+  },
+  winkel(c) {
+    const z = c.sizes[0];
+    return `<div class="panel"><h3>Winkel und Rechnung</h3>
+      <div class="anglecard"><div class="badge alt"><b>${fmt(c.theta, 1)}°</b><span>Zuschnitt</span></div><div>Der Bogen des Kreisausschnitts wird zum Kreis unten am Kegel. Deshalb gilt: <b>Winkel = 360° · Radius unten : Mantellinie</b> = 360° · ${fmt(z.r)} : ${fmt(z.s, 1)} = ${fmt(c.theta, 1)}°.</div></div>
+      <div class="anglecard"><div class="badge"><b>${fmt(c.apex, 1)}°</b><span>Spitze</span></div><div>So spitz ist die fertige Mütze, von der Seite gesehen. Schlanker Wichtel = kleinerer Winkel.</div></div>
+      <div class="anglecard"><div class="badge hand"><b>√</b><span>Pythagoras</span></div><div>Die Mantellinie (Radius der Vorlage) ist die schräge Seite: √(Höhe² + Radius²) = √(${fmt(z.h)}² + ${fmt(z.r)}²) ≈ <b>${fmt(z.s)} mm</b>.</div></div>
+      <div class="note">Mathe zum Mitnehmen: Die drei Wichtel sind <b>ähnliche Figuren</b> – alles ist im gleichen Verhältnis verkleinert. Darum bleibt der Winkel gleich, nur die Längen ändern sich.</div></div>`;
+  },
+  steps(c) {
+    const z = c.sizes, luft = c.art === 'luftig';
+    return [
+      {t: 'Kegel zuschneiden', b: `<p>Vorlage 1:1 ausdrucken (oder mit Schnurzirkel und Geodreieck aufzeichnen: Radius ${z.map(q => fmt(q.s / 10, 1) + ' cm').join(' / ')}, Winkel ${fmt(c.theta, 1)}°). Auf Fotokarton übertragen und mit 1 cm Klebelasche ausschneiden.</p>`},
+      {t: 'Kegel kleben', b: '<p>Zur Tüte rollen, die Lasche innen festkleben und mit Wäscheklammern halten. Die Spitze schön spitz drehen. Wer es schneller mag: fertige Styropor- oder Pappkegel aus dem Bastelladen.</p>'},
+      ...(luft ? [{t: 'Folie drum', b: '<p>Jeden Kegel straff mit Frischhaltefolie umwickeln, auch die Spitze. Die Folie sorgt dafür, dass sich die Garnhülle später ablösen lässt.</p>'}] : []),
+      {t: 'Leim vorbereiten', b: `<p>Weißleim in eine Schale geben und ${luft ? 'mit etwas Wasser leicht verdünnen' : 'unverdünnt lassen'}. Unterlage auslegen – das wird klebrig!</p>`},
+      {t: 'Garn wickeln', b: luft ? '<p>Garn durch den Leim ziehen, den Überschuss zwischen zwei Fingern abstreifen und <b>kreuz und quer</b> um den Kegel wickeln. Richtung oft wechseln, sodass ein Netz mit kleinen Lücken entsteht. Wichtig: Die Fäden müssen sich oft kreuzen, sonst hält die Hülle nicht.</p>' : '<p>Kegel dünn mit Leim einstreichen. An der Spitze beginnen und das Garn <b>Runde für Runde dicht nebeneinander</b> nach unten wickeln. Unten das Ende innen festkleben.</p>'},
+      {t: 'Trocknen lassen', b: '<p>Mindestens über Nacht trocknen lassen, besser 24 Stunden. Erst wenn sich das Garn hart anfühlt, geht es weiter.</p>'},
+      ...(luft ? [{t: 'Hülle abnehmen', b: '<p>Kegel vorsichtig aus der Hülle ziehen, dann die Folie innen herauszupfen. Lose Fäden mit einem Tropfen Leim fixieren. Leimhäutchen zwischen den Fäden mit einem Zahnstocher durchstechen.</p>'}] : []),
+      {t: 'Bart ankleben', b: `<p>Bart zuschneiden (Maße unter „Zuschnitt“) und so ankleben, dass die Oberkante etwa bei ${z.map(q => fmt(q.beardY / 10, 1) + ' cm').join(' / ')} liegt. Unten darf er ein Stück überstehen.</p>`},
+      {t: 'Nase und Bommel', b: '<p>Holzperle mittig auf die Oberkante des Barts kleben – sie verdeckt die Klebekante. Wer mag, setzt einen kleinen Pompon auf die Mützenspitze.</p>'},
+      {t: 'Aufstellen', b: luft ? '<p>Die Hülle über ein LED-Teelicht oder eine Mini-Lichterkette stülpen – oder auf eine Pappscheibe kleben, damit sie sicher steht. <b>Nur LED</b>, keine echten Kerzen!</p>' : '<p>Fertig! Die Wichtel stehen stabil und können als Familie aufs Fensterbrett oder auf den Adventstisch.</p>'}
+    ];
+  }
+};
+
 /* ---- Malerei: Weihnachtsstern (Poinsettie) ---- */
 function poinGeo(c) { return {cx: c.W / 2, cy: 0.44 * c.H, R: Math.min(0.42 * c.W, 0.32 * c.H)}; }
 function leafPath(cx, cy, len, w, ang) {
@@ -2649,12 +2823,12 @@ function heroFaden() {
   return heroSVG(o, 'Fadenbilder mit Stern, Tanne und Schneeflocke');
 }
 /* Vorlage 1:1, auf A4-Seiten aufgeteilt */
-function templatePages(B, inner, title) {
-  const TW = 186, TH = 262, cols = Math.ceil(B / TW), rows = Math.ceil(B / TH), pages = [];
+function templatePages(B, inner, title, BH = B) {
+  const TW = 186, TH = 262, cols = Math.ceil(B / TW), rows = Math.ceil(BH / TH), pages = [];
   for (let r = 0; r < rows; r++) for (let cI = 0; cI < cols; cI++) {
     const vx = cI * TW, vy = r * TH;
     pages.push(`<div class="tplpage"><div class="tplhead">${esc(title)} · Teil ${r * cols + cI + 1} von ${rows * cols}${cols * rows > 1 ? ` (Reihe ${r + 1}, Spalte ${cI + 1})` : ''}</div>
-      <svg width="${TW}mm" height="${TH}mm" viewBox="${vx} ${vy} ${TW} ${TH}" role="img" aria-label="Vorlage Teil"><rect x="0" y="0" width="${B}" height="${B}" fill="none" stroke="#000" stroke-width=".4" stroke-dasharray="3 2"/>${inner}
+      <svg width="${TW}mm" height="${TH}mm" viewBox="${vx} ${vy} ${TW} ${TH}" role="img" aria-label="Vorlage Teil"><rect x="0" y="0" width="${B}" height="${BH}" fill="none" stroke="#000" stroke-width=".4" stroke-dasharray="3 2"/>${inner}
       ${cI > 0 ? `<line x1="${vx}" y1="${vy}" x2="${vx}" y2="${vy + TH}" stroke="#c62828" stroke-width=".3"/>` : ''}${r > 0 ? `<line x1="${vx}" y1="${vy}" x2="${vx + TW}" y2="${vy}" stroke="#c62828" stroke-width=".3"/>` : ''}</svg>
       <div class="tplscale"><svg width="50mm" height="4mm" viewBox="0 0 50 4"><rect width="50" height="4" fill="#2b2118"/></svg> <span>Kontrolle: Dieser Balken muss genau 5 cm lang sein.</span></div></div>`);
   }
@@ -2669,7 +2843,7 @@ function fadenTemplateInner(c) {
 function renderTemplate(p, c) {
   return `<div class="printbar"><button class="btn pri" data-print="1">Vorlage drucken (100 %)</button><a href="#/${p.id}/zuschnitt">← zurück</a></div>
     <div class="warn">Beim Drucken <b>„Tatsächliche Größe“ / 100 %</b> wählen – nicht „An Seite anpassen“. Mehrere Teile an den roten Linien zusammenkleben.</div>
-    <div class="tpl">${templatePages(c.B, p.templateInner(c), p.title)}</div>`;
+    <div class="tpl">${templatePages(c.B, p.templateInner(c), p.title, c.TH || c.B)}</div>`;
 }
 const faden = {
   id: 'faden', cat: 'holz', title: 'Fadenbild: Stern, Tanne, Schneeflocke', teaser: 'Nägel ins Brett, Wolle drumherum: ein leuchtendes Fadenbild. Mit 1:1-Nagelvorlage zum Ausdrucken.',
@@ -2756,7 +2930,7 @@ const fmathe = {
     {t: 'Forschen', b: '<p>Fotografieren, dann ein zweites Bild mit anderer Regel. Wer findet die schönste Zahl?</p>'}]; }
 };
 
-const PROJECTS = {tanne, stern, latte, bogen, stammrentier, faden, fmathe, advent, rentier, balken, masu, fenster, flocke, tuete, popup, licht, aqtanne, kugeln, kranz, robin, poinsettie, kerzen, schnee, wichtel, kette, lebkuchen, dorf, nebel, polar, huette};
+const PROJECTS = {tanne, stern, latte, bogen, stammrentier, faden, fmathe, advent, rentier, balken, masu, fenster, flocke, tuete, popup, licht, garnwichtel, aqtanne, kugeln, kranz, robin, poinsettie, kerzen, schnee, wichtel, kette, lebkuchen, dorf, nebel, polar, huette};
 const GROUPS = {mal: [['karten', 'Weihnachtskarten-Werkstatt', 'Kartenmotive in Aquarell. Tipp: Postkarte A6 passt in einen C6-Umschlag, Quadratkarten 14,5 cm in 15,5 × 15,5 cm. Mit dem Format-Schalter rechnet jede Anleitung die Maße um.'], ['lustig', 'Lustige Motive', 'Zum Lachen – und perfekt für Kinder.'], ['land', 'Weihnachtliche Landschaften', 'Stimmungsvolle Winterbilder im Querformat – als Karte oder gerahmt als Geschenk.']]};
 const tabName = (p, t) => (p.tabNames && p.tabNames[t[0]]) || t[1];
 // Freie Fotos (Wikimedia Commons) – mit Bildnachweis
@@ -2781,7 +2955,7 @@ function photoHTML(id) {
 const TABS = [['ziel', 'Was möchte ich?'], ['material', 'Was brauche ich?'], ['zuschnitt', 'Zuschnitt'], ['winkel', 'Winkel'], ['anleitung', 'Schritt für Schritt']];
 
 /* ---------------- Filter, Merkliste, Teilen, Drucken ---------------- */
-const META = {tanne: {out: 1}, stern: {}, latte: {kids: 1, out: 1}, advent: {kids: 1}, rentier: {kids: 1}, masu: {kids: 1, quick: 1}, fenster: {kids: 1, quick: 1}, flocke: {kids: 1, quick: 1}, tuete: {kids: 1, quick: 1}, aqtanne: {kids: 1}, kugeln: {kids: 1}, kranz: {kids: 1}, robin: {kids: 1}, schnee: {kids: 1, quick: 1}, wichtel: {kids: 1}, kette: {kids: 1, quick: 1}, lebkuchen: {kids: 1, quick: 1}, dorf: {}, nebel: {kids: 1}, polar: {}, huette: {kids: 1}, bogen: {}, balken: {kids: 1}, stammrentier: {kids: 1, out: 1}, popup: {kids: 1}, licht: {kids: 1, quick: 1, out: 1}, poinsettie: {kids: 1}, kerzen: {}, faden: {kids: 1}, fmathe: {kids: 1}};
+const META = {tanne: {out: 1}, stern: {}, latte: {kids: 1, out: 1}, advent: {kids: 1}, rentier: {kids: 1}, masu: {kids: 1, quick: 1}, fenster: {kids: 1, quick: 1}, flocke: {kids: 1, quick: 1}, tuete: {kids: 1, quick: 1}, aqtanne: {kids: 1}, kugeln: {kids: 1}, kranz: {kids: 1}, robin: {kids: 1}, schnee: {kids: 1, quick: 1}, wichtel: {kids: 1}, kette: {kids: 1, quick: 1}, lebkuchen: {kids: 1, quick: 1}, dorf: {}, nebel: {kids: 1}, polar: {}, huette: {kids: 1}, bogen: {}, balken: {kids: 1}, stammrentier: {kids: 1, out: 1}, popup: {kids: 1}, licht: {kids: 1, quick: 1, out: 1}, garnwichtel: {kids: 1}, poinsettie: {kids: 1}, kerzen: {}, faden: {kids: 1}, fmathe: {kids: 1}};
 const FILTERS = [['all', 'Alle'], ['kids', 'Mit Kindern'], ['quick', 'Bis 30 Minuten'], ['out', 'Für draußen']];
 state.fav = state.fav || {};
 state.filter = state.filter || 'all';
@@ -2915,7 +3089,7 @@ function renderPrint(p, c, sizeTxt) {
     <div class="ph"><div><h1>${p.title}</h1><p><b>${sizeTxt}</b></p><p class="muted">${p.teaser}</p></div><div class="qr">${qrSVG(url)}<small>Online-Anleitung<br>mit Rechner</small></div></div>
     <div class="heroimg">${p.thumb()}</div>
     ${p.ziel(c)}
-    <div class="panel"><h3>Was brauche ich?</h3><h4>${p.cat === 'papier' ? 'Papier' : p.cat === 'mal' ? 'Papier & Farben' : p.id === 'rentier' ? 'Äste' : 'Holz'}</h4>${ul(mat.wood)}${mat.extra}<h4>Kleinteile</h4>${ul(mat.small)}<h4>Werkzeug</h4>${ul(mat.tools)}</div>
+    <div class="panel"><h3>Was brauche ich?</h3><h4>${p.id === 'garnwichtel' ? 'Garn, Karton &amp; Bart' : p.cat === 'papier' ? 'Papier' : p.cat === 'mal' ? 'Papier & Farben' : p.id === 'rentier' ? 'Äste' : 'Holz'}</h4>${ul(mat.wood)}${mat.extra}<h4>Kleinteile</h4>${ul(mat.small)}<h4>Werkzeug</h4>${ul(mat.tools)}</div>
     ${p.zuschnitt(c)}
     ${p.winkel(c)}
     <div class="panel"><h3>Schritt für Schritt</h3><ol class="psteps">${steps.map(s => `<li><b>${s.t}</b>${s.b}</li>`).join('')}</ol></div>
@@ -2933,7 +3107,7 @@ function renderTab(p, tab, c) {
     const buy = state.buy[key] || [];
     const list = (arr, off) => arr.map((t, i) => `<label class="check ${buy.includes(off + i) ? 'done' : ''}"><input type="checkbox" data-buy="${off + i}" ${buy.includes(off + i) ? 'checked' : ''}><span>${t}</span></label>`).join('');
     return `<div class="panel"><h3>Einkaufs- und Werkzeugliste</h3><p class="small muted">Zum Abhaken – wird auf diesem Gerät gespeichert.</p>
-      <h4>${p.cat === "papier" ? "Papier" : p.cat === "mal" ? "Papier & Farben" : p.id === "rentier" ? "Äste" : "Holz"}</h4>${list(mat.wood, 0)}${mat.extra}
+      <h4>${p.id === "garnwichtel" ? "Garn, Karton &amp; Bart" : p.cat === "papier" ? "Papier" : p.cat === "mal" ? "Papier & Farben" : p.id === "rentier" ? "Äste" : "Holz"}</h4>${list(mat.wood, 0)}${mat.extra}
       <h4>Kleinteile</h4>${list(mat.small, 100)}
       <h4>Werkzeug</h4>${list(mat.tools, 200)}</div>` + nextLink;
   }

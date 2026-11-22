@@ -13,7 +13,7 @@ Interaktive Bastel- und Werkanleitungen mit Größenrechner, Konzeptzeichnungen 
 - Junior (ab 10): **Advents-Tanne zum Aufhängen**, **Rentier aus Ästen**, **Adventsbalken für 4 Teelichter**
 
 ## Papier
-- **Masu-Schachtel mit Deckel**, **Fensterstern aus Transparentpapier**, **Schneeflocken schneiden**, **Stern aus Brottüten**, **Pop-up-Tannenkarte**, **Lichtertüten mit Sternen**
+- **Masu-Schachtel mit Deckel**, **Fensterstern aus Transparentpapier**, **Schneeflocken schneiden**, **Stern aus Brottüten**, **Pop-up-Tannenkarte**, **Lichtertüten mit Sternen**, **Garn-Wichtel** (Wichtelgruppe in drei Größen, Kegel-Abwicklung mit 1:1-Vorlage)
 
 ## Malerei
 - Weihnachtskarten-Werkstatt: **Aquarell-Tannen mit Goldschrift**, **Leuchtende Christbaumkugeln**, **Aquarell-Kranz**, **Rotkehlchen im Schnee**, **Weihnachtsstern (Poinsettie)**, **Kerzenschein im Advent**

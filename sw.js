@@ -1,5 +1,5 @@
 // Offline-Cache für die Werkstatt
-const CACHE = 'werkstatt-v3';
+const CACHE = 'werkstatt-v4';
 const CORE = ['./', './index.html', './lib/qrcode.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './img/faden.jpg', './img/bogen.jpg', './img/masu.jpg',
   './fonts/dancing-script-latin-400-normal.woff2', './fonts/dancing-script-latin-700-normal.woff2'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
