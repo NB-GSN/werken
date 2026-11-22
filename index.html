@@ -194,6 +194,18 @@ details.abc p{margin:0 0 10px;font-size:15px}
   .tpl .tplpage svg{max-width:none}
   .warn{display:none}
 }
+
+.htxt{flex:1;min-width:0}
+.musicbtn{background:#ffffff14;border:0;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.musicbtn.on{background:#e8b84a;color:#2b2118;box-shadow:0 0 0 4px #e8b84a40;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px #e8b84a20}}
+.musichero{margin-top:12px;border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:8px 16px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
+.musichero.on{background:#2b2118;color:#fff;border-color:#2b2118}
+.eq{display:inline-flex;align-items:flex-end;gap:2px;height:14px;margin-right:4px}
+.eq i{width:3px;background:#e8b84a;animation:eq 1s ease-in-out infinite;height:4px}
+.eq i:nth-child(2){animation-delay:.2s}.eq i:nth-child(3){animation-delay:.4s}
+@keyframes eq{50%{height:14px}}
+@media (prefers-reduced-motion:reduce){.musicbtn.on,.eq i{animation:none}}
 </style>
 </head>
 <body>
@@ -229,7 +241,8 @@ details.abc p{margin:0 0 10px;font-size:15px}
 </defs></svg>
 <header>
   <button class="back" id="back" aria-label="Zurück" hidden>←</button>
-  <div><h1 id="htitle">Werkstatt</h1><div class="sub" id="hsub">Holz · Papier · Malerei</div></div>
+  <div class="htxt"><h1 id="htitle">Werkstatt</h1><div class="sub" id="hsub">Holz · Papier · Malerei</div></div>
+  <button id="music" class="musicbtn" aria-label="Weihnachtsmusik an" title="Weihnachtsmusik an"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 18.5a2.5 2.5 0 1 1-2-2.45V5l11-2v12.5a2.5 2.5 0 1 1-2-2.45V7.1L9 8.4z" fill="currentColor"/></svg></button>
 </header>
 <main id="app"></main>
 <footer>Maße in mm, gemessen entlang der Kante. Vor dem Zusägen immer einen Probeschnitt an einem Reststück machen.<br>Tipp: Im Browser-Menü „Zum Startbildschirm hinzufügen“ – dann funktioniert die Werkstatt auch ohne Internet.</footer>
@@ -2821,7 +2834,7 @@ function homeHTML() {
   const card = p => `<a class="pcard cat-${p.cat}" href="#/${p.id}/ziel"><div class="thumb">${p.thumb()}</div><div class="body">${p.junior ? '<span class="jbadge">Junior · ab 10</span>' : ''}${state.fav[p.id] ? '<span class="fbadge">★ gemerkt</span>' : ''}<h3>${p.title}</h3><p>${p.teaser}</p><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div></div></a>`;
   const cats = [['holz', 'Holz', 'Sägen, schrauben, leimen – große Deko für drinnen und draußen. Mit Junior-Projekten ab 10.', heroTanne()], ['papier', 'Papier', 'Falten, schneiden, kleben – am Küchentisch, für Groß und Klein.', heroFenster()], ['mal', 'Malerei', 'Aquarell: Weihnachtskarten, lustige Motive und winterliche Landschaften.', polar.thumb()]];
   const mine = all.filter(p => state.fav[p.id] || (state.done[p.id] || []).length);
-  let h = `<div class="hero"><h2>Was machst du heute?</h2><p>Rubrik wählen, Projekt aussuchen, Größe einstellen – Material, Maße, Winkel und Anleitung rechnen sich automatisch.</p></div>
+  let h = `<div class="hero"><h2>Was machst du heute?</h2><p>Rubrik wählen, Projekt aussuchen, Größe einstellen – Material, Maße, Winkel und Anleitung rechnen sich automatisch.</p><button id="musichero" class="musichero ${music.playing ? 'on' : ''}">${musicHeroHTML()}</button></div>
     <div class="cattiles">${cats.map(([id, name, txt, img]) => `<button class="cattile cat-${id}" data-cat="${id}"><div class="ct-img">${img}</div><div class="ct-body"><b>${name}</b><span>${all.filter(p => p.cat === id).length} Projekte</span></div></button>`).join('')}</div>
     <a class="abclink" href="#/abc"><b>Werkzeug- & Technik-ABC</b><span>Sicher arbeiten, Sägen, Leimen, Papier, Aquarell →</span></a>`;
   if (mine.length) h += `<div class="panel mine"><h3>Meine Projekte</h3>${mine.map(p => { const n = stepsOf(p), d = (state.done[p.id] || []).length; return `<a class="mrow" href="#/${p.id}/${d ? 'anleitung' : 'ziel'}"><span class="mt">${state.fav[p.id] ? '★ ' : ''}${p.title}</span><span class="mp"><span class="progress"><span style="width:${n ? Math.round(d / n * 100) : 0}%"></span></span><small>${d} / ${n}</small></span></a>`; }).join('')}</div>`;
@@ -2925,6 +2938,7 @@ function renderTab(p, tab, c) {
 app.addEventListener('click', async e => {
   const b = e.target.closest('button');
   if (!b) return;
+  if (b.id === 'musichero') { toggleMusic(); b.classList.toggle('on', music.playing); return; }
   if (b.dataset.cat) { const el = document.getElementById('sec-' + b.dataset.cat); if (el) el.scrollIntoView({behavior: 'smooth'}); return; }
   if (b.dataset.filter) { state.filter = b.dataset.filter; save(); const y = window.scrollY; render(); window.scrollTo(0, y); return; }
   if (b.dataset.print) { window.print(); return; }
@@ -2964,6 +2978,68 @@ app.addEventListener('change', e => {
 });
 document.getElementById('back').addEventListener('click', () => { if (route().tab === 'druck' || route().tab === 'vorlage') history.back(); else location.hash = '#/'; });
 window.addEventListener('hashchange', () => { applyQuery(); render(); window.scrollTo(0, 0); });
+/* ---------------- Weihnachtsmusik (Spieluhr, Web Audio) ---------------- */
+// Gemeinfreie Melodien: Stille Nacht (1818), Morgen kommt der Weihnachtsmann (Melodie 18. Jh.), Jingle Bells (1857), We Wish You a Merry Christmas (trad.)
+const SONGS = [
+  {name: 'Stille Nacht', unit: 0.34, notes: 'G4:1.5 A4:.5 G4:1 E4:3 G4:1.5 A4:.5 G4:1 E4:3 D5:2 D5:1 B4:3 C5:2 C5:1 G4:3 A4:2 A4:1 C5:1.5 B4:.5 A4:1 G4:1.5 A4:.5 G4:1 E4:3 A4:2 A4:1 C5:1.5 B4:.5 A4:1 G4:1.5 A4:.5 G4:1 E4:3 D5:2 D5:1 F5:1.5 D5:.5 B4:1 C5:3 E5:3 C5:1 G4:1 E4:1 G4:1.5 F4:.5 D4:1 C4:6'},
+  {name: 'Morgen kommt der Weihnachtsmann', unit: 0.42, notes: 'C4:1 C4:1 G4:1 G4:1 A4:1 A4:1 G4:2 F4:1 F4:1 E4:1 E4:1 D4:1 D4:1 C4:2 G4:1 G4:1 F4:1 F4:1 E4:1 E4:1 D4:2 G4:1 G4:1 F4:1 F4:1 E4:1 E4:1 D4:2 C4:1 C4:1 G4:1 G4:1 A4:1 A4:1 G4:2 F4:1 F4:1 E4:1 E4:1 D4:1 D4:1 C4:3'},
+  {name: 'Jingle Bells', unit: 0.3, notes: 'E5:1 E5:1 E5:2 E5:1 E5:1 E5:2 E5:1 G5:1 C5:1.5 D5:.5 E5:4 F5:1 F5:1 F5:1.5 F5:.5 F5:1 E5:1 E5:1 E5:.5 E5:.5 E5:1 D5:1 D5:1 E5:1 D5:2 G5:2 E5:1 E5:1 E5:2 E5:1 E5:1 E5:2 E5:1 G5:1 C5:1.5 D5:.5 E5:4 F5:1 F5:1 F5:1.5 F5:.5 F5:1 E5:1 E5:1 E5:.5 E5:.5 G5:1 G5:1 F5:1 D5:1 C5:4'},
+  {name: 'We Wish You a Merry Christmas', unit: 0.36, notes: 'G4:1 C5:1 C5:.5 D5:.5 C5:.5 B4:.5 A4:1 A4:1 A4:1 D5:1 D5:.5 E5:.5 D5:.5 C5:.5 B4:1 G4:1 G4:1 E5:1 E5:.5 F5:.5 E5:.5 D5:.5 C5:1 A4:1 G4:.5 G4:.5 A4:1 D5:1 B4:1 C5:3'}
+];
+const NOTE_IDX = {C: -9, D: -7, E: -5, F: -4, G: -2, A: 0, B: 2};
+function noteFreq(n) { const m = n.match(/^([A-G])(#|b)?(\d)$/); let i = NOTE_IDX[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0) + (m[3] - 4) * 12; return 440 * Math.pow(2, i / 12); }
+const music = {ctx: null, master: null, timer: null, song: 0, playing: false};
+function musicImpulse(ctx) {
+  const len = ctx.sampleRate * 2.4, buf = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) { const d = buf.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
+  return buf;
+}
+function playBell(t, f, vel = 1) {
+  const {ctx, master} = music;
+  const parts = [[1, .55, 1.9], [2, .16, .7], [3.01, .06, .35], [.5, .08, 1.2]];
+  parts.forEach(([mul, g, dec]) => {
+    const o = ctx.createOscillator(), gn = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = f * mul;
+    gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(g * vel, t + 0.008); gn.gain.exponentialRampToValueAtTime(0.0001, t + dec);
+    o.connect(gn); gn.connect(master); o.start(t); o.stop(t + dec + 0.05);
+  });
+}
+function scheduleSong() {
+  if (!music.playing) return;
+  const s = SONGS[music.song % SONGS.length];
+  let t = music.ctx.currentTime + 0.15;
+  s.notes.split(' ').forEach((tok, i) => { const [n, d] = tok.split(':'); playBell(t, noteFreq(n), i % 3 === 0 ? 1 : .8); t += +d * s.unit; });
+  updateMusicUI(s.name);
+  const dur = (t - music.ctx.currentTime) * 1000;
+  music.timer = setTimeout(() => { music.song++; scheduleSong(); }, dur + 2500);
+}
+function startMusic() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) { toast('Dein Browser kann leider keine Musik abspielen.'); return; }
+  music.ctx = new AC();
+  const comp = music.ctx.createDynamicsCompressor(), dry = music.ctx.createGain(), wet = music.ctx.createGain(), rev = music.ctx.createConvolver();
+  music.master = music.ctx.createGain(); music.master.gain.value = 0.16;
+  rev.buffer = musicImpulse(music.ctx); dry.gain.value = 0.8; wet.gain.value = 0.35;
+  music.master.connect(dry); music.master.connect(rev); rev.connect(wet); dry.connect(comp); wet.connect(comp); comp.connect(music.ctx.destination);
+  music.playing = true; scheduleSong();
+}
+function stopMusic() {
+  music.playing = false; clearTimeout(music.timer);
+  if (music.ctx) { const c = music.ctx; music.master.gain.setTargetAtTime(0.0001, c.currentTime, 0.15); setTimeout(() => c.close(), 600); }
+  music.ctx = null; updateMusicUI();
+}
+function toggleMusic() { if (music.playing) stopMusic(); else startMusic(); }
+function updateMusicUI(name) {
+  const b = document.getElementById('music');
+  if (b) { b.classList.toggle('on', music.playing); b.setAttribute('aria-label', music.playing ? 'Musik aus' : 'Weihnachtsmusik an'); b.title = music.playing ? `Läuft: ${name || ''} – zum Ausschalten tippen` : 'Weihnachtsmusik an'; }
+  const h = document.getElementById('musichero');
+  if (h) h.innerHTML = musicHeroHTML(name);
+}
+function musicHeroHTML(name) {
+  return music.playing ? `<span class="eq"><i></i><i></i><i></i></span> Läuft: <b>${esc(name || SONGS[music.song % SONGS.length].name)}</b> · Musik aus` : '♪ Weihnachtsmusik an';
+}
+document.getElementById('music').addEventListener('click', toggleMusic);
+
 applyQuery();
 render();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
