@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Werkstatt – Holzprojekte Schritt für Schritt</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2b2118">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="description" content="Werkanleitungen mit Größenrechner: Holz-Tannen mit Lichterkette und Holzstern-Rahmen.">
 <style>
 @font-face{font-family:'Dancing Script';src:url(fonts/dancing-script-latin-400-normal.woff2) format('woff2');font-weight:400;font-display:swap}
@@ -113,7 +116,7 @@ table.parts td:first-child{width:34%}
 .btn:disabled{opacity:.4;cursor:default}
 .next{display:block;text-align:right;margin-top:6px}
 footer{max-width:860px;margin:0 auto;padding:0 16px 30px;color:var(--muted);font-size:12.5px}
-@media print{header,nav.tabs,.sizebar .chips,.btns,.stepnav{display:none}.panel{break-inside:avoid}}
+@media print{header,nav.tabs,.sizebar .chips,.btns,.stepnav{display:none}}
 
 .pcard .thumb{padding:0;height:auto;aspect-ratio:340/220;display:block;background:#2f2620}
 .pcard .thumb svg{width:100%;height:100%;display:block}
@@ -134,6 +137,50 @@ h2.sec.cat-holz{color:#9b4a1f} h2.sec.cat-papier{color:#3b5b8a} h2.sec.cat-mal{c
 .pcard.cat-mal .tag{background:#f0e4f4;color:#7b3f8c}
 .jbadge{display:inline-block;font-size:12px;font-weight:700;background:var(--green);color:#fff;border-radius:99px;padding:2px 10px;margin-bottom:6px}
 h3.subsec{font-size:17px;margin:22px 4px 2px;color:#7b3f8c}
+
+.toolbar{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.tbtn{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:7px 12px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;text-decoration:none;font-family:inherit}
+.tbtn.on{border-color:#d9a400;background:#fff4d6}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;transition:transform .25s;z-index:20}
+#toast.show{transform:translateX(-50%) translateY(0)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 0;position:sticky;top:52px;z-index:3;background:var(--bg);padding:8px 0}
+.abclink{display:flex;flex-direction:column;background:var(--ink);color:#fff;border-radius:14px;padding:12px 16px;margin:12px 0 0;text-decoration:none}
+.abclink b{font-size:16px}.abclink span{font-size:13px;opacity:.8}
+.mine h3{margin-bottom:4px}
+.mrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink)}
+.mrow:last-child{border-bottom:0}
+.mrow .mt{font-weight:600;font-size:15px}
+.mrow .mp{display:flex;align-items:center;gap:8px;flex:0 0 120px}
+.mrow .progress{flex:1;margin:0;height:7px;display:block}
+.mrow .progress span{display:block;height:100%;background:var(--green)}
+.fbadge{display:inline-block;font-size:12px;font-weight:700;background:#fff4d6;color:#8a6a00;border-radius:99px;padding:2px 10px;margin:0 6px 6px 0}
+details.abc{border-bottom:1px solid var(--line);padding:4px 0}
+details.abc:last-child{border-bottom:0}
+details.abc summary{cursor:pointer;font-weight:650;padding:8px 0;list-style:none}
+details.abc summary::before{content:'＋ ';color:var(--accent)}
+details.abc[open] summary::before{content:'－ '}
+details.abc p{margin:0 0 10px;font-size:15px}
+.printbar{display:flex;gap:14px;align-items:center;margin:4px 0 14px}
+.ph{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:12px}
+.ph h1{font-size:24px;margin:0 0 4px}
+.qr{text-align:center;flex:0 0 auto}
+.qr svg{width:110px;height:110px;display:block;background:#fff}
+.qr small{font-size:11px;color:var(--muted)}
+.plist{list-style:none;padding:0;margin:4px 0}
+.plist li{padding:3px 0}
+.psteps li{margin:0 0 10px}
+.psteps li p,.psteps li ul{margin:4px 0}
+@media print{
+  body{background:#fff;font-size:12pt}
+  header,footer,.printbar,.toolbar,.filters,#toast{display:none!important}
+  main{padding:0;max-width:none}
+  .panel{border:0;padding:0;margin:0 0 14px;break-inside:auto;background:none}
+  .drawing,.anglecard,.heroimg,table,.psteps li{break-inside:avoid}
+  .heroimg{max-width:420px;margin:0 auto 12px}
+  .drawing svg{max-height:120mm}
+  .safe,.note,.warn{border-left-width:3px}
+  a{color:inherit;text-decoration:none}
+}
 </style>
 </head>
 <body>
@@ -170,8 +217,9 @@ h3.subsec{font-size:17px;margin:22px 4px 2px;color:#7b3f8c}
   <div><h1 id="htitle">Werkstatt</h1><div class="sub" id="hsub">Holz · Papier · Malerei</div></div>
 </header>
 <main id="app"></main>
-<footer>Maße in mm, gemessen entlang der Kante. Vor dem Zusägen immer einen Probeschnitt an einem Reststück machen.</footer>
+<footer>Maße in mm, gemessen entlang der Kante. Vor dem Zusägen immer einen Probeschnitt an einem Reststück machen.<br>Tipp: Im Browser-Menü „Zum Startbildschirm hinzufügen“ – dann funktioniert die Werkstatt auch ohne Internet.</footer>
 
+<script src="lib/qrcode.js"></script>
 <script>
 'use strict';
 const DEG = Math.PI / 180;
@@ -2032,47 +2080,146 @@ const GROUPS = {mal: [['karten', 'Weihnachtskarten-Werkstatt', 'Kartenmotive in 
 const tabName = (p, t) => (p.tabNames && p.tabNames[t[0]]) || t[1];
 const TABS = [['ziel', 'Was möchte ich?'], ['material', 'Was brauche ich?'], ['zuschnitt', 'Zuschnitt'], ['winkel', 'Winkel'], ['anleitung', 'Schritt für Schritt']];
 
+/* ---------------- Filter, Merkliste, Teilen, Drucken ---------------- */
+const META = {tanne: {out: 1}, stern: {}, latte: {kids: 1, out: 1}, advent: {kids: 1}, rentier: {kids: 1}, masu: {kids: 1, quick: 1}, fenster: {kids: 1, quick: 1}, flocke: {kids: 1, quick: 1}, tuete: {kids: 1, quick: 1}, aqtanne: {kids: 1}, kugeln: {kids: 1}, kranz: {kids: 1}, robin: {kids: 1}, schnee: {kids: 1, quick: 1}, wichtel: {kids: 1}, kette: {kids: 1, quick: 1}, lebkuchen: {kids: 1, quick: 1}, dorf: {}, nebel: {kids: 1}, polar: {}, huette: {kids: 1}};
+const FILTERS = [['all', 'Alle'], ['kids', 'Mit Kindern'], ['quick', 'Bis 30 Minuten'], ['out', 'Für draußen']];
+state.fav = state.fav || {};
+state.filter = state.filter || 'all';
+const baseURL = () => location.href.split('#')[0];
+const shareURL = pid => { const q = new URLSearchParams(); for (const [k, v] of Object.entries(state[pid] || {})) q.set(k, v); return `${baseURL()}#/${pid}/ziel?${q}`; };
+function qrSVG(text, cell = 3) { try { const q = qrcode(0, 'M'); q.addData(text); q.make(); return q.createSvgTag(cell, 2); } catch (e) { return ''; } }
+function toast(msg) { let t = document.getElementById('toast'); if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); } t.textContent = msg; t.className = 'show'; clearTimeout(t._h); t._h = setTimeout(() => { t.className = ''; }, 2200); }
+function stepsOf(p) { try { return p.steps(p.calc()).length; } catch (e) { return 0; } }
+
+/* ---------------- Werkzeug- & Technik-ABC ---------------- */
+const ABC = [
+  ['Sicher arbeiten', [
+    ['Grundregeln', 'Schutzbrille auf, lange Haare zusammenbinden, keine weiten Ärmel. Werkstück immer festspannen – nie in der Hand halten. Kinder sägen und bohren nur zusammen mit einem Erwachsenen.'],
+    ['Erste Hilfe', 'Kleine Schnitte: säubern, Pflaster. Verbrennung (z. B. Heißkleber): sofort 10 Minuten unter kühles, nicht eiskaltes Wasser. Splitter mit Pinzette entfernen. Bei tiefen Wunden oder großen Verbrennungen zum Arzt.'],
+    ['Ordnung', 'Kabel nicht über den Weg legen, Werkzeug nach Gebrauch ablegen und ausschalten, Sägeblätter abkühlen lassen.']]],
+  ['Sägen', [
+    ['Kappsäge: Gehrung oder Neigung?', '<b>Gehrung</b> = Säge drehen (Winkel liegt in der Brettbreite). <b>Neigung</b> = Sägeblatt kippen (Winkel liegt in der Brettstärke). Rastungen gibt es meist bei 0°, 15°, 22,5°, 30° und 45°. Immer erst einen Probeschnitt am Reststück machen.'],
+    ['Kappsäge sicher', 'Werkstück fest an den Anschlag drücken, Hände mindestens eine Handbreit von der Schnittlinie entfernt. Nach dem Schnitt das Blatt auslaufen lassen, erst dann hochfahren. Kurze Teile mit einer Zwinge sichern.'],
+    ['Stichsäge', 'Platte mit Zwingen so festmachen, dass die Linie über die Tischkante ragt. Für Kurven ein schmales Blatt, für gerade Schnitte ein breites. Pendelhub aus = sauberere Kante. Die Fußplatte bleibt flach auf dem Holz.'],
+    ['Japansäge', 'Schneidet beim Ziehen, nicht beim Drücken – also wenig Kraft. Ideal für genaue Schnitte wie die Tannenspitze. Ein Holzklotz als Führung hilft, gerade zu bleiben. Gegen Ausreißen: Malerkrepp auf die Schnittlinie kleben.']]],
+  ['Bohren, Schrauben, Leimen', [
+    ['Vorbohren', 'Damit nichts spaltet: Holzbohrer mit etwa 2/3 des Schraubendurchmessers (für 4-mm-Schrauben: 2,5–3 mm). Mit dem Senker eine kleine Mulde, dann sitzt der Schraubenkopf bündig.'],
+    ['Akkuschrauber', 'Die Kupplung (Ring mit Zahlen) begrenzt die Kraft – klein anfangen. Passendes Bit verwenden (Torx TX20/25 bei den meisten Holzschrauben). Senkrecht halten und mit Druck schrauben.'],
+    ['Holzleim', 'D2 für drinnen, D3 für draußen. Dünn auf beide Flächen, zusammenpressen (Zwinge oder Gewicht), 20–30 Minuten warten. Austretenden Leim sofort feucht abwischen – getrockneter Leim nimmt keine Lasur an.'],
+    ['Heißklebepistole', 'Für Kinder die Niedertemperatur-Variante. Immer auf den Ständer stellen, nie an die Düse fassen. Die dünnen Klebefäden lassen sich mit einem Föhn wegpusten.']]],
+  ['Messen und Winkel', [
+    ['Winkel ohne Winkelmesser', 'Der Trick aus den Anleitungen: Zwei Längen messen (z. B. Außen- und Innenkante) und die Punkte verbinden. Die Linie hat automatisch den richtigen Winkel.'],
+    ['Geodreieck und Schmiege', 'Mit dem Geodreieck zeichnest du jeden Winkel aufs Papier. Mit einer Schmiege (verstellbarer Winkel) überträgst du ihn aufs Holz.'],
+    ['Genau messen', 'Immer von derselben Seite messen, Bleistiftstrich als „V“ oder Kreuz statt dickem Strich. Bei vielen gleichen Teilen einen Anschlagklotz verwenden.']]],
+  ['Oberflächen', [
+    ['Schleifen', 'Körnung 80 = grob, 120 = mittel, 180 = fein. Immer in Faserrichtung schleifen, zum Schluss die Kanten leicht brechen (abrunden).'],
+    ['Öl, Lasur, Lack', 'Öl: natürlich, feuert die Maserung an, für drinnen. Lasur: schützt draußen, gibt es farblos oder farbig. Douglasie und Lärche ohne Schutz werden draußen mit der Zeit silbergrau – das ist gewollt und schadet nicht.']]],
+  ['Papier', [
+    ['Laufrichtung', 'Papier hat eine Faserrichtung: In diese Richtung lässt es sich leichter falten und reißt gerader. Test: Blatt leicht biegen – in Laufrichtung gibt es weniger Widerstand.'],
+    ['Grammatur', '80 g/m² = Kopierpapier (Schneeflocken). 120–160 g/m² = Tonpapier, Origami-Schachteln. 300 g/m² = Aquarellpapier, Karten.'],
+    ['Scharf falten', 'Kanten genau aufeinanderlegen, mit dem Finger festhalten, dann von der Mitte nach außen mit Falzbein oder Fingernagel ziehen.']]],
+  ['Aquarell', [
+    ['Nass in Nass', 'Papier erst mit klarem Wasser anfeuchten, dann Farbe hinein – sie verläuft weich. Für Himmel, Nebel, Polarlicht und Schatten.'],
+    ['Nass auf Trocken', 'Farbe auf trockenes Papier – scharfe Kanten. Für Häuser, Gesichter und Details.'],
+    ['Lasur', 'Eine Schicht trocknen lassen, dann die nächste darüber. Jede Schicht wird dunkler und kräftiger.'],
+    ['Aussparen', 'Weiß wird nicht gemalt, sondern freigelassen. Schwierige Stellen vorher mit Maskierflüssigkeit oder weißem Wachsmalstift abdecken.'],
+    ['Effekte', 'Salz in nasse Farbe → Schneekristalle. Küchenpapier tupfen → Wolken und Sonne. Spritzen mit Zahnbürste → Schnee und Sterne.'],
+    ['Pinsel und Wasser', 'Zwei Wassergläser (sauber und schmutzig). Pinsel nie im Glas stehen lassen, nach dem Malen auswaschen und liegend trocknen. Papier mit Malerkrepp fixieren – es wellt sich weniger.']]]
+];
+function renderABC() {
+  document.getElementById('htitle').textContent = 'Werkzeug- & Technik-ABC';
+  document.getElementById('hsub').textContent = 'Sicher arbeiten · Sägen · Leimen · Papier · Aquarell';
+  app.innerHTML = `<div class="hero"><h2>Werkzeug- & Technik-ABC</h2><p>Das Wichtigste zu Werkzeug, Sicherheit und Techniken – zum Nachschlagen in der Werkstatt.</p></div>` +
+    ABC.map(([sec, items]) => `<div class="panel"><h3>${sec}</h3>${items.map(([t, b]) => `<details class="abc"><summary>${t}</summary><p>${b}</p></details>`).join('')}</div>`).join('');
+}
+
 /* ---------------- Rendering ---------------- */
 const app = document.getElementById('app');
 function route() {
-  const [, pid, tab] = (location.hash || '#/').split('/');
-  return {pid: PROJECTS[pid] ? pid : null, tab: TABS.some(t => t[0] === tab) ? tab : 'ziel'};
+  const [path] = (location.hash || '#/').split('?');
+  const [, pid, tab] = path.split('/');
+  if (pid === 'abc') return {abc: true};
+  return {pid: PROJECTS[pid] ? pid : null, tab: tab === 'druck' ? 'druck' : TABS.some(t => t[0] === tab) ? tab : 'ziel'};
+}
+function applyQuery() {
+  const [path, query] = (location.hash || '#/').split('?');
+  if (!query) return;
+  const pid = path.split('/')[1];
+  if (PROJECTS[pid]) {
+    const q = new URLSearchParams(query);
+    for (const [k, v] of q) if (k in state[pid]) state[pid][k] = k === 'H' ? +v : v;
+    save();
+  }
+  history.replaceState(null, '', path);
+}
+function homeHTML() {
+  const all = Object.values(PROJECTS), f = state.filter;
+  const match = p => f === 'all' || (META[p.id] || {})[f];
+  const card = p => `<a class="pcard cat-${p.cat}" href="#/${p.id}/ziel"><div class="thumb">${p.thumb()}</div><div class="body">${p.junior ? '<span class="jbadge">Junior · ab 10</span>' : ''}${state.fav[p.id] ? '<span class="fbadge">★ gemerkt</span>' : ''}<h3>${p.title}</h3><p>${p.teaser}</p><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div></div></a>`;
+  const cats = [['holz', 'Holz', 'Sägen, schrauben, leimen – große Deko für drinnen und draußen. Mit Junior-Projekten ab 10.', heroTanne()], ['papier', 'Papier', 'Falten, schneiden, kleben – am Küchentisch, für Groß und Klein.', heroFenster()], ['mal', 'Malerei', 'Aquarell: Weihnachtskarten, lustige Motive und winterliche Landschaften.', polar.thumb()]];
+  const mine = all.filter(p => state.fav[p.id] || (state.done[p.id] || []).length);
+  let h = `<div class="hero"><h2>Was machst du heute?</h2><p>Rubrik wählen, Projekt aussuchen, Größe einstellen – Material, Maße, Winkel und Anleitung rechnen sich automatisch.</p></div>
+    <div class="cattiles">${cats.map(([id, name, txt, img]) => `<button class="cattile cat-${id}" data-cat="${id}"><div class="ct-img">${img}</div><div class="ct-body"><b>${name}</b><span>${all.filter(p => p.cat === id).length} Projekte</span></div></button>`).join('')}</div>
+    <a class="abclink" href="#/abc"><b>Werkzeug- & Technik-ABC</b><span>Sicher arbeiten, Sägen, Leimen, Papier, Aquarell →</span></a>`;
+  if (mine.length) h += `<div class="panel mine"><h3>Meine Projekte</h3>${mine.map(p => { const n = stepsOf(p), d = (state.done[p.id] || []).length; return `<a class="mrow" href="#/${p.id}/${d ? 'anleitung' : 'ziel'}"><span class="mt">${state.fav[p.id] ? '★ ' : ''}${p.title}</span><span class="mp"><span class="progress"><span style="width:${n ? Math.round(d / n * 100) : 0}%"></span></span><small>${d} / ${n}</small></span></a>`; }).join('')}</div>`;
+  h += `<div class="filters">${FILTERS.map(([id, name]) => `<button class="chip ${f === id ? 'on' : ''}" data-filter="${id}">${name}</button>`).join('')}</div>`;
+  h += cats.map(([id, name, txt]) => {
+    const ps = all.filter(p => p.cat === id && match(p)).sort((x, y) => (x.junior ? 1 : 0) - (y.junior ? 1 : 0));
+    if (!ps.length) return '';
+    const groups = GROUPS[id];
+    const body = groups ? groups.map(([gid, gname, gtxt]) => { const g = ps.filter(p => p.group === gid); return g.length ? `<h3 class="subsec">${gname}</h3>${gtxt ? `<p class="muted small">${gtxt}</p>` : ''}<div class="cards">${g.map(card).join('')}</div>` : ''; }).join('') : `<div class="cards">${ps.map(card).join('')}</div>`;
+    return `<section id="sec-${id}" class="catsec"><h2 class="sec cat-${id}">${name}</h2><p class="muted small">${txt}</p>${body}</section>`;
+  }).join('');
+  return h;
 }
 function render() {
-  const {pid, tab} = route();
+  const r = route();
   const back = document.getElementById('back');
+  if (r.abc) { back.hidden = false; renderABC(); return; }
+  const {pid, tab} = r;
   if (!pid) {
     back.hidden = true;
     document.getElementById('htitle').textContent = 'Werkstatt';
-    document.getElementById("hsub").textContent = "Holz · Papier · Malerei";
-    const card = p => `<a class="pcard cat-${p.cat}" href="#/${p.id}/ziel"><div class="thumb">${p.thumb()}</div><div class="body">${p.junior ? '<span class="jbadge">Junior · ab 10</span>' : ''}<h3>${p.title}</h3><p>${p.teaser}</p><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div></div></a>`;
-    const all = Object.values(PROJECTS);
-    const cats = [['holz', 'Holz', 'Sägen, schrauben, leimen – große Deko für drinnen und draußen. Mit Junior-Projekten ab 10.', heroTanne()], ['papier', 'Papier', 'Falten, schneiden, kleben – am Küchentisch, für Groß und Klein.', heroFenster()], ['mal', 'Malerei', 'Aquarell: Weihnachtskarten, lustige Motive und winterliche Landschaften.', polar.thumb()]];
-    app.innerHTML = `<div class="hero"><h2>Was machst du heute?</h2><p>Rubrik wählen, Projekt aussuchen, Größe einstellen – Material, Maße, Winkel und Anleitung rechnen sich automatisch.</p></div>
-      <div class="cattiles">${cats.map(([id, name, txt, img]) => `<button class="cattile cat-${id}" data-cat="${id}"><div class="ct-img">${img}</div><div class="ct-body"><b>${name}</b><span>${all.filter(p => p.cat === id).length} Projekte</span></div></button>`).join('')}</div>
-      ${cats.map(([id, name, txt]) => { const ps = all.filter(p => p.cat === id).sort((x, y) => (x.junior ? 1 : 0) - (y.junior ? 1 : 0)); const groups = GROUPS[id]; const body = groups ? groups.map(([gid, gname, gtxt]) => `<h3 class="subsec">${gname}</h3>${gtxt ? `<p class="muted small">${gtxt}</p>` : ''}<div class="cards">${ps.filter(p => p.group === gid).map(card).join('')}</div>`).join('') : `<div class="cards">${ps.map(card).join('')}</div>`; return `<section id="sec-${id}" class="catsec"><h2 class="sec cat-${id}">${name}</h2><p class="muted small">${txt}</p>${body}</section>`; }).join('')}`;
-    if (state.scrollCat) { const el = document.getElementById('sec-' + state.scrollCat); state.scrollCat = null; if (el) el.scrollIntoView(); }
+    document.getElementById('hsub').textContent = 'Holz · Papier · Malerei';
+    app.innerHTML = homeHTML();
     return;
   }
   const p = PROJECTS[pid], st = state[pid], c = p.calc();
   back.hidden = false;
   document.getElementById('htitle').textContent = p.title;
-  document.getElementById('hsub').textContent = `Größe: ${fmt(st.H / 10)} cm`;
+  const sizeTxt = p.formats ? `Format: ${(FORMATS[st.H] || FORMATS[105]).name}` : `Größe: ${fmt(st.H / 10)} cm`;
+  document.getElementById('hsub').textContent = sizeTxt;
+  if (tab === 'druck') { app.innerHTML = renderPrint(p, c, sizeTxt); return; }
   const isPreset = p.presets.includes(+st.H);
   let html;
   if (p.formats) {
-    document.getElementById('hsub').textContent = `Format: ${(FORMATS[st.H] || FORMATS[105]).name}`;
-    html = `<div class="sizebar"><div class="lbl">Format</div><div class="chips">${p.presets.map(h => `<button class="chip ${+st.H === h ? 'on' : ''}" data-h="${h}">${FORMATS[h].name}</button>`).join('')}</div></div>`;
+    html = `<div class="sizebar"><div class="lbl">Format</div><div class="chips">${p.presets.map(h => `<button class="chip ${+st.H === h ? 'on' : ''}" data-h="${h}">${FORMATS[h].name}</button>`).join('')}</div>`;
   } else {
     html = `<div class="sizebar"><div class="lbl">${p.sizeLabel || 'Größe (Gesamthöhe)'}</div><div class="chips">
     ${p.presets.map(h => `<button class="chip ${+st.H === h ? 'on' : ''}" data-h="${h}">${fmt(h / 10)} cm</button>`).join('')}
     <label class="custom">eigene: <input type="number" inputmode="numeric" min="${p.range[0] / 10}" max="${p.range[1] / 10}" step="1" value="${isPreset ? '' : fmt(st.H / 10)}" placeholder="cm" id="hcustom"> cm</label></div>
-    ${p.sizeExtra(c) ? `<div class="row2">${p.sizeExtra(c)}</div>` : ''}</div>`;
+    ${p.sizeExtra(c) ? `<div class="row2">${p.sizeExtra(c)}</div>` : ''}`;
   }
+  html += `<div class="toolbar"><button class="tbtn ${state.fav[pid] ? 'on' : ''}" data-fav="1">${state.fav[pid] ? '★ Gemerkt' : '☆ Merken'}</button><button class="tbtn" data-share="1">Teilen</button><a class="tbtn" href="#/${pid}/druck">Drucken / PDF</a></div></div>`;
   html += `<nav class="tabs">${TABS.map((t, i) => `<button data-tab="${t[0]}" class="${t[0] === tab ? 'on' : ''}"><span class="n">${i + 1}</span>${tabName(p, t)}</button>`).join('')}</nav>`;
   html += `<div id="content">${renderTab(p, tab, c)}</div>`;
   app.innerHTML = html;
   const on = app.querySelector('nav.tabs .on'); if (on) on.parentNode.scrollLeft = on.offsetLeft - 40;
+}
+function renderPrint(p, c, sizeTxt) {
+  const mat = p.material(c), steps = p.steps(c), url = shareURL(p.id);
+  const ul = arr => `<ul class="plist">${arr.map(t => `<li>☐ ${t}</li>`).join('')}</ul>`;
+  return `<div class="printbar"><button class="btn pri" data-print="1">Jetzt drucken / als PDF speichern</button><a href="#/${p.id}/ziel">← zurück</a></div>
+  <div class="printdoc">
+    <div class="ph"><div><h1>${p.title}</h1><p><b>${sizeTxt}</b></p><p class="muted">${p.teaser}</p></div><div class="qr">${qrSVG(url)}<small>Online-Anleitung<br>mit Rechner</small></div></div>
+    <div class="heroimg">${p.thumb()}</div>
+    ${p.ziel(c)}
+    <div class="panel"><h3>Was brauche ich?</h3><h4>${p.cat === 'papier' ? 'Papier' : p.cat === 'mal' ? 'Papier & Farben' : p.id === 'rentier' ? 'Äste' : 'Holz'}</h4>${ul(mat.wood)}${mat.extra}<h4>Kleinteile</h4>${ul(mat.small)}<h4>Werkzeug</h4>${ul(mat.tools)}</div>
+    ${p.zuschnitt(c)}
+    ${p.winkel(c)}
+    <div class="panel"><h3>Schritt für Schritt</h3><ol class="psteps">${steps.map(s => `<li><b>${s.t}</b>${s.b}</li>`).join('')}</ol></div>
+    <p class="small muted">Werkstatt · ${esc(url)}</p>
+  </div>`;
 }
 function renderTab(p, tab, c) {
   const idx = TABS.findIndex(t => t[0] === tab), nxt = TABS[idx + 1];
@@ -2111,11 +2258,20 @@ function renderTab(p, tab, c) {
 }
 
 /* ---------------- Ereignisse ---------------- */
-app.addEventListener('click', e => {
+app.addEventListener('click', async e => {
   const b = e.target.closest('button');
   if (!b) return;
   if (b.dataset.cat) { const el = document.getElementById('sec-' + b.dataset.cat); if (el) el.scrollIntoView({behavior: 'smooth'}); return; }
-  const {pid, tab} = route();
+  if (b.dataset.filter) { state.filter = b.dataset.filter; save(); const y = window.scrollY; render(); window.scrollTo(0, y); return; }
+  if (b.dataset.print) { window.print(); return; }
+  const {pid} = route();
+  if (b.dataset.fav) { state.fav[pid] = !state.fav[pid]; if (!state.fav[pid]) delete state.fav[pid]; save(); render(); toast(state.fav[pid] ? 'Auf „Meine Projekte“ gemerkt' : 'Nicht mehr gemerkt'); return; }
+  if (b.dataset.share) {
+    const url = shareURL(pid), p = PROJECTS[pid];
+    try { if (navigator.share) { await navigator.share({title: p.title, text: `Anleitung: ${p.title}`, url}); return; } } catch (err) { return; }
+    try { await navigator.clipboard.writeText(url); toast('Link kopiert – inklusive Größe'); } catch (err) { prompt('Link zum Kopieren:', url); }
+    return;
+  }
   if (b.dataset.h) { state[pid].H = +b.dataset.h; save(); render(); }
   else if (b.dataset.tab) { location.hash = `#/${pid}/${b.dataset.tab}`; }
   else if (b.dataset.step != null) { state.step[pid] = +b.dataset.step; save(); render(); }
@@ -2142,9 +2298,11 @@ app.addEventListener('change', e => {
     el.closest('.check').classList.toggle('done', el.checked); save();
   }
 });
-document.getElementById('back').addEventListener('click', () => { location.hash = '#/'; });
-window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
+document.getElementById('back').addEventListener('click', () => { if (route().tab === 'druck') history.back(); else location.hash = '#/'; });
+window.addEventListener('hashchange', () => { applyQuery(); render(); window.scrollTo(0, 0); });
+applyQuery();
 render();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
 </html>

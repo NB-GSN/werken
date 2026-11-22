@@ -19,3 +19,13 @@ Interaktive Bastel- und Werkanleitungen mit Größenrechner, Konzeptzeichnungen 
 Online: https://nb-gsn.github.io/werken/
 
 Schrift „Dancing Script“ unter SIL Open Font License (siehe `fonts/OFL-DancingScript.txt`).
+
+## Funktionen
+- Größe/Format frei wählbar – alle Maße, Materiallisten und Schritte rechnen sich um
+- **Teilen-Link** mit eingestellter Größe (z. B. `#/stern/ziel?H=450`)
+- **Drucken / PDF**: komplette Anleitung auf einer Seite mit QR-Code zur Online-Version
+- **Merkliste** und Fortschritt („Meine Projekte“), Filter: mit Kindern · bis 30 Minuten · für draußen
+- **Werkzeug- & Technik-ABC** (`#/abc`)
+- Offline-fähig (PWA): „Zum Startbildschirm hinzufügen“
+
+QR-Codes: [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) (MIT).
