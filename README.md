@@ -33,3 +33,8 @@ Schrift „Dancing Script“ unter SIL Open Font License (siehe `fonts/OFL-Danci
 - Offline-fähig (PWA): „Zum Startbildschirm hinzufügen“
 
 QR-Codes: [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) (MIT).
+
+## Fotos (Wikimedia Commons, verkleinert)
+- `img/faden.jpg` – „String-art-star-design.jpg“, Foto: Soniya Goyal, [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), [Quelle](https://commons.wikimedia.org/wiki/File:String-art-star-design.jpg)
+- `img/bogen.jpg` – „Schwibbogen_Fenster.jpg“, Foto: Devilsanddust, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/), [Quelle](https://commons.wikimedia.org/wiki/File:Schwibbogen_Fenster.jpg)
+- `img/masu.jpg` – „OrigamiBoxes_5149.jpg“, Foto: Changku88, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), [Quelle](https://commons.wikimedia.org/wiki/File:OrigamiBoxes_5149.jpg)

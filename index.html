@@ -123,6 +123,11 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 30px;color:var(--muted);font
 .pcard .thumb svg{width:100%;height:100%;display:block}
 .heroimg{border-radius:var(--r);overflow:hidden;margin:0 0 12px;border:1px solid var(--line);aspect-ratio:340/220;background:#2f2620}
 .heroimg svg{width:100%;height:100%;display:block}
+.photo{margin:0 0 14px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--card,#fff)}
+.photo img{display:block;width:100%;height:auto;max-height:420px;object-fit:cover}
+.photo figcaption{padding:8px 12px;font-size:.85rem;line-height:1.4}
+.photo .credit{display:block;font-size:.72rem;opacity:.7;margin-top:3px}
+.photo .credit a{color:inherit}
 h4.ch{margin:16px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
 .cattiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 6px}
 .cattile{border:0;padding:0;border-radius:14px;overflow:hidden;cursor:pointer;background:var(--card);text-align:left;box-shadow:0 1px 0 var(--line);font:inherit;color:inherit}
@@ -2754,6 +2759,25 @@ const fmathe = {
 const PROJECTS = {tanne, stern, latte, bogen, stammrentier, faden, fmathe, advent, rentier, balken, masu, fenster, flocke, tuete, popup, licht, aqtanne, kugeln, kranz, robin, poinsettie, kerzen, schnee, wichtel, kette, lebkuchen, dorf, nebel, polar, huette};
 const GROUPS = {mal: [['karten', 'Weihnachtskarten-Werkstatt', 'Kartenmotive in Aquarell. Tipp: Postkarte A6 passt in einen C6-Umschlag, Quadratkarten 14,5 cm in 15,5 × 15,5 cm. Mit dem Format-Schalter rechnet jede Anleitung die Maße um.'], ['lustig', 'Lustige Motive', 'Zum Lachen – und perfekt für Kinder.'], ['land', 'Weihnachtliche Landschaften', 'Stimmungsvolle Winterbilder im Querformat – als Karte oder gerahmt als Geschenk.']]};
 const tabName = (p, t) => (p.tabNames && p.tabNames[t[0]]) || t[1];
+// Freie Fotos (Wikimedia Commons) – mit Bildnachweis
+const PHOTOS = {
+  faden: {src: 'img/faden.jpg', w: 750, h: 715, alt: 'Fadenbild-Stern aus blauem Garn zwischen Nadeln',
+    cap: 'So kann ein Faden-Stern aussehen – hier mit Pinnnadeln auf Karton statt Nägeln auf Holz.',
+    author: 'Soniya Goyal', lic: 'CC BY-SA 2.0', licUrl: 'https://creativecommons.org/licenses/by-sa/2.0/deed.de',
+    url: 'https://commons.wikimedia.org/wiki/File:String-art-star-design.jpg'},
+  bogen: {src: 'img/bogen.jpg', w: 1200, h: 844, alt: 'Leuchtende Schwibbögen in den Fenstern eines verschneiten Fachwerkhauses',
+    cap: 'Schwibbögen in den Fenstern eines Fachwerkhauses im Erzgebirge – so leuchtet dein Bogen später im Fenster.',
+    author: 'Devilsanddust', lic: 'CC BY-SA 3.0', licUrl: 'https://creativecommons.org/licenses/by-sa/3.0/deed.de',
+    url: 'https://commons.wikimedia.org/wiki/File:Schwibbogen_Fenster.jpg'},
+  masu: {src: 'img/masu.jpg', w: 1200, h: 900, alt: 'Drei bunte gefaltete Origami-Schachteln von oben',
+    cap: 'Gefaltete Origami-Schachteln aus Verlaufspapier – zur Anregung (eine andere Faltart als die Masu, aber genauso hübsch).',
+    author: 'Changku88', lic: 'CC BY-SA 4.0', licUrl: 'https://creativecommons.org/licenses/by-sa/4.0/deed.de',
+    url: 'https://commons.wikimedia.org/wiki/File:OrigamiBoxes_5149.jpg'},
+};
+function photoHTML(id) {
+  const f = PHOTOS[id]; if (!f) return '';
+  return `<figure class="photo"><img src="${f.src}" width="${f.w}" height="${f.h}" alt="${f.alt}" loading="lazy"><figcaption>${f.cap}<span class="credit">Foto: ${f.author} · <a href="${f.licUrl}" target="_blank" rel="noopener">${f.lic}</a> · <a href="${f.url}" target="_blank" rel="noopener">Wikimedia Commons</a> · verkleinert</span></figcaption></figure>`;
+}
 const TABS = [['ziel', 'Was möchte ich?'], ['material', 'Was brauche ich?'], ['zuschnitt', 'Zuschnitt'], ['winkel', 'Winkel'], ['anleitung', 'Schritt für Schritt']];
 
 /* ---------------- Filter, Merkliste, Teilen, Drucken ---------------- */
@@ -2901,7 +2925,7 @@ function renderPrint(p, c, sizeTxt) {
 function renderTab(p, tab, c) {
   const idx = TABS.findIndex(t => t[0] === tab), nxt = TABS[idx + 1];
   const nextLink = nxt ? `<a class="next" href="#/${p.id}/${nxt[0]}">Weiter: ${tabName(p, nxt)} →</a>` : '';
-  if (tab === 'ziel') return `<div class="heroimg">${p.thumb()}</div>` + p.ziel(c).replace('<div class="drawing">', `<h4 class="ch">${p.cat === 'mal' ? 'So sieht es aus' : 'Konzeptzeichnung mit Maßen'}</h4><div class="drawing">`) + nextLink;
+  if (tab === 'ziel') return `<div class="heroimg">${p.thumb()}</div>` + photoHTML(p.id) + p.ziel(c).replace('<div class="drawing">', `<h4 class="ch">${p.cat === 'mal' ? 'So sieht es aus' : 'Konzeptzeichnung mit Maßen'}</h4><div class="drawing">`) + nextLink;
   if (tab === 'zuschnitt') return p.zuschnitt(c) + nextLink;
   if (tab === 'winkel') return p.winkel(c) + nextLink;
   if (tab === 'material') {
