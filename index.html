@@ -184,29 +184,28 @@ function pieceSVG(o) {
 /* ================= PROJEKT: TANNEN ================= */
 function tanneCalc(H, wSel) {
   const w = wSel === 'auto' ? (H >= 800 ? 44 : 28) : +wSel;
-  const A = 75 * DEG, sa = Math.sin(A), ta = Math.tan(A);
+  const A = 67.5 * DEG, sa = Math.sin(A), ta = Math.tan(A);
   const wh = w / sa, h = H - 3 * w;
-  const c = {H, w, h, wh, auto: wSel === 'auto'};
-  c.Tout = 0.4 * h / sa;
-  c.Tin = (0.4 * h - wh * ta) / sa;
-  c.MB = 0.45 * h / sa;
-  c.ov = 0.15 * h / sa;
-  c.cbTop = 2 * (h / ta + 2 * wh);
-  c.cbBot = c.cbTop + 2 * w * Math.tan(15 * DEG);
+  // Ast-Spitzen bei 60 % und 30 % der Rahmenhöhe, Überlappung 12 %
+  const y1 = 0.6 * h, y2 = 0.3 * h, ovv = 0.12 * h;
+  const c = {H, w, h, wh, y1, y2, ovv, auto: wSel === 'auto'};
+  c.Tout = (h - y1) / sa;
+  c.Tin = (h - y1 - wh * ta) / sa;
+  c.MB = (y1 + ovv - y2) / sa;
+  c.ov = ovv / sa;
+  c.cbTop = 2 * (h / ta - 2 * wh);
+  c.cbBot = c.cbTop + 2 * w / ta;
   c.f1 = 0.30 * c.cbBot; c.f2 = 0.42 * c.cbBot; c.fq = 0.30 * H;
   c.apexMark = w * ta;            // Länge des Spitzenschnitts entlang der Kante
-  c.hcut = w / ta;                // Versatz des 15°-Schnitts entlang der Kante
-  c.stepM = 0.75 * h + 3 * w; c.stepB = 0.45 * h + 3 * w;
+  c.hcut = w / ta;                // Versatz des 22,5°-Schnitts entlang der Kante
+  c.notch = wh;                   // Absatz unter jedem Ast
+  c.stepM = y1 + 3 * w; c.stepB = y2 + 3 * w;
   c.screwOv = w >= 44 ? '4 × 80 mm' : w >= 34 ? '4 × 60 mm' : '3,5 × 50 mm';
   c.screwBase = w >= 44 ? '5 × 80 mm' : w >= 34 ? '4 × 70 mm' : '4 × 50 mm';
   c.stock = 2400;
-  // Lichterkette: Zickzack alle 8 cm
-  const xT = y => (h - y) / ta, tip = h - wh * ta;
+  c.inner = y => (h - y) / ta - (y >= y1 + ovv ? wh : y >= y2 + ovv ? 2 * wh : 3 * wh);
   let L = 0;
-  for (let y = 40; y < tip; y += 80) {
-    const xi = y >= 0.6 * h ? xT(y) - wh : y >= 0.3 * h ? xT(y) : xT(y) + wh;
-    L += 2 * xi / Math.cos(10 * DEG);
-  }
+  for (let y = 40; y < h - wh * ta; y += 80) L += 2 * Math.max(c.inner(y), 0) / Math.cos(10 * DEG);
   c.lights = L;
   c.pieces = [
     {short: 'O', name: 'Oberstab', n: 2, len: c.Tout},
@@ -222,27 +221,25 @@ function tanneCalc(H, wSel) {
 }
 
 function tanneSVG(c, labels = true) {
-  const {h, w, wh, H} = c, A = 75 * DEG, ta = Math.tan(A);
+  const {h, w, wh, H, y1, y2, ovv} = c, A = 67.5 * DEG, ta = Math.tan(A);
   const s = 470 / H, cx = 170, floor = 30 + H * s;
   const X = x => (cx + x * s).toFixed(1), Y = y => (floor - (y + 3 * w) * s).toFixed(1);
   const xT = y => (h - y) / ta, tip = h - wh * ta;
-  const bar = (sg, off, y0, y1) => `M${X(sg * (xT(y0) + off))} ${Y(y0)} L${X(sg * (xT(y1) + off))} ${Y(y1)} L${X(sg * (xT(y1) + off - wh))} ${Y(y1)} L${X(sg * (xT(y0) + off - wh))} ${Y(y0)}Z`;
+  const bar = (sg, off, y0, yb) => `M${X(sg * (xT(y0) + off))} ${Y(y0)} L${X(sg * (xT(yb) + off))} ${Y(yb)} L${X(sg * (xT(yb) + off - wh))} ${Y(yb)} L${X(sg * (xT(y0) + off - wh))} ${Y(y0)}Z`;
   let d = '';
   for (const sg of [1, -1]) {
-    d += bar(sg, 2 * wh, 0, 0.45 * h) + bar(sg, wh, 0.3 * h, 0.75 * h);
-    d += `M${X(sg * xT(0.6 * h))} ${Y(0.6 * h)} L${X(0)} ${Y(h)} L${X(0)} ${Y(tip)} L${X(sg * (xT(0.6 * h) - wh))} ${Y(0.6 * h)}Z`;
+    d += bar(sg, -2 * wh, 0, y2 + ovv) + bar(sg, -wh, y2, y1 + ovv);
+    d += `M${X(sg * xT(y1))} ${Y(y1)} L${X(0)} ${Y(h)} L${X(0)} ${Y(tip)} L${X(sg * (xT(y1) - wh))} ${Y(y1)}Z`;
   }
   const ct = c.cbTop / 2, cbb = c.cbBot / 2;
   d += `M${X(-ct)} ${Y(0)} L${X(ct)} ${Y(0)} L${X(cbb)} ${Y(-w)} L${X(-cbb)} ${Y(-w)}Z`;
   for (const [L, yt] of [[c.f1, -w], [c.f2, -2 * w]]) d += `M${X(-L / 2 + w)} ${Y(yt)} L${X(L / 2 - w)} ${Y(yt)} L${X(L / 2)} ${Y(yt - w)} L${X(-L / 2)} ${Y(yt - w)}Z`;
-  // Lichterkette angedeutet
   let zig = '', side = 1;
   for (let y = 40; y < tip; y += 80) {
-    const xi = (y >= 0.6 * h ? xT(y) - wh : y >= 0.3 * h ? xT(y) : xT(y) + wh) - 4;
-    zig += (zig ? 'L' : 'M') + X(side * xi) + ' ' + Y(y) + ' ';
+    zig += (zig ? 'L' : 'M') + X(side * (c.inner(y) - 4)) + ' ' + Y(y) + ' ';
     side = -side;
   }
-  const lights = `<path d="${zig}" fill="none" stroke="#e8a317" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round" opacity="${labels ? .9 : 1}"/>`;
+  const lights = `<path d="${zig}" fill="none" stroke="#e8a317" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"/>`;
   const fill = labels ? '#e7c89f' : '#d9a066', stroke = labels ? '#a8743f' : '#f0c890';
   let lab = '', svgW = 340, svgH = floor + 20, vx = 0;
   if (labels) {
@@ -250,10 +247,10 @@ function tanneSVG(c, labels = true) {
     vx = cx - cbb2 - 70; svgW = 2 * cbb2 + 140; svgH = floor + 50;
     const yv = v => +Y(v);
     lab += badge(+X(0) + 20, yv(h) + 6, 1);
-    lab += badge(+X(xT(0.75 * h) + 2 * wh) + 18, yv(0.75 * h) + 4, 2);
-    lab += badge(+X(xT(0.45 * h) + 3 * wh) + 18, yv(0.45 * h) + 4, 2);
-    const ix = +X(xT(0) + wh), iy = +Y(0), r = 34;
-    lab += `<path d="M${ix - r} ${iy} A${r} ${r} 0 0 1 ${(ix - r * Math.cos(75 * DEG)).toFixed(1)} ${(iy - r * Math.sin(75 * DEG)).toFixed(1)}" fill="none" stroke="#9b4a1f" stroke-width="2.5"/>`;
+    lab += badge(+X(xT(y1)) + 18, yv(y1) + 8, 2);
+    lab += badge(+X(xT(y2) - wh) + 18, yv(y2) + 8, 2);
+    const ix = +X(xT(0) - 3 * wh), iy = +Y(0), r = 30;
+    lab += `<path d="M${ix - r} ${iy} A${r} ${r} 0 0 1 ${(ix - r * Math.cos(67.5 * DEG)).toFixed(1)} ${(iy - r * Math.sin(67.5 * DEG)).toFixed(1)}" fill="none" stroke="#9b4a1f" stroke-width="2.5"/>`;
     lab += badge(ix - r - 18, iy - 16, 3);
     lab += badge(+X(cbb) + 18, yv(-w / 2), 4);
     lab += badge(+X(c.f2 / 2) + 18, yv(-1.5 * w), 5);
@@ -267,13 +264,13 @@ function tanneSVG(c, labels = true) {
 }
 const badge = (x, y, n) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="13" fill="#9b4a1f"/><text x="${x.toFixed(1)}" y="${(y + 5.5).toFixed(1)}" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">${n}</text>`;
 const legend = items => `<ol class="legend">${items.map(t => `<li><span>${t}</span></li>`).join('')}</ol>`;
-const TANNE_LEGEND = c => legend(['<b>Spitze:</b> senkrecht – anzeichnen und von Hand sägen', '<b>Ast-Stufen:</b> waagerechter Schnitt · Kappsäge 15°', '<b>Seitenneigung 75°</b> zur Waagerechten (ergibt sich von selbst)', '<b>Querholz:</b> Enden 15°, gegengleich', '<b>Fuß:</b> zwei Lagen, Enden 45°']);
+const TANNE_LEGEND = c => legend(['<b>Spitze:</b> senkrecht – anzeichnen und von Hand sägen', `<b>Ast:</b> unteres Stabende waagerecht · Kappsäge 22,5° – darunter ein Absatz von ${fmt(c.notch)} mm, weil der nächste Stab innen anliegt`, '<b>Seitenneigung 67,5°</b> zur Waagerechten (ergibt sich von selbst)', '<b>Querholz:</b> Enden 22,5°, gegengleich', '<b>Fuß:</b> zwei Lagen, Enden 45°']);
 
 const tanne = {
   id: 'tanne',
   title: 'Holz-Tannen mit Lichterkette',
   teaser: 'Offene Tannen aus Kantholz, drei Etagen pro Seite, innen eine Lichterkette im Zickzack. Drinnen und draußen.',
-  tags: ['Kapp­säge 15°', 'Kantholz', '½ Tag pro Baum'],
+  tags: ['Kapp­säge 22,5°', 'Kantholz', '½ Tag pro Baum'],
   presets: [1200, 900, 600],
   range: [500, 1600],
   calc: () => tanneCalc(state.tanne.H, state.tanne.w),
@@ -285,7 +282,7 @@ const tanne = {
   },
   ziel(c) {
     return `<div class="panel"><h3>Was baue ich?</h3>
-      <p>Eine Tanne als offener Rahmen: Jede Seite besteht aus <b>drei schrägen Stäben</b>, die nach unten jeweils eine Holzbreite nach außen versetzt sind – so entstehen die „Äste“. Unten steht der Rahmen auf einem Querholz und einem zweilagigen Fuß. Innen wird eine Lichterkette im Zickzack eingehängt.</p>
+      <p>Eine Tanne als offener Rahmen: Jede Seite besteht aus <b>drei schrägen Stäben</b>. Der jeweils tiefere Stab liegt <b>innen</b> am oberen an und überlappt ihn – das untere Ende des oberen Stabs ragt als „Ast“ heraus, darunter entsteht ein Absatz. So bekommt die Tanne ihre typische Zackenform. Unten steht der Rahmen auf einem Querholz und einem zweilagigen Fuß. Innen wird eine Lichterkette im Zickzack eingehängt.</p>
       <div class="facts">
         <div class="fact"><b>${fmt(c.H / 10)} cm</b><span>Höhe gesamt</span></div>
         <div class="fact"><b>${fmt(c.cbBot / 10)} cm</b><span>Breite unten</span></div>
@@ -313,16 +310,16 @@ const tanne = {
         `kleine Messingnägel oder Schraubhaken (ca. ${Math.ceil(c.h / 80) + 2} Stück)`,
         `optional: Holzöl/Lasur, kleiner Holzstern für die Spitze`
       ],
-      tools: ['Kapp- und Gehrungssäge (15° und 45°)', 'Japansäge oder Stichsäge (Spitze)', 'Akkuschrauber, Holzbohrer 3 und 4 mm, Senker', 'Zollstock, Bleistift, Anschlagwinkel', 'Schraubzwingen, Schleifpapier K120'],
+      tools: ['Kapp- und Gehrungssäge (22,5° und 45°)', 'Japansäge oder Stichsäge (Spitze)', 'Akkuschrauber, Holzbohrer 3 und 4 mm, Senker', 'Zollstock, Bleistift, Anschlagwinkel', 'Schraubzwingen, Schleifpapier K120'],
       extra: `<div class="note"><b>Set 120 + 90 + 60 cm:</b> ${m(set44)} Kantholz 44 × 44 mm (→ 4 Stangen à 2,40 m) und ${m(set28)} Quadratleiste 28 × 28 mm (→ 1–2 Leisten à 2,40 m).</div>`
     };
   },
   zuschnitt(c) {
     const rows = [
-      ['Oberstab', 2, `Außenkante <b>${fmt(c.Tout)}</b><br>Innenkante <b>${fmt(c.Tin)}</b>`, 'unten 15°, oben Spitze'],
-      ['Mittelstab', 2, `<b>${fmt(c.MB)}</b>`, 'beide Enden 15°, parallel'],
-      ['Unterstab', 2, `<b>${fmt(c.MB)}</b>`, 'beide Enden 15°, parallel'],
-      ['Querholz', 1, `oben <b>${fmt(c.cbTop)}</b><br>unten <b>${fmt(c.cbBot)}</b>`, 'beide Enden 15°, gegengleich'],
+      ['Oberstab', 2, `Außenkante <b>${fmt(c.Tout)}</b><br>Innenkante <b>${fmt(c.Tin)}</b>`, 'unten 22,5°, oben Spitze'],
+      ['Mittelstab', 2, `<b>${fmt(c.MB)}</b>`, 'beide Enden 22,5°, parallel'],
+      ['Unterstab', 2, `<b>${fmt(c.MB)}</b>`, 'beide Enden 22,5°, parallel'],
+      ['Querholz', 1, `oben <b>${fmt(c.cbTop)}</b><br>unten <b>${fmt(c.cbBot)}</b>`, 'beide Enden 22,5°, gegengleich'],
       ['Fuß obere Lage', 1, `<b>${fmt(c.f1)}</b> (lange Kante unten)`, 'Enden 45°'],
       ['Fuß untere Lage', 1, `<b>${fmt(c.f2)}</b> (lange Kante unten)`, 'Enden 45° · freistehend: quer, ' + fmt(c.fq) + ' mm, gerade']
     ];
@@ -331,8 +328,8 @@ const tanne = {
       ${partsTable(rows)}
       <div class="facts">
         <div class="fact"><b>${fmt(c.ov)} mm</b><span>Überlappung der Stäbe</span></div>
-        <div class="fact"><b>${fmt(c.stepM / 10)} cm</b><span>obere Ast-Stufe (Höhe)</span></div>
-        <div class="fact"><b>${fmt(c.stepB / 10)} cm</b><span>untere Ast-Stufe (Höhe)</span></div>
+        <div class="fact"><b>${fmt(c.stepM / 10)} cm</b><span>oberer Ast (Höhe der Spitze)</span></div>
+        <div class="fact"><b>${fmt(c.stepB / 10)} cm</b><span>unterer Ast (Höhe der Spitze)</span></div>
       </div>
       <div class="note">Weil das Holz quadratisch ist, sind linke und rechte Teile <b>identisch</b> – ein Teil für die andere Seite einfach umdrehen.</div>
       <h4>Aufteilung auf Stangen à 2,40 m</h4>
@@ -342,25 +339,25 @@ const tanne = {
   },
   winkel(c) {
     return `<div class="panel"><h3>Die Winkel</h3>
-      <div class="anglecard"><div class="badge alt"><b>75°</b><span>Seiten</span></div><div>Alle Seitenstäbe stehen 75° zur Waagerechten. Die Spitze hat damit 30°. Diesen Winkel stellst du nirgends ein – er entsteht von selbst durch die 15°-Schnitte.</div></div>
-      <div class="anglecard"><div class="badge"><b>15°</b><span>Kappsäge</span></div><div><b>Jeder waagerechte Schnitt:</b> Ast-Stufen, Stabenden oben und unten, Querholz-Enden. Säge auf 15° (meist mit Rastung).</div></div>
-      <div class="anglecard"><div class="badge hand"><b>Lot</b><span>von Hand</span></div><div><b>Spitze:</b> senkrechter Schnitt, damit sich beide Oberstäbe auf der Mittellinie treffen. Das wären an der Kappsäge 75° – geht nicht. Darum <b>anzeichnen</b>: Der Schnitt läuft über <b>${fmt(c.apexMark)} mm</b> entlang der Kante (= 3,73 × Holzbreite).</div></div>
+      <div class="anglecard"><div class="badge alt"><b>67,5°</b><span>Seiten</span></div><div>Alle Seitenstäbe stehen 67,5° zur Waagerechten, die Spitze hat 45°. Diesen Winkel stellst du nirgends ein – er entsteht von selbst durch die 22,5°-Schnitte.</div></div>
+      <div class="anglecard"><div class="badge"><b>22,5°</b><span>Kappsäge</span></div><div><b>Jeder waagerechte Schnitt:</b> Äste, Stabenden oben und unten, Querholz-Enden. Säge auf 22,5° – dafür haben fast alle Kappsägen eine Rastung.</div></div>
+      <div class="anglecard"><div class="badge hand"><b>Lot</b><span>von Hand</span></div><div><b>Spitze:</b> senkrechter Schnitt, damit sich beide Oberstäbe auf der Mittellinie treffen. Das wären an der Kappsäge 67,5° – geht nicht. Darum <b>anzeichnen</b>: Der Schnitt läuft über <b>${fmt(c.apexMark)} mm</b> entlang der Kante (= 2,41 × Holzbreite).</div></div>
       <div class="anglecard"><div class="badge"><b>45°</b><span>Kappsäge</span></div><div><b>Fußhölzer:</b> Enden 45° angeschrägt, lange Kante unten.</div></div>
-      <h4>Oberstab (2 ×)</h4><div class="drawing">${pieceSVG({title: 'Oberstab', outer: c.Tout, inner: c.Tin, off: c.hcut, thick: c.w, outerLabel: 'Außenkante', innerLabel: 'Innenkante', left: 'unten: Säge 15°', right: 'Spitze: anzeichnen'})}</div>
-      <h4>Mittel- und Unterstab (je 2 ×)</h4><div class="drawing">${pieceSVG({title: 'Mittelstab', outer: c.MB, inner: c.MB, off: c.hcut, thick: c.w, outerLabel: 'Außenkante', innerLabel: 'Innenkante', left: 'Säge 15°', right: 'Säge 15°, parallel'})}</div>
-      <div class="warn"><b>Parallelogramm, kein Trapez:</b> Beide 15°-Schnitte zeigen in dieselbe Richtung. Nach dem ersten Schnitt das Holz nur verschieben, nicht umdrehen.</div>
-      <h4>Querholz (1 ×)</h4><div class="drawing">${pieceSVG({title: 'Querholz', outer: c.cbTop, inner: c.cbBot, off: -c.w * Math.tan(15 * DEG), thick: c.w, outerLabel: 'oben', innerLabel: 'unten', left: 'Säge 15°', right: 'Säge 15°, gegengleich'})}</div>
+      <h4>Oberstab (2 ×)</h4><div class="drawing">${pieceSVG({title: 'Oberstab', outer: c.Tout, inner: c.Tin, off: c.hcut, thick: c.w, outerLabel: 'Außenkante', innerLabel: 'Innenkante', left: 'unten: Säge 22,5°', right: 'Spitze: anzeichnen'})}</div>
+      <h4>Mittel- und Unterstab (je 2 ×)</h4><div class="drawing">${pieceSVG({title: 'Mittelstab', outer: c.MB, inner: c.MB, off: c.hcut, thick: c.w, outerLabel: 'Außenkante', innerLabel: 'Innenkante', left: 'Säge 22,5°', right: 'Säge 22,5°, parallel'})}</div>
+      <div class="warn"><b>Parallelogramm, kein Trapez:</b> Beide 22,5°-Schnitte zeigen in dieselbe Richtung. Nach dem ersten Schnitt das Holz nur verschieben, nicht umdrehen.</div>
+      <h4>Querholz (1 ×)</h4><div class="drawing">${pieceSVG({title: 'Querholz', outer: c.cbTop, inner: c.cbBot, off: -c.w / Math.tan(67.5 * DEG), thick: c.w, outerLabel: 'oben', innerLabel: 'unten', left: 'Säge 22,5°', right: 'Säge 22,5°, gegengleich'})}</div>
     </div>`;
   },
   steps(c) {
     return [
-      {t: 'Probeschnitt bei 15°', b: `<p>Säge auf <b>15°</b> stellen. Zwei Reststücke so abschneiden und aneinanderhalten, wie sie später an einer Ast-Stufe liegen: Ein Stab, schräg gehalten (75°), muss mit dem Schnitt flach auf dem Tisch stehen.</p>`},
-      {t: 'Mittel- und Unterstäbe sägen', b: `<ul><li>4 Stück, je <b>${fmt(c.MB)} mm</b> entlang der Kante.</li><li>Beide Enden 15°, <b>parallel</b> (Parallelogramm).</li><li>Tipp: Anschlag-Klotz auf ${fmt(c.MB)} mm setzen, dann werden alle vier gleich.</li></ul>`},
-      {t: 'Oberstäbe sägen und Spitze anzeichnen', b: `<ul><li>Unten 15° abschneiden.</li><li>Von dieser Schnittkante aus messen: Außenkante <b>${fmt(c.Tout)} mm</b> → Punkt = Spitze. Innenkante <b>${fmt(c.Tin)} mm</b> → zweiter Punkt.</li><li>Beide Punkte verbinden, Linie auf Ober- und Unterseite übertragen.</li><li>Holz einspannen und mit Japan- oder Stichsäge auf der Linie sägen. Kanten leicht schleifen.</li></ul>`},
-      {t: 'Querholz und Fuß sägen', b: `<ul><li>Querholz: oben <b>${fmt(c.cbTop)} mm</b>, beide Enden 15° gegengleich (unten wird es ${fmt(c.cbBot)} mm).</li><li>Fuß oben: <b>${fmt(c.f1)} mm</b>, Fuß unten: <b>${fmt(c.f2)} mm</b>, Enden 45°, lange Kante unten.</li><li>Freistehend? Untere Lage stattdessen <b>quer</b>, ${fmt(c.fq)} mm, gerade Enden.</li><li>Alle Teile mit Bleistift beschriften (O, M, U, Q, F).</li></ul>`},
-      {t: 'Spitze verbinden', b: `<p>Beide Oberstäbe flach auf den Boden legen, an der Spitze verleimen und hinten mit einer kleinen Lochplatte verschrauben. Kontrolle: Die unteren 15°-Kanten liegen auf einer Linie.</p>`},
-      {t: 'Mittelstäbe ansetzen', b: `<ul><li>Mittelstab <b>außen</b> direkt neben den Oberstab legen.</li><li>Er überlappt den Oberstab um <b>${fmt(c.ov)} mm</b>: So weit liegt das Oberstab-Ende unter dem oberen Ende des Mittelstabs.</li><li>Kontrolle: Die 15°-Schnitte von Oberstab-Ende und Mittelstab-Ende liegen parallel.</li><li>Leimen, Zwinge drauf, von außen 2 Schrauben <b>${c.screwOv}</b> (vorbohren!).</li></ul>`},
-      {t: 'Unterstäbe ansetzen', b: `<p>Genauso außen an die Mittelstäbe, Überlappung wieder <b>${fmt(c.ov)} mm</b>, 2 Schrauben pro Seite.</p>`},
+      {t: 'Probeschnitt bei 22,5°', b: `<p>Säge auf <b>22,5°</b> stellen (Rastung). Ein Reststück abschneiden: Hältst du es schräg mit 67,5° zur Tischplatte, muss die Schnittfläche flach aufliegen.</p>`},
+      {t: 'Mittel- und Unterstäbe sägen', b: `<ul><li>4 Stück, je <b>${fmt(c.MB)} mm</b> entlang der Kante.</li><li>Beide Enden 22,5°, <b>parallel</b> (Parallelogramm).</li><li>Tipp: Anschlag-Klotz auf ${fmt(c.MB)} mm setzen, dann werden alle vier gleich.</li></ul>`},
+      {t: 'Oberstäbe sägen und Spitze anzeichnen', b: `<ul><li>Unten 22,5° abschneiden.</li><li>Von dieser Schnittkante aus messen: Außenkante <b>${fmt(c.Tout)} mm</b> → Punkt = Spitze. Innenkante <b>${fmt(c.Tin)} mm</b> → zweiter Punkt.</li><li>Beide Punkte verbinden, Linie auf Ober- und Unterseite übertragen.</li><li>Holz einspannen und mit Japan- oder Stichsäge auf der Linie sägen. Kanten leicht schleifen.</li></ul>`},
+      {t: 'Querholz und Fuß sägen', b: `<ul><li>Querholz: oben <b>${fmt(c.cbTop)} mm</b>, beide Enden 22,5° gegengleich (unten wird es ${fmt(c.cbBot)} mm).</li><li>Fuß oben: <b>${fmt(c.f1)} mm</b>, Fuß unten: <b>${fmt(c.f2)} mm</b>, Enden 45°, lange Kante unten.</li><li>Freistehend? Untere Lage stattdessen <b>quer</b>, ${fmt(c.fq)} mm, gerade Enden.</li><li>Alle Teile mit Bleistift beschriften (O, M, U, Q, F).</li></ul>`},
+      {t: 'Spitze verbinden', b: `<p>Beide Oberstäbe flach auf den Boden legen, an der Spitze verleimen und hinten mit einer kleinen Lochplatte verschrauben. Kontrolle: Die unteren Schnittkanten liegen auf einer Linie.</p>`},
+      {t: 'Mittelstäbe innen ansetzen', b: `<ul><li>Mittelstab <b>innen</b> an den Oberstab legen: Außenfläche Mittelstab an Innenfläche Oberstab.</li><li>Er ragt <b>${fmt(c.ov)} mm</b> (entlang der Kante) über das untere Ende des Oberstabs nach oben hinaus – so weit überlappen die beiden.</li><li>Kontrolle: Das untere Ende des Oberstabs steht als Ast heraus, darunter ein Absatz von ${fmt(c.notch)} mm. Beide 22,5°-Schnitte liegen parallel.</li><li>Leimen, Zwinge drauf, von außen durch den Oberstab 2 Schrauben <b>${c.screwOv}</b> in den Mittelstab (vorbohren!).</li></ul>`},
+      {t: 'Unterstäbe innen ansetzen', b: `<p>Genauso <b>innen</b> an die Mittelstäbe, wieder ${fmt(c.ov)} mm Überlappung, von außen durch den Mittelstab 2 Schrauben pro Seite.</p>`},
       {t: 'Aufs Querholz setzen', b: `<p>Rahmen aufs Querholz stellen: Die waagerechten Schnitte der Unterstäbe sitzen flach auf, die Querholz-Enden laufen bündig in der Außenkante weiter. Von unten je 1–2 Schrauben <b>${c.screwBase}</b>, vorbohren und versenken.</p>`},
       {t: 'Gerade? Diagonalen messen', b: `<p>Von der Spitze zur linken und zur rechten unteren Ecke messen – beide Maße müssen gleich sein. Sonst jetzt noch leicht korrigieren, bevor der Leim fest ist.</p>`},
       {t: 'Fuß montieren', b: `<p>Obere Fußlage mittig unter das Querholz, untere Lage darunter, jeweils von unten verschrauben (${c.screwBase}). Draußen zusätzlich mit Erdanker, Winkel oder Hering gegen Wind sichern.</p>`},
