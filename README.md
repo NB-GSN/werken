@@ -8,6 +8,8 @@ Interaktive Bastel- und Werkanleitungen mit Größenrechner, Konzeptzeichnungen 
 - **Latten-Tanne zum Hinstellen** – waagerechte Latten auf Stamm mit Kreuzfuß
 - **Schwibbogen mit LED-Kerzen** – Halbkreis mit Schnurzirkel, Silhouette per Rastermethode
 - **Rentier aus Baumstämmen** – gesteckt, mit Bohrwinkeln
+- **Fadenbild: Stern, Tanne, Schneeflocke** – mit 1:1-Nagelvorlage zum Drucken
+- **Mathe-Fadenbild** – Fadenstern, Kardioide, Nephroide (Kreisteilung, modulo, ggT)
 - Junior (ab 10): **Advents-Tanne zum Aufhängen**, **Rentier aus Ästen**, **Adventsbalken für 4 Teelichter**
 
 ## Papier

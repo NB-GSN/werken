@@ -181,6 +181,18 @@ details.abc p{margin:0 0 10px;font-size:15px}
   .safe,.note,.warn{border-left-width:3px}
   a{color:inherit;text-decoration:none}
 }
+
+.tpl .tplpage{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px;margin:0 0 14px}
+.tpl .tplpage svg{max-width:100%;height:auto;display:block}
+.tplhead{font-size:13px;font-weight:700;margin-bottom:4px}
+.tplscale{display:flex;align-items:center;gap:8px;font-size:12px;margin-top:4px}
+.tplscale svg{width:50mm!important;height:4mm!important;max-width:none!important}
+@media print{
+  @page{size:A4;margin:8mm}
+  .tpl .tplpage{border:0;padding:0;margin:0;break-after:page}
+  .tpl .tplpage svg{max-width:none}
+  .warn{display:none}
+}
 </style>
 </head>
 <body>
@@ -293,7 +305,7 @@ const heroSVG = (inner, label) => `<svg viewBox="0 0 340 220" preserveAspectRati
 
 /* ---------------- Speicher ---------------- */
 const STORE = 'werkstatt-v1';
-let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, masu: {H: 80}, fenster: {H: 300, lagen: '2'}, flocke: {H: 150}, tuete: {H: 280, n: '10'}, aqtanne: {H: 105}, schnee: {H: 105}, wichtel: {H: 145}, kette: {H: 145}, kugeln: {H: 105}, kranz: {H: 145}, robin: {H: 105}, lebkuchen: {H: 105}, dorf: {H: 2100}, nebel: {H: 2100}, polar: {H: 2100}, huette: {H: 2100}, bogen: {H: 600}, balken: {H: 500, q: '70'}, stammrentier: {H: 700}, popup: {H: 148}, licht: {H: 250, n: '5'}, poinsettie: {H: 145}, kerzen: {H: 105}, done: {}, buy: {}, step: {}};
+let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, masu: {H: 80}, fenster: {H: 300, lagen: '2'}, flocke: {H: 150}, tuete: {H: 280, n: '10'}, aqtanne: {H: 105}, schnee: {H: 105}, wichtel: {H: 145}, kette: {H: 145}, kugeln: {H: 105}, kranz: {H: 145}, robin: {H: 105}, lebkuchen: {H: 105}, dorf: {H: 2100}, nebel: {H: 2100}, polar: {H: 2100}, huette: {H: 2100}, bogen: {H: 600}, balken: {H: 500, q: '70'}, stammrentier: {H: 700}, popup: {H: 148}, licht: {H: 250, n: '5'}, poinsettie: {H: 145}, kerzen: {H: 105}, faden: {H: 250, motiv: 'stern'}, fmathe: {H: 250, N: '36', pat: 'stern'}, done: {}, buy: {}, step: {}};
 try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) { const d = JSON.parse(JSON.stringify(state)); state = Object.assign(state, s); for (const k of Object.keys(d)) if (d[k] && typeof d[k] === 'object' && 'H' in d[k]) state[k] = Object.assign({}, d[k], s[k]); state.step = Object.assign({}, s.step); } } catch (e) {}
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
 
@@ -2537,13 +2549,201 @@ const kerzen = mal2({
     {t: 'Gold', b: '<p>Zahlen 1–4 und „Eine schöne Adventszeit“ in Gold.</p>'}]
 });
 
-const PROJECTS = {tanne, stern, latte, bogen, stammrentier, advent, rentier, balken, masu, fenster, flocke, tuete, popup, licht, aqtanne, kugeln, kranz, robin, poinsettie, kerzen, schnee, wichtel, kette, lebkuchen, dorf, nebel, polar, huette};
+/* ================= FADENBILDER ================= */
+const gcd = (a, b) => b ? gcd(b, a % b) : a;
+const WOOL = {rot: '#c62828', gruen: '#2f7a4a', gold: '#e0b23c', weiss: '#f5f5f0', blau: '#3b6fb6'};
+function nailsAlong(poly, sp, closed = true) {
+  const pts = [], P = closed ? [...poly, poly[0]] : poly;
+  for (let i = 0; i < P.length - 1; i++) {
+    const a = P[i], b = P[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(1, Math.round(L / sp));
+    for (let k = 0; k < n; k++) pts.push(lerp2(a, b, k / n));
+  }
+  if (!closed) pts.push(P[P.length - 1]);
+  return pts;
+}
+function fadenCalc(B, motiv) {
+  const sp = B <= 180 ? 10 : B <= 250 ? 12 : 14, cx = B / 2;
+  const c = {B, motiv, sp, nails: [], threads: [], outline: [], col: WOOL.gold};
+  if (motiv === 'stern') {
+    const cy = B * 0.52, R = 0.42 * B, r = R * 0.382;
+    const poly = Array.from({length: 10}, (_, k) => { const a = (-90 + 36 * k) * DEG, rad = k % 2 ? r : R; return [cx + rad * Math.cos(a), cy + rad * Math.sin(a)]; });
+    c.outline = poly; c.nails = nailsAlong(poly, sp); c.center = [cx, cy]; c.nails.push(c.center);
+    const ci = c.nails.length - 1;
+    c.nails.slice(0, ci).forEach((_, i) => c.threads.push([ci, i]));
+    c.col = WOOL.gold; c.tech = 'Sonnenstrahl: Vom Mittelnagel zu jedem Randnagel und zurück, zum Schluss einmal rundherum die Kontur.';
+  } else if (motiv === 'tanne') {
+    const top = 0.12 * B, bot = 0.8 * B, hw = 0.33 * B, T = (f, w) => [top + (bot - top) * f, hw * w];
+    const tiers = [[0, 0], [0.36, .42], [0.36, .24], [0.68, .72], [0.68, .48], [1, 1]];
+    const R = tiers.map(([f, w]) => [cx + T(f, w)[1], T(f, w)[0]]), L = tiers.slice().reverse().map(([f, w]) => [cx - T(f, w)[1], T(f, w)[0]]);
+    const poly = [...R, [cx + 0.05 * B, bot], [cx + 0.05 * B, bot + 0.09 * B], [cx - 0.05 * B, bot + 0.09 * B], [cx - 0.05 * B, bot], ...L.slice(0, -1)];
+    c.outline = poly; c.nails = nailsAlong(poly, sp);
+    const left = c.nails.map((p, i) => [p, i]).filter(([p]) => p[0] < cx - 1 && p[1] < bot - 1).sort((a, b) => a[0][1] - b[0][1]);
+    const right = c.nails.map((p, i) => [p, i]).filter(([p]) => p[0] > cx + 1 && p[1] < bot - 1).sort((a, b) => a[0][1] - b[0][1]);
+    const n = Math.min(left.length, right.length);
+    for (let j = 0; j < n; j++) { c.threads.push([left[j][1], right[j][1]]); if (j + 1 < n) c.threads.push([right[j][1], left[j + 1][1]]); }
+    c.col = WOOL.gruen; c.tech = 'Zickzack: Von links nach rechts und wieder zurück, immer eine Reihe tiefer. Danach die Kontur umranden, den Stamm in Braun.';
+  } else {
+    const cy = B * 0.5, R = 0.42 * B; c.center = [cx, cy]; c.nails.push(c.center);
+    for (let k = 0; k < 6; k++) {
+      const a = (-90 + 60 * k) * DEG, n = Math.max(3, Math.round(R / sp));
+      const arm = [];
+      for (let i = 1; i <= n; i++) { c.nails.push([cx + R * i / n * Math.cos(a), cy + R * i / n * Math.sin(a)]); arm.push(c.nails.length - 1); }
+      c.threads.push([0, arm[arm.length - 1]]);
+      const bi = arm[Math.round(arm.length * 0.55)], bp = c.nails[bi];
+      for (const sg of [-1, 1]) { const a2 = a + sg * 60 * DEG, l = 0.16 * B; c.nails.push([bp[0] + l * Math.cos(a2), bp[1] + l * Math.sin(a2)]); c.threads.push([bi, c.nails.length - 1]); }
+      c['arm' + k] = arm;
+    }
+    for (let k = 0; k < 6; k++) { const a1 = c['arm' + k], a2 = c['arm' + ((k + 1) % 6)]; const m = Math.round(a1.length * 0.35); c.threads.push([a1[m], a2[m]]); }
+    c.col = WOOL.weiss; c.tech = 'Linien: Jeden Arm vom Mittelnagel bis zur Spitze und zurück, dann die Seitenäste, zum Schluss innen ein Sechseck.';
+  }
+  const len = c.threads.reduce((s, [a, b]) => s + Math.hypot(c.nails[a][0] - c.nails[b][0], c.nails[a][1] - c.nails[b][1]), 0);
+  const per = c.outline.length ? c.outline.reduce((s, p, i, A) => s + Math.hypot(A[(i + 1) % A.length][0] - p[0], A[(i + 1) % A.length][1] - p[1]), 0) : 0;
+  c.wool = (len * 2 + per * 2) * 1.3 / 1000;
+  c.n = c.nails.length;
+  return c;
+}
+function boardArt(B, s, x0, y0, dark) {
+  return `<g filter="url(#f-sh)">${woodPoly([[x0, y0], [x0 + B * s, y0], [x0 + B * s, y0 + B * s], [x0, y0 + B * s]], 'oak')}${dark ? `<rect x="${x0}" y="${y0}" width="${f1(B * s)}" height="${f1(B * s)}" fill="#24324a" opacity=".9"/>` : ''}</g>`;
+}
+function stringArt(c, s, x0, y0, o = {}) {
+  const P = q => [x0 + q[0] * s, y0 + q[1] * s];
+  let g = '';
+  const col = o.col || c.col, w = Math.max(.5, (o.w || 0.9) * s * 1.6);
+  const lines = c.threads.map(([a, b], i) => { const A = P(c.nails[a]), Bp = P(c.nails[b]); return `<line x1="${f1(A[0])}" y1="${f1(A[1])}" x2="${f1(Bp[0])}" y2="${f1(Bp[1])}" stroke="${typeof col === 'function' ? col(i) : col}" stroke-width="${f1(w)}" stroke-opacity=".85"/>`; }).join('');
+  g += lines;
+  if (c.outline && c.outline.length) g += `<polygon points="${P2(c.outline.map(P))}" fill="none" stroke="${typeof col === 'function' ? col(0) : col}" stroke-width="${f1(w * 1.6)}"/>`;
+  if (o.trunk && c.motiv === 'tanne') { const t = c.outline; }
+  g += c.nails.map(q => { const p = P(q); return `<circle cx="${f1(p[0])}" cy="${f1(p[1])}" r="${f1(Math.max(1, 1.2 * s))}" fill="#9aa0a7" stroke="#5f6469" stroke-width=".4"/>`; }).join('');
+  return g;
+}
+function fadenSVG(c) {
+  const s = 300 / c.B, x0 = 20, y0 = 12;
+  let o = boardArt(c.B, s, x0, y0, true) + stringArt(c, s, x0, y0);
+  o += `<line x1="${x0}" y1="${f1(y0 + c.B * s + 16)}" x2="${f1(x0 + c.B * s)}" y2="${f1(y0 + c.B * s + 16)}" stroke="#2b2118"/><text x="170" y="${f1(y0 + c.B * s + 36)}" text-anchor="middle" font-size="15" font-weight="700" fill="#2b2118">Brett ${fmt(c.B / 10)} × ${fmt(c.B / 10)} cm · ${c.n} Nägel</text>`;
+  return `<svg viewBox="0 0 340 ${f1(y0 + c.B * s + 46)}" role="img" aria-label="Fadenbild">${o}</svg>`;
+}
+function heroFaden() {
+  let o = `<rect width="340" height="220" fill="url(#g-wall)"/>`;
+  const items = [[fadenCalc(250, 'stern'), 10, 34, -4], [fadenCalc(250, 'tanne'), 118, 26, 2], [fadenCalc(250, 'flocke'), 226, 38, 5]];
+  items.forEach(([c, x, y, rot]) => { const s = 0.42; o += `<g transform="rotate(${rot} ${x + 48} ${y + 48})">${boardArt(c.B, s, x, y, true)}${stringArt(c, s, x, y)}</g>`; });
+  o += `<rect y="184" width="340" height="36" fill="url(#g-floor)"/>`;
+  return heroSVG(o, 'Fadenbilder mit Stern, Tanne und Schneeflocke');
+}
+/* Vorlage 1:1, auf A4-Seiten aufgeteilt */
+function templatePages(B, inner, title) {
+  const TW = 186, TH = 262, cols = Math.ceil(B / TW), rows = Math.ceil(B / TH), pages = [];
+  for (let r = 0; r < rows; r++) for (let cI = 0; cI < cols; cI++) {
+    const vx = cI * TW, vy = r * TH;
+    pages.push(`<div class="tplpage"><div class="tplhead">${esc(title)} · Teil ${r * cols + cI + 1} von ${rows * cols}${cols * rows > 1 ? ` (Reihe ${r + 1}, Spalte ${cI + 1})` : ''}</div>
+      <svg width="${TW}mm" height="${TH}mm" viewBox="${vx} ${vy} ${TW} ${TH}" role="img" aria-label="Vorlage Teil"><rect x="0" y="0" width="${B}" height="${B}" fill="none" stroke="#000" stroke-width=".4" stroke-dasharray="3 2"/>${inner}
+      ${cI > 0 ? `<line x1="${vx}" y1="${vy}" x2="${vx}" y2="${vy + TH}" stroke="#c62828" stroke-width=".3"/>` : ''}${r > 0 ? `<line x1="${vx}" y1="${vy}" x2="${vx + TW}" y2="${vy}" stroke="#c62828" stroke-width=".3"/>` : ''}</svg>
+      <div class="tplscale"><svg width="50mm" height="4mm" viewBox="0 0 50 4"><rect width="50" height="4" fill="#2b2118"/></svg> <span>Kontrolle: Dieser Balken muss genau 5 cm lang sein.</span></div></div>`);
+  }
+  return pages.join('');
+}
+function fadenTemplateInner(c) {
+  let o = '';
+  if (c.outline && c.outline.length) o += `<polygon points="${P2(c.outline)}" fill="none" stroke="#999" stroke-width=".3"/>`;
+  c.nails.forEach((q, i) => { o += `<circle cx="${f1(q[0])}" cy="${f1(q[1])}" r="1.1" fill="none" stroke="#000" stroke-width=".35"/><circle cx="${f1(q[0])}" cy="${f1(q[1])}" r=".25" fill="#000"/>${c.numbered ? `<text x="${f1(q[0] + 2)}" y="${f1(q[1] - 1.6)}" font-size="2.6" fill="#333">${i}</text>` : ''}`; });
+  return o;
+}
+function renderTemplate(p, c) {
+  return `<div class="printbar"><button class="btn pri" data-print="1">Vorlage drucken (100 %)</button><a href="#/${p.id}/zuschnitt">← zurück</a></div>
+    <div class="warn">Beim Drucken <b>„Tatsächliche Größe“ / 100 %</b> wählen – nicht „An Seite anpassen“. Mehrere Teile an den roten Linien zusammenkleben.</div>
+    <div class="tpl">${templatePages(c.B, p.templateInner(c), p.title)}</div>`;
+}
+const faden = {
+  id: 'faden', cat: 'holz', title: 'Fadenbild: Stern, Tanne, Schneeflocke', teaser: 'Nägel ins Brett, Wolle drumherum: ein leuchtendes Fadenbild. Mit 1:1-Nagelvorlage zum Ausdrucken.',
+  tags: ['für alle', 'ab 8 Jahren', '1–2 Stunden'],
+  presets: [180, 250, 300], range: [180, 300], noCustom: true, sizeLabel: 'Brettgröße (quadratisch)',
+  calc: () => fadenCalc(state.faden.H, state.faden.motiv), thumb: () => heroFaden(), templateInner: fadenTemplateInner,
+  sizeExtra() { return `<label class="custom">Motiv <select data-k="motiv">${[['stern', 'Stern'], ['tanne', 'Tanne'], ['flocke', 'Schneeflocke']].map(([v, n]) => `<option value="${v}" ${state.faden.motiv === v ? 'selected' : ''}>${n}</option>`).join('')}</select></label>`; },
+  ziel(c) { return `<div class="panel"><h3>Was mache ich?</h3><p>Du legst eine Vorlage aufs Brett und schlägst an jedem Punkt einen Nagel ein. Dann spannst du Wolle oder Stickgarn zwischen den Nägeln – so entsteht ein ${{stern: 'leuchtender Stern', tanne: 'grüner Tannenbaum', flocke: 'filigraner Schneekristall'}[c.motiv]}. Auf dunkel gestrichenem Holz wirkt es am schönsten.</p>
+    <div class="facts"><div class="fact"><b>${fmt(c.B / 10)} cm</b><span>Brett</span></div><div class="fact"><b>${c.n}</b><span>Nägel</span></div><div class="fact"><b>${c.sp} mm</b><span>Nagelabstand</span></div><div class="fact"><b>ca. ${fmt(c.wool, 0)} m</b><span>Wolle</span></div></div>
+    <div class="drawing">${fadenSVG(c)}${legend(['<b>Nägel</b> genau nach Vorlage, alle gleich hoch', `<b>Wickeltechnik:</b> ${c.tech}`])}</div>${junNote}</div>`; },
+  material(c) { return {wood: [`Brett <b>${fmt(c.B / 10)} × ${fmt(c.B / 10)} cm</b>, mind. 18 mm dick (Leimholz, Sperrholz oder Baumscheibe)`, 'Acrylfarbe oder Beize für den Untergrund (Dunkelblau, Schwarz oder Weiß)'], small: [`<b>${c.n + 10} Nägel</b> mit Kopf, 1,6 × 25 mm (Stahlstifte oder kleine Ziernägel)`, `Wolle/Stickgarn ca. <b>${fmt(c.wool, 0)} m</b> in ${{stern: 'Gold oder Gelb', tanne: 'Grün (+ etwas Braun)', flocke: 'Weiß oder Silber'}[c.motiv]}`, 'Malerkrepp zum Fixieren der Vorlage', 'Zackenaufhänger für hinten'], tools: ['Hammer (klein, 100–200 g)', 'Flachzange oder Wäscheklammer zum Halten der Nägel', 'Drucker für die Vorlage, Schere', 'Pinsel'], extra: ''}; },
+  zuschnitt(c) { return `<div class="panel"><h3>Nagelvorlage</h3><p>Die Vorlage wird in Originalgröße gedruckt${c.B > 186 ? ' und auf mehrere A4-Seiten verteilt' : ''}.</p>
+    <a class="btn pri" style="display:inline-block;text-decoration:none" href="#/${'faden'}/vorlage">Vorlage 1:1 öffnen und drucken</a>
+    ${partsTable([['Brett', 1, `<b>${fmt(c.B)} × ${fmt(c.B)}</b> mm`, 'Kanten schleifen, Farbe trocknen lassen'], ['Nägel', c.n, `alle <b>${c.sp} mm</b>`, 'ca. 10 mm tief, 15 mm stehen lassen'], ['Wolle', 1, `ca. <b>${fmt(c.wool, 0)} m</b>`, 'lieber etwas mehr']])}</div>`; },
+  winkel(c) { return `<div class="panel"><h3>Nageln und Wickeln</h3>
+    <div class="anglecard"><div class="badge alt"><b>90°</b><span>senkrecht</span></div><div>Nägel senkrecht einschlagen. Trick: Ein 15 mm hohes Holzklötzchen daneben halten – wenn der Hammer es berührt, ist der Nagel tief genug. So sind alle gleich hoch.</div></div>
+    <div class="anglecard"><div class="badge"><b>${c.sp}</b><span>mm</span></div><div>Der Nagelabstand ist überall gleich – darum sieht die Kontur glatt aus. An den Spitzen sitzt immer genau ein Nagel.</div></div>
+    <div class="anglecard"><div class="badge hand"><b>Knoten</b><span>Start</span></div><div>Faden am Startnagel doppelt verknoten, Knoten mit einem Tropfen Leim sichern. Am Ende genauso. Faden immer leicht gespannt halten.</div></div>
+    <p>${c.tech}</p></div>`; },
+  steps(c) { return [
+    {t: 'Brett vorbereiten', b: '<p>Kanten schleifen, Brett streichen oder beizen und gut trocknen lassen.</p>'},
+    {t: 'Vorlage drucken', b: `<p>Vorlage in 100 % drucken (Kontrollbalken = 5 cm), ggf. Teile zusammenkleben, mit Malerkrepp aufs Brett kleben.</p>`},
+    {t: 'Nageln', b: `<p>Durch jeden Punkt einen Nagel, ${c.n} Stück. Kleine Nägel mit Zange oder Wäscheklammer halten – Finger schonen!</p>`},
+    {t: 'Vorlage abreißen', b: '<p>Papier vorsichtig zwischen den Nägeln herausreißen, Reste mit einer Pinzette.</p>'},
+    {t: 'Wickeln', b: `<p>${c.tech}</p>`},
+    {t: 'Kontur und Aufhänger', b: '<p>Zum Schluss einmal rundherum die Kontur, Knoten sichern. Hinten einen Zackenaufhänger.</p>'}]; }
+};
+
+/* ---- Mathe-Fadenbild ---- */
+const MPAT = {stern: 'Fadenstern', kardioide: 'Kardioide (Herzkurve)', nephroide: 'Nephroide (Nierenkurve)'};
+function fmatheCalc(B, N, pat) {
+  N = +N; const cx = B / 2, cy = B / 2, R = 0.43 * B;
+  const nails = Array.from({length: N}, (_, i) => { const a = (-90 + 360 * i / N) * DEG; return [cx + R * Math.cos(a), cy + R * Math.sin(a)]; });
+  let threads = [], order = [], m = 0;
+  if (pat === 'stern') {
+    m = Math.round(N * 0.36); while (gcd(N, m) !== 1) m++;
+    let i = 0; for (let k = 0; k < N; k++) { order.push(i); const j = (i + m) % N; threads.push([i, j]); i = j; } order.push(0);
+  } else { const k = pat === 'kardioide' ? 2 : 3; for (let i = 0; i < N; i++) { const j = (k * i) % N; if (j !== i) threads.push([i, j]); } }
+  const len = threads.reduce((s, [a, b]) => s + Math.hypot(nails[a][0] - nails[b][0], nails[a][1] - nails[b][1]), 0);
+  return {B, N, pat, R, nails, threads, order, m, k: pat === 'kardioide' ? 2 : 3, wool: (len * (pat === 'stern' ? 1 : 2) + 2 * Math.PI * R) * 1.3 / 1000, n: N, numbered: true, outline: []};
+}
+function fmatheSVG(c) {
+  const s = 300 / c.B, x0 = 20, y0 = 12;
+  const hue = i => `hsl(${(i / c.threads.length * 300 + 20).toFixed(0)} 75% 60%)`;
+  let o = boardArt(c.B, s, x0, y0, true) + stringArt(c, s, x0, y0, {col: c.pat === 'stern' ? () => '#f6c453' : hue, w: .7});
+  [0, Math.round(c.N / 4), Math.round(c.N / 2), Math.round(3 * c.N / 4)].forEach(i => { const q = c.nails[i], dx = q[0] - c.B / 2, dy = q[1] - c.B / 2, L = Math.hypot(dx, dy); o += `<text x="${f1(x0 + (q[0] + dx / L * 9) * s)}" y="${f1(y0 + (q[1] + dy / L * 9) * s + 4)}" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">${i}</text>`; });
+  o += `<text x="170" y="${f1(y0 + c.B * s + 30)}" text-anchor="middle" font-size="15" font-weight="700" fill="#2b2118">${MPAT[c.pat]} · ${c.N} Nägel</text>`;
+  return `<svg viewBox="0 0 340 ${f1(y0 + c.B * s + 40)}" role="img" aria-label="Mathe-Fadenbild">${o}</svg>`;
+}
+function heroFmathe() {
+  let o = `<rect width="340" height="220" fill="#1c2233"/>`;
+  [[fmatheCalc(250, 36, 'stern'), 10, 58], [fmatheCalc(250, 48, 'kardioide'), 118, 50], [fmatheCalc(250, 48, 'nephroide'), 226, 62]].forEach(([c, x, y], j) => {
+    const s = 0.42, hue = i => `hsl(${(i / c.threads.length * 300 + 20 + j * 40).toFixed(0)} 80% 62%)`;
+    o += boardArt(c.B, s, x, y, true) + stringArt(c, s, x, y, {col: c.pat === 'stern' ? () => '#f6c453' : hue, w: .6});
+  });
+  return heroSVG(o, 'Mathematische Fadenbilder');
+}
+const fmathe = {
+  id: 'fmathe', cat: 'holz', title: 'Mathe-Fadenbild: Stern und Kurven', teaser: 'Nägel im Kreis, Faden nach einer Rechenregel – und plötzlich erscheinen ein Stern, eine Herzkurve oder eine Niere.',
+  tags: ['Mathe', 'ab 10 Jahren', '1–2 Stunden'],
+  presets: [180, 250, 300], range: [180, 300], noCustom: true, sizeLabel: 'Brettgröße (quadratisch)',
+  calc: () => fmatheCalc(state.fmathe.H, state.fmathe.N, state.fmathe.pat), thumb: () => heroFmathe(), templateInner: fadenTemplateInner,
+  sizeExtra() { return `<label class="custom">Muster <select data-k="pat">${Object.entries(MPAT).map(([v, n]) => `<option value="${v}" ${state.fmathe.pat === v ? 'selected' : ''}>${n}</option>`).join('')}</select></label><label class="custom">Nägel <select data-k="N">${[24, 36, 48, 60].map(v => `<option ${+state.fmathe.N === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>`; },
+  ziel(c) {
+    const rule = c.pat === 'stern' ? `Vom Nagel <b>i</b> immer <b>${c.m} Nägel weiter</b> zählen: i → i + ${c.m}. Weil ${c.N} und ${c.m} keinen gemeinsamen Teiler haben, triffst du jeden Nagel genau einmal und kommst am Ende wieder bei 0 an – ein einziger, durchgehender Faden!` : `Nagel <b>i</b> wird mit Nagel <b>${c.k}·i</b> verbunden (Einmaleins mit ${c.k}). Ist die Zahl größer als ${c.N - 1}, ziehst du ${c.N} ab. Aus lauter geraden Fäden entsteht eine gebogene Kurve – die <b>${c.pat === 'kardioide' ? 'Kardioide' : 'Nephroide'}</b>.`;
+    return `<div class="panel"><h3>Was mache ich?</h3><p>${c.N} Nägel im Kreis, nummeriert von 0 bis ${c.N - 1}. ${rule}</p>
+    <div class="facts"><div class="fact"><b>${c.N}</b><span>Nägel</span></div><div class="fact"><b>${fmt(360 / c.N, 1)}°</b><span>Abstand</span></div><div class="fact"><b>${c.threads.length}</b><span>Fäden</span></div><div class="fact"><b>ca. ${fmt(c.wool, 0)} m</b><span>Garn</span></div></div>
+    <div class="drawing">${fmatheSVG(c)}</div><div class="note"><b>Mathe drin:</b> Kreisteilung (360° : ${c.N}), Restklassen (modulo ${c.N}), ${c.pat === 'stern' ? 'größter gemeinsamer Teiler und Sternvielecke' : 'Hüllkurven – die Kurve entsteht als Einhüllende der Geraden'}. Probiert andere Werte aus!</div></div>`; },
+  material(c) { return {wood: [`Brett <b>${fmt(c.B / 10)} × ${fmt(c.B / 10)} cm</b>, mind. 18 mm, dunkel gestrichen`], small: [`<b>${c.N + 4} Nägel</b> 1,6 × 25 mm`, `Stickgarn oder dünne Wolle ca. <b>${fmt(c.wool, 0)} m</b> – ${c.pat === 'stern' ? 'Gold' : 'Farbverlauf oder 3–4 Farben nacheinander'}`, 'Malerkrepp, Zackenaufhänger'], tools: ['Hammer, Flachzange', 'Drucker für die Vorlage', 'Bleistift'], extra: ''}; },
+  zuschnitt(c) {
+    const plan = c.pat === 'stern' ? `<p class="small"><b>Fadenweg (durchgehend):</b> ${c.order.join(' → ')}</p>` : `<div class="tblwrap"><table><tr><th>von</th><th>nach</th><th>von</th><th>nach</th><th>von</th><th>nach</th></tr>${Array.from({length: Math.ceil(c.threads.length / 3)}, (_, r) => `<tr>${[0, 1, 2].map(k => { const t = c.threads[r + k * Math.ceil(c.threads.length / 3)]; return t ? `<td class="num">${t[0]}</td><td class="num">→ ${t[1]}</td>` : '<td></td><td></td>'; }).join('')}</tr>`).join('')}</table></div>`;
+    return `<div class="panel"><h3>Nagelvorlage und Fadenplan</h3><a class="btn pri" style="display:inline-block;text-decoration:none" href="#/fmathe/vorlage">Vorlage 1:1 öffnen und drucken</a>
+    <h4>Fadenplan</h4>${plan}</div>`; },
+  winkel(c) { return `<div class="panel"><h3>Winkel und Rechenregel</h3>
+    <div class="anglecard"><div class="badge alt"><b>${fmt(360 / c.N, 1)}°</b><span>pro Nagel</span></div><div>${c.N} Nägel teilen den Kreis: 360° : ${c.N} = ${fmt(360 / c.N, 1)}°. Die Vorlage hat das schon erledigt.</div></div>
+    <div class="anglecard"><div class="badge"><b>mod ${c.N}</b><span>Rest</span></div><div>Wird die Nagelnummer zu groß, zieht man ${c.N} ab – wie bei der Uhr: 13 Uhr ist 1 Uhr.</div></div>
+    ${c.pat === 'stern' ? `<div class="anglecard"><div class="badge hand"><b>ggT=1</b><span>Trick</span></div><div>${c.m} und ${c.N} haben den größten gemeinsamen Teiler 1 – deshalb wird jeder Nagel genau einmal besucht. Mit einem Schritt, der einen gemeinsamen Teiler hat (z. B. ${c.N / 2}), kommst du zu früh zurück.</div></div>` : `<div class="anglecard"><div class="badge hand"><b>×${c.k}</b><span>Regel</span></div><div>Mal ${c.k}: die ${c.k === 2 ? 'Kardioide (eine Spitze, Herzform)' : 'Nephroide (zwei Spitzen, Nierenform)'}. Mit ×4 entstehen drei Spitzen, mit ×5 vier – ausprobieren!</div></div>`}</div>`; },
+  steps(c) { return [
+    {t: 'Brett und Vorlage', b: '<p>Brett dunkel streichen, Vorlage 1:1 drucken und mit Malerkrepp aufkleben.</p>'},
+    {t: 'Nageln', b: `<p>${c.N} Nägel auf den Kreis, Nummer 0 oben. Alle gleich hoch.</p>`},
+    {t: 'Vorlage entfernen', b: '<p>Papier abreißen – vorher die Nummern 0, 10, 20 … mit Bleistift neben die Nägel schreiben.</p>'},
+    {t: 'Faden spannen', b: c.pat === 'stern' ? `<p>Bei Nagel 0 anknoten. Immer ${c.m} Nägel weiterzählen und den Faden außen herumlegen: ${c.order.slice(0, 8).join(' → ')} → …</p>` : `<p>Nach dem Fadenplan: von i nach ${c.k}·i. Tipp: Nach jedem Faden außen am Kreis zum nächsten Nagel weitergehen.</p>`},
+    {t: 'Kreis umranden', b: '<p>Zum Schluss einmal rundherum, Knoten mit Leim sichern.</p>'},
+    {t: 'Forschen', b: '<p>Fotografieren, dann ein zweites Bild mit anderer Regel. Wer findet die schönste Zahl?</p>'}]; }
+};
+
+const PROJECTS = {tanne, stern, latte, bogen, stammrentier, faden, fmathe, advent, rentier, balken, masu, fenster, flocke, tuete, popup, licht, aqtanne, kugeln, kranz, robin, poinsettie, kerzen, schnee, wichtel, kette, lebkuchen, dorf, nebel, polar, huette};
 const GROUPS = {mal: [['karten', 'Weihnachtskarten-Werkstatt', 'Kartenmotive in Aquarell. Tipp: Postkarte A6 passt in einen C6-Umschlag, Quadratkarten 14,5 cm in 15,5 × 15,5 cm. Mit dem Format-Schalter rechnet jede Anleitung die Maße um.'], ['lustig', 'Lustige Motive', 'Zum Lachen – und perfekt für Kinder.'], ['land', 'Weihnachtliche Landschaften', 'Stimmungsvolle Winterbilder im Querformat – als Karte oder gerahmt als Geschenk.']]};
 const tabName = (p, t) => (p.tabNames && p.tabNames[t[0]]) || t[1];
 const TABS = [['ziel', 'Was möchte ich?'], ['material', 'Was brauche ich?'], ['zuschnitt', 'Zuschnitt'], ['winkel', 'Winkel'], ['anleitung', 'Schritt für Schritt']];
 
 /* ---------------- Filter, Merkliste, Teilen, Drucken ---------------- */
-const META = {tanne: {out: 1}, stern: {}, latte: {kids: 1, out: 1}, advent: {kids: 1}, rentier: {kids: 1}, masu: {kids: 1, quick: 1}, fenster: {kids: 1, quick: 1}, flocke: {kids: 1, quick: 1}, tuete: {kids: 1, quick: 1}, aqtanne: {kids: 1}, kugeln: {kids: 1}, kranz: {kids: 1}, robin: {kids: 1}, schnee: {kids: 1, quick: 1}, wichtel: {kids: 1}, kette: {kids: 1, quick: 1}, lebkuchen: {kids: 1, quick: 1}, dorf: {}, nebel: {kids: 1}, polar: {}, huette: {kids: 1}, bogen: {}, balken: {kids: 1}, stammrentier: {kids: 1, out: 1}, popup: {kids: 1}, licht: {kids: 1, quick: 1, out: 1}, poinsettie: {kids: 1}, kerzen: {}};
+const META = {tanne: {out: 1}, stern: {}, latte: {kids: 1, out: 1}, advent: {kids: 1}, rentier: {kids: 1}, masu: {kids: 1, quick: 1}, fenster: {kids: 1, quick: 1}, flocke: {kids: 1, quick: 1}, tuete: {kids: 1, quick: 1}, aqtanne: {kids: 1}, kugeln: {kids: 1}, kranz: {kids: 1}, robin: {kids: 1}, schnee: {kids: 1, quick: 1}, wichtel: {kids: 1}, kette: {kids: 1, quick: 1}, lebkuchen: {kids: 1, quick: 1}, dorf: {}, nebel: {kids: 1}, polar: {}, huette: {kids: 1}, bogen: {}, balken: {kids: 1}, stammrentier: {kids: 1, out: 1}, popup: {kids: 1}, licht: {kids: 1, quick: 1, out: 1}, poinsettie: {kids: 1}, kerzen: {}, faden: {kids: 1}, fmathe: {kids: 1}};
 const FILTERS = [['all', 'Alle'], ['kids', 'Mit Kindern'], ['quick', 'Bis 30 Minuten'], ['out', 'Für draußen']];
 state.fav = state.fav || {};
 state.filter = state.filter || 'all';
@@ -2601,7 +2801,7 @@ function route() {
   const [path] = (location.hash || '#/').split('?');
   const [, pid, tab] = path.split('/');
   if (pid === 'abc') return {abc: true};
-  return {pid: PROJECTS[pid] ? pid : null, tab: tab === 'druck' ? 'druck' : TABS.some(t => t[0] === tab) ? tab : 'ziel'};
+  return {pid: PROJECTS[pid] ? pid : null, tab: tab === 'druck' || tab === 'vorlage' ? tab : TABS.some(t => t[0] === tab) ? tab : 'ziel'};
 }
 function applyQuery() {
   const [path, query] = (location.hash || '#/').split('?');
@@ -2652,6 +2852,7 @@ function render() {
   const sizeTxt = p.formats ? `Format: ${(FORMATS[st.H] || FORMATS[105]).name}` : `Größe: ${fmt(st.H / 10)} cm`;
   document.getElementById('hsub').textContent = sizeTxt;
   if (tab === 'druck') { app.innerHTML = renderPrint(p, c, sizeTxt); return; }
+  if (tab === 'vorlage' && p.templateInner) { app.innerHTML = renderTemplate(p, c); return; }
   const isPreset = p.presets.includes(+st.H);
   let html;
   if (p.formats) {
@@ -2760,7 +2961,7 @@ app.addEventListener('change', e => {
     el.closest('.check').classList.toggle('done', el.checked); save();
   }
 });
-document.getElementById('back').addEventListener('click', () => { if (route().tab === 'druck') history.back(); else location.hash = '#/'; });
+document.getElementById('back').addEventListener('click', () => { if (route().tab === 'druck' || route().tab === 'vorlage') history.back(); else location.hash = '#/'; });
 window.addEventListener('hashchange', () => { applyQuery(); render(); window.scrollTo(0, 0); });
 applyQuery();
 render();
