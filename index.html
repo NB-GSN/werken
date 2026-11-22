@@ -33,6 +33,12 @@ main{max-width:860px;margin:0 auto;padding:16px 14px 80px}
 .pcard h3{margin:0 0 4px;font-size:19px}
 .pcard p{margin:0;color:var(--muted);font-size:14.5px}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+h2.sec{font-size:20px;margin:28px 4px 4px}
+h2.sec.jun{color:var(--green)}
+h2.sec span{font-size:13px;background:var(--green);color:#fff;border-radius:99px;padding:3px 10px;vertical-align:middle;margin-left:6px;font-weight:600}
+.pcard.jun .thumb{background:#2c3a2f}
+.pcard.jun .tag{background:var(--green-l);color:var(--green)}
+.safe{background:#fff4d6;border-left:4px solid #d9a400;padding:10px 12px;border-radius:8px;margin:10px 0;font-size:14.5px}
 .tag{font-size:12.5px;background:var(--accent-l);color:var(--accent);border-radius:99px;padding:2px 10px}
 .sizebar{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:4px 0 12px}
 .sizebar .lbl{font-size:13px;color:var(--muted);margin-bottom:6px}
@@ -123,8 +129,8 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':
 
 /* ---------------- Speicher ---------------- */
 const STORE = 'werkstatt-v1';
-let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, done: {}, buy: {}, step: {tanne: 0, stern: 0, latte: 0}};
-try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) { const d = JSON.parse(JSON.stringify(state)); state = Object.assign(state, s); for (const k of ['tanne', 'stern', 'latte']) state[k] = Object.assign({}, d[k], s[k]); state.step = Object.assign({tanne: 0, stern: 0, latte: 0}, s.step); } } catch (e) {}
+let state = {tanne: {H: 1200, w: 'auto'}, stern: {H: 600, t: 18, d: 80}, latte: {H: 1500, form: '75', size: 'auto'}, advent: {H: 600}, rentier: {H: 150}, done: {}, buy: {}, step: {tanne: 0, stern: 0, latte: 0, advent: 0, rentier: 0}};
+try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) { const d = JSON.parse(JSON.stringify(state)); state = Object.assign(state, s); for (const k of ['tanne', 'stern', 'latte', 'advent', 'rentier']) state[k] = Object.assign({}, d[k], s[k]); state.step = Object.assign({tanne: 0, stern: 0, latte: 0, advent: 0, rentier: 0}, s.step); } } catch (e) {}
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
 
 /* ---------------- Zuschnittplan (Stangen aufteilen) ---------------- */
@@ -637,7 +643,224 @@ const latte = {
   }
 };
 
-const PROJECTS = {tanne, stern, latte};
+/* ================= JUNIOR: ADVENTS-TANNE ================= */
+function adventCalc(H) {
+  const cot = 1 / Math.tan(67.5 * DEG), g = 10;
+  const hs = (H - 3 * g) / 4, W = 8 * hs * cot;
+  const sh = Math.round(0.06 * H / 5) * 5;
+  const dirs = [0, 1, -1, 1];
+  const strips = [0, 1, 2, 3].map(k => ({k, top: 2 * k * hs * cot, bot: 2 * (k + 1) * hs * cot, dx: dirs[k] * sh}));
+  strips.forEach(st => { st.shelf = Math.max(110, Math.round(0.6 * st.bot / 5) * 5); st.sx = st.dx + (st.k === 0 ? 0 : (st.k % 2 ? 1 : -1) * 0.18 * st.bot); });
+  const batten = H - 0.5 * hs;
+  return {H, cot, g, hs, W, sh, strips, batten, boardW: Math.ceil(W / 10) * 10 + 10, boardH: Math.ceil(4 * hs / 10) * 10 + 10,
+    leiste: strips.reduce((s, x) => s + x.shelf, 0) + batten};
+}
+function adventSVG(c, labels = true) {
+  const s = 300 / (c.W + 2 * c.sh), cx = 170, y0 = 30;
+  const X = x => (cx + x * s).toFixed(1), Y = y => (y0 + y * s).toFixed(1);   // y von der Spitze nach unten
+  const wood = labels ? '#ecd3a6' : '#e0b878', st = labels ? '#b58a52' : '#f0c890';
+  let o = '';
+  const words = ['eins', 'zwei', 'drei', 'vier'];
+  c.strips.forEach(x => {
+    const yt = x.k * (c.hs + c.g), yb = yt + c.hs;
+    o += `<path d="M${X(x.dx - x.top / 2)} ${Y(yt)} L${X(x.dx + x.top / 2)} ${Y(yt)} L${X(x.dx + x.bot / 2)} ${Y(yb)} L${X(x.dx - x.bot / 2)} ${Y(yb)}Z" fill="${wood}" stroke="${st}" stroke-width="1.2" stroke-linejoin="round"/>`;
+    const sl = x.shelf, sx = x.sx;
+    o += `<rect x="${X(sx - sl / 2)}" y="${Y(yb - 22)}" width="${(sl * s).toFixed(1)}" height="${(22 * s).toFixed(1)}" fill="${labels ? '#d9b07c' : '#c98f55'}" stroke="${st}"/>`;
+    const cxx = sx + (x.k % 2 ? 0.2 : -0.2) * sl * (x.k ? 1 : 0);
+    o += `<rect x="${X(cxx - 20)}" y="${Y(yb - 22 - 38)}" width="${(40 * s).toFixed(1)}" height="${(38 * s).toFixed(1)}" rx="3" fill="#fffaf0" stroke="#d8cbb4"/>`;
+    o += `<ellipse cx="${X(cxx)}" cy="${Y(yb - 22 - 46)}" rx="${(5 * s).toFixed(1)}" ry="${(9 * s).toFixed(1)}" fill="#f6b73c"/>`;
+    if (labels) o += `<text x="${X(x.dx - (x.k % 2 ? 1 : -1) * x.bot * 0.18 * (x.k ? 1 : 0))}" y="${Y(yt + c.hs * 0.42)}" text-anchor="middle" font-size="${Math.max(11, 15 * Math.min(1, x.bot / 250)).toFixed(0)}" font-style="italic" font-weight="600" fill="#9b4a1f">${words[x.k]}</text>`;
+  });
+  const bottom = 4 * c.hs + 3 * c.g;
+  if (labels) o += `<rect x="${X(-25)}" y="${Y(0.5 * c.hs)}" width="${(50 * s).toFixed(1)}" height="${(c.batten * s).toFixed(1)}" fill="none" stroke="#6f6254" stroke-width="1.3" stroke-dasharray="5 4"/>`;
+  let vb = `0 0 340 ${(+Y(bottom) + 16).toFixed(0)}`;
+  if (labels) {
+    o += badge(+X(0) + 20, +Y(0) + 4, 1);
+    const l = c.strips[2];
+    o += badge(+X(l.dx - l.bot / 2) - 16, +Y(2 * (c.hs + c.g) + c.hs * 0.5), 2);
+    const sh3 = c.strips[3];
+    o += badge(+X(sh3.sx - sh3.shelf / 2) - 16, +Y(bottom - 11), 3);
+    o += badge(+X(25) + 16, +Y(c.hs + c.g + c.hs * 0.45), 4);
+    const yb = +Y(bottom) + 18;
+    o += `<line x1="${X(-c.W / 2)}" y1="${yb}" x2="${X(c.W / 2)}" y2="${yb}" stroke="#2b2118"/><text x="${cx}" y="${yb + 22}" text-anchor="middle" font-size="16" font-weight="700" fill="#2b2118">${fmt(c.W / 10)} cm breit · ${fmt(c.H / 10)} cm hoch</text>`;
+    vb = `0 0 340 ${(yb + 34).toFixed(0)}`;
+  }
+  return `<svg viewBox="${vb}" role="img" aria-label="Advents-Tanne">${o}</svg>`;
+}
+const junNote = `<div class="safe"><b>Sicherheit:</b> Sägen, Bohren und Heißkleben nur zusammen mit einem Erwachsenen. Werkstück immer festspannen – nie in der Hand halten. Schutzbrille auf!</div>`;
+
+const advent = {
+  id: 'advent', junior: true,
+  title: 'Advents-Tanne zum Aufhängen',
+  teaser: 'Ein Holzdreieck, in 4 Streifen gesägt und versetzt aufgehängt. Jede Etage trägt eine LED-Kerze: eins, zwei, drei, vier.',
+  tags: ['ab 10 Jahren', 'Stichsäge', '1 Nachmittag'],
+  presets: [600, 450],
+  range: [300, 900],
+  calc: () => adventCalc(state.advent.H),
+  thumb: () => adventSVG(adventCalc(600), false),
+  sizeExtra: () => '',
+  ziel(c) {
+    return `<div class="panel"><h3>Was baust du?</h3>
+      <p>Du zeichnest ein großes Dreieck auf eine Holzplatte, sägst es aus und schneidest es dann in <b>4 Streifen</b>. Die Streifen werden ein bisschen versetzt hinten auf eine Leiste geschraubt – so sieht es aus wie eine Tanne mit Ästen. Auf jeder Etage gibt es ein kleines Brettchen für eine <b>LED-Kerze</b>. Jeden Advent machst du eine mehr an.</p>
+      <div class="facts">
+        <div class="fact"><b>${fmt(c.H / 10)} cm</b><span>hoch</span></div>
+        <div class="fact"><b>${fmt(c.W / 10)} cm</b><span>breit</span></div>
+        <div class="fact"><b>4 Etagen</b><span>4 Kerzen</span></div>
+        <div class="fact"><b>9 Teile</b><span>insgesamt</span></div>
+      </div>
+      <div class="drawing">${adventSVG(c)}${legend(['<b>Spitze:</b> 45° – du brauchst keinen Winkelmesser, nur Punkte zum Verbinden', '<b>Schräge Seiten:</b> einfach mit dem Lineal ziehen und mit der Stichsäge aussägen', `<b>Ablage-Leiste</b> für die LED-Kerze, vorne unten angeleimt`, '<b>Rückenleiste</b> (gestrichelt, hinten) hält alle 4 Streifen zusammen'])}</div>
+      ${junNote}
+      <div class="warn"><b>Nur LED-Kerzen!</b> Echte Kerzen auf Holz sind brandgefährlich.</div>
+    </div>`;
+  },
+  material(c) {
+    return {wood: [`Holzplatte (Leimholz oder Sperrholz) <b>18 mm</b>, mindestens <b>${fmt(c.boardW)} × ${fmt(c.boardH)} mm</b> – im Baumarkt so zuschneiden lassen`, `Leiste <b>20 × 50 mm</b>: <b>${m(c.leiste)}</b> (Ablagen und Rückenleiste)`],
+      small: ['4 LED-Kerzen oder LED-Teelichter', 'Holzleim', '8 Schrauben 3,5 × 30 mm (Rückenleiste) und kleine Nägel/Stifte für die Ablagen', '2 Zackenaufhänger', 'weißer Lackstift für „eins, zwei, drei, vier“', 'Tannengrün, Zapfen, Nüsse zum Schmücken'],
+      tools: ['Stichsäge mit Holz-Sägeblatt (mit Erwachsenem) und Feinsäge', 'Langes Lineal oder Latte, Bleistift, Zollstock', 'Zwingen', 'Akkuschrauber, Bohrer 3 mm', 'Schleifpapier K120, Schutzbrille'], extra: ''};
+  },
+  zuschnitt(c) {
+    const rows = c.strips.map(x => [`Streifen ${x.k + 1} „${['eins', 'zwei', 'drei', 'vier'][x.k]}“`, 1, x.k === 0 ? `Dreieck, unten <b>${fmt(x.bot)}</b>, hoch <b>${fmt(c.hs)}</b>` : `oben <b>${fmt(x.top)}</b> · unten <b>${fmt(x.bot)}</b> · hoch <b>${fmt(c.hs)}</b>`, 'entsteht beim Zersägen des Dreiecks']);
+    c.strips.forEach(x => rows.push([`Ablage ${x.k + 1}`, 1, `<b>${fmt(x.shelf)}</b>`, 'Leiste 20 × 50, gerade']));
+    rows.push(['Rückenleiste', 1, `<b>${fmt(c.batten)}</b>`, 'Leiste 20 × 50, gerade']);
+    return `<div class="panel"><h3>Zuschnitt · Advents-Tanne ${fmt(c.H / 10)} cm</h3>
+      <h4>So zeichnest du das Dreieck</h4>
+      <ol class="legend"><li><span>Unten auf der Platte eine gerade Linie ziehen: die <b>Grundlinie, ${fmt(c.W)} mm</b> lang.</span></li><li><span>Genau in der Mitte (${fmt(c.W / 2)} mm) senkrecht nach oben <b>${fmt(4 * c.hs)} mm</b> messen → das ist die <b>Spitze</b>.</span></li><li><span>Spitze mit beiden Enden der Grundlinie verbinden. Fertig ist das Dreieck!</span></li><li><span>Jetzt von unten alle <b>${fmt(c.hs)} mm</b> eine waagerechte Linie ziehen (3 Linien). Das sind die Sägelinien für die Streifen.</span></li></ol>
+      <h4>Alle Teile</h4>${partsTable(rows)}
+      <div class="note">Matheprofi-Frage: Wie groß sind die Winkel im Dreieck? (Lösung: unten je 67,5°, oben 45° – zusammen 180°.)</div>
+    </div>`;
+  },
+  winkel(c) {
+    return `<div class="panel"><h3>Die Winkel</h3>
+      <div class="anglecard"><div class="badge alt"><b>45°</b><span>Spitze</span></div><div>Die Spitze ist ein halber rechter Winkel. Du musst ihn nicht messen – er entsteht von selbst, wenn du die Punkte verbindest.</div></div>
+      <div class="anglecard"><div class="badge"><b>67,5°</b><span>unten</span></div><div>Die beiden Ecken unten. Prüf mit dem Geodreieck nach, ob du genau gezeichnet hast!</div></div>
+      <div class="anglecard"><div class="badge hand"><b>90°</b><span>alles andere</span></div><div>Die Streifen-Schnitte sind waagerecht, Ablagen und Rückenleiste werden gerade abgesägt. Nimm den Anschlagwinkel zum Anzeichnen.</div></div>
+      <div class="note">Die Schrägen der Streifen musst du nicht extra sägen: Sie entstehen, wenn du das Dreieck aussägst. Darum zuerst das ganze Dreieck, dann die Streifen!</div>
+    </div>`;
+  },
+  steps(c) {
+    return [
+      {t: 'Dreieck anzeichnen', b: `<p>Platte auf den Tisch, Grundlinie ${fmt(c.W)} mm, Spitze ${fmt(4 * c.hs)} mm über der Mitte, verbinden (siehe „Zuschnitt“). Dann die 3 waagerechten Linien im Abstand ${fmt(c.hs)} mm.</p>`},
+      {t: 'Dreieck aussägen', b: `<ul><li>Platte mit Zwingen so am Tisch festmachen, dass die Linie über die Tischkante ragt.</li><li>Mit der Stichsäge langsam an der Linie entlang – ein Erwachsener hilft und hält mit.</li><li>Zwingen umsetzen, wenn du zu nah an den Tisch kommst.</li></ul>`},
+      {t: 'In 4 Streifen sägen', b: `<p>Entlang der 3 waagerechten Linien sägen. Jetzt hast du die Spitze (eins) und drei Streifen (zwei, drei, vier). Kanten mit Schleifpapier glatt machen.</p>`},
+      {t: 'Leiste zusägen', b: `<ul><li>Ablagen: ${c.strips.map(x => fmt(x.shelf) + ' mm').join(', ')}</li><li>Rückenleiste: ${fmt(c.batten)} mm</li><li>Alles gerade sägen, Kanten schleifen.</li></ul>`},
+      {t: 'Streifen auslegen', b: `<p>Streifen mit der Vorderseite nach unten auf den Boden legen, je ${c.g} mm Abstand. „zwei“ und „vier“ ${c.sh} mm zur einen Seite schieben, „drei“ ${c.sh} mm zur anderen. Anschauen – sieht es aus wie eine Tanne?</p>`},
+      {t: 'Rückenleiste anschrauben', b: `<p>Rückenleiste senkrecht in die Mitte legen, oben ${fmt(0.5 * c.hs)} mm unter der Spitze. In jeden Streifen 2 Schrauben 3,5 × 30 mm – vorher 3-mm-Löcher bohren. Achtung: nicht zu lange Schrauben, sonst kommen sie vorne raus!</p>`},
+      {t: 'Ablagen anleimen', b: `<p>Umdrehen. Jede Ablage flach unten an die Vorderseite eines Streifens leimen (die 50-mm-Seite zeigt nach vorn) und mit 2 Stiften sichern. Gut trocknen lassen.</p>`},
+      {t: 'Beschriften und aufhängen', b: `<p>Mit dem Lackstift „eins, zwei, drei, vier“ schreiben. Zwei Zackenaufhänger hinten auf die Rückenleiste. LED-Kerzen drauf, Tannengrün und Zapfen dazu – fertig!</p>`}
+    ];
+  }
+};
+
+/* ================= JUNIOR: AST-RENTIER ================= */
+function rentierCalc(L) {
+  const r = v => Math.round(v / 5) * 5, d = v => Math.max(4, Math.round(v));
+  return {L, parts: [
+    {name: 'Körper', n: 1, len: r(L), dia: d(0.15 * L)},
+    {name: 'Beine', n: 4, len: r(0.8 * L), dia: d(0.05 * L)},
+    {name: 'Hals', n: 1, len: r(0.5 * L), dia: d(0.08 * L)},
+    {name: 'Kopf', n: 1, len: r(0.33 * L), dia: d(0.12 * L)},
+    {name: 'Geweih (Astgabeln)', n: 2, len: r(0.5 * L), dia: d(0.03 * L)},
+    {name: 'Schwanz', n: 1, len: r(0.12 * L), dia: d(0.04 * L)}
+  ], jute: Math.round(L * 12 / 100) / 10, height: 0.8 * L + 0.5 * L * 0.9 + 0.5 * L};
+}
+function rentierSVG(c, labels = true) {
+  const s = 170 / c.L, x0 = 40, yb = 326;
+  const P = (x, y) => `${(x0 + x * s).toFixed(1)},${(yb - y * s).toFixed(1)}`;
+  const L = c.L, br = labels ? '#7a5434' : '#c98f55', tw = labels ? '#5e3f25' : '#e0b070', jt = '#d8bf8c';
+  const stick = (a, b, w) => `<line x1="${P(...a).split(',')[0]}" y1="${P(...a).split(',')[1]}" x2="${P(...b).split(',')[0]}" y2="${P(...b).split(',')[1]}" stroke="${tw}" stroke-width="${(w * s).toFixed(1)}" stroke-linecap="round"/>`;
+  const legH = 0.8 * L * Math.cos(15 * DEG);
+  let o = '';
+  // Beine (je ein Paar leicht gespreizt)
+  for (const [bx, sp] of [[0.15 * L, -1], [0.22 * L, 1], [0.78 * L, -1], [0.85 * L, 1]]) o += stick([bx, legH], [bx + sp * 0.8 * L * Math.sin(12 * DEG), 0], 0.05 * L);
+  // Körper
+  o += stick([0, legH + 0.02 * L], [L, legH + 0.02 * L], 0.15 * L);
+  // Schwanz
+  o += stick([0.02 * L, legH + 0.06 * L], [-0.1 * L, legH + 0.12 * L], 0.04 * L);
+  // Hals 65° nach oben vorn
+  const nx = L * 0.9, ny = legH + 0.05 * L, hx = nx + 0.5 * L * Math.cos(65 * DEG), hy = ny + 0.5 * L * Math.sin(65 * DEG);
+  o += stick([nx, ny], [hx, hy], 0.08 * L);
+  // Kopf leicht nach unten
+  const kx = hx + 0.33 * L * Math.cos(-20 * DEG), ky = hy + 0.33 * L * Math.sin(-20 * DEG);
+  o += stick([hx - 0.03 * L, hy + 0.01 * L], [kx, ky], 0.12 * L);
+  // Geweih
+  for (const [ang, off] of [[110, 0], [70, 0.05]]) {
+    const ax = hx + off * L, ay = hy + 0.04 * L, ex = ax + 0.5 * L * Math.cos(ang * DEG), ey = ay + 0.5 * L * Math.sin(ang * DEG);
+    o += stick([ax, ay], [ex, ey], 0.03 * L);
+    const mx = ax + 0.25 * L * Math.cos(ang * DEG), my = ay + 0.25 * L * Math.sin(ang * DEG);
+    o += stick([mx, my], [mx + 0.15 * L * Math.cos((ang - 35) * DEG), my + 0.15 * L * Math.sin((ang - 35) * DEG)], 0.025 * L);
+  }
+  // Jute-Wicklung
+  for (const bx of [0.18 * L, 0.82 * L]) for (let i = -2; i <= 2; i++) o += `<line x1="${P(bx + i * 0.025 * L - 0.04 * L, legH + 0.11 * L).split(',')[0]}" y1="${P(0, legH + 0.11 * L).split(',')[1]}" x2="${P(bx + i * 0.025 * L + 0.04 * L, 0).split(',')[0]}" y2="${P(0, legH - 0.07 * L).split(',')[1]}" stroke="${jt}" stroke-width="2.2"/>`;
+  // Ohr + Nase
+  o += `<ellipse cx="${P(hx + 0.02 * L, hy).split(',')[0]}" cy="${P(0, hy + 0.05 * L).split(',')[1]}" rx="${(0.06 * L * s).toFixed(1)}" ry="${(0.03 * L * s).toFixed(1)}" fill="#e9dcc7" transform="rotate(-30 ${P(hx + 0.02 * L, hy + 0.05 * L).replace(',', ' ')})"/>`;
+  o += `<circle cx="${P(kx, ky).split(',')[0]}" cy="${P(kx, ky).split(',')[1]}" r="${(0.04 * L * s).toFixed(1)}" fill="#c0392b"/>`;
+  let vb = `0 0 340 340`;
+  if (labels) {
+    const B = (x, y, n) => { const [a, b] = P(x, y).split(','); return badge(+a, +b, n); };
+    o += B(0.5 * L, legH + 0.22 * L, 1) + B(0.5 * L, legH * 0.45, 2) + B(nx + 0.05 * L, ny + 0.35 * L, 3) + B(kx + 0.12 * L, ky - 0.1 * L, 4) + B(hx - 0.35 * L, hy + 0.4 * L, 5);
+  }
+  return `<svg viewBox="${vb}" role="img" aria-label="Ast-Rentier">${o}</svg>`;
+}
+const rentier = {
+  id: 'rentier', junior: true,
+  title: 'Rentier aus Ästen',
+  teaser: 'Aus Zweigen vom Spaziergang, Jutegarn und ein bisschen Kleber wird ein Rentier – als Baumschmuck oder Deko zum Hinstellen.',
+  tags: ['ab 10 Jahren', 'Gartenschere', '1–2 Stunden'],
+  presets: [100, 150, 250],
+  range: [80, 400],
+  sizeLabel: 'Körperlänge',
+  calc: () => rentierCalc(state.rentier.H),
+  thumb: () => rentierSVG(rentierCalc(150), false),
+  sizeExtra: () => '',
+  ziel(c) {
+    return `<div class="panel"><h3>Was baust du?</h3>
+      <p>Ein Rentier aus <b>10 Ästchen</b>: ein dicker Ast ist der Körper, vier dünne sind die Beine, dazu Hals, Kopf und zwei Astgabeln als Geweih. Die Beine werden mit <b>Jutegarn</b> am Körper festgewickelt – das hält gut und sieht schön aus. Klein als Baumschmuck, groß als Deko fürs Fensterbrett.</p>
+      <div class="facts">
+        <div class="fact"><b>${fmt(c.L / 10)} cm</b><span>Körperlänge</span></div>
+        <div class="fact"><b>ca. ${fmt(c.height / 10)} cm</b><span>hoch mit Geweih</span></div>
+        <div class="fact"><b>10 Äste</b><span>vom Spaziergang</span></div>
+        <div class="fact"><b>${fmt(c.jute, 1)} m</b><span>Jutegarn</span></div>
+      </div>
+      <div class="drawing">${rentierSVG(c)}${legend(['<b>Körper:</b> der dickste Ast', '<b>Beine:</b> 4 dünne Äste, mit Jute über Kreuz festgewickelt', '<b>Hals:</b> schräg nach oben (ca. 65°)', '<b>Kopf:</b> mit roter Nase', '<b>Geweih:</b> zwei kleine Astgabeln'])}</div>
+      ${junNote}
+      <div class="note">Tipp: Für mehrere Rentiere gleich viele Äste sammeln – zu zweit macht es doppelt Spaß, und ihr könnt eine ganze Herde bauen.</div>
+    </div>`;
+  },
+  material(c) {
+    return {wood: [`Äste und Zweige, <b>trocken</b> (ein paar Tage im Warmen liegen lassen): ${c.parts.map(p => `${p.n} × ${p.name.split(' ')[0]} ca. Ø ${p.dia} mm`).join(', ')}`],
+      small: [`Jutegarn ca. ${fmt(c.jute, 1)} m (plus 30 cm zum Aufhängen)`, 'Heißklebepistole mit Klebesticks (mit Erwachsenem)', 'Filzrest (hellbraun) für die Ohren', 'rote Holzperle oder roter Pompon als Nase', 'schwarzer Filzstift für die Augen'],
+      tools: ['Gartenschere oder Astschere', 'kleine Säge (Puksäge) für dickere Äste', 'Akkuschrauber mit dünnem Bohrer (3–4 mm) für das Geweih', 'Zollstock oder Lineal', 'Unterlage zum Basteln'], extra: ''};
+  },
+  zuschnitt(c) {
+    const rows = c.parts.map(p => [p.name, p.n, `<b>${fmt(p.len)}</b> lang`, `Dicke ca. <b>${p.dia} mm</b>`]);
+    return `<div class="panel"><h3>Zuschnitt · Rentier mit ${fmt(c.L / 10)} cm Körper</h3>
+      <p class="small muted">Längen in mm. Äste sind nie ganz gerade – ein bisschen mehr oder weniger ist völlig egal!</p>
+      ${partsTable(rows)}
+      <div class="note">Sortier deine Äste vorher nach Dicke: Der dickste wird der Körper, der zweitdickste der Kopf, die dünnsten die Beine. Für das Geweih suchst du Zweige mit einer kleinen Gabel.</div>
+    </div>`;
+  },
+  winkel(c) {
+    return `<div class="panel"><h3>Die Winkel</h3>
+      <div class="anglecard"><div class="badge alt"><b>~12°</b><span>Beine</span></div><div>Die Beine stehen leicht schräg nach außen, jedes Paar ein bisschen gespreizt. So steht das Rentier sicher.</div></div>
+      <div class="anglecard"><div class="badge"><b>~65°</b><span>Hals</span></div><div>Der Hals zeigt schräg nach oben vorne. Mit dem Geodreieck kannst du es prüfen – aber nach Gefühl geht auch.</div></div>
+      <div class="anglecard"><div class="badge hand"><b>schräg</b><span>Schnitte</span></div><div>Hals und Kopf unten <b>schräg</b> abschneiden – dann liegt mehr Fläche auf und der Kleber hält besser.</div></div>
+      <div class="anglecard"><div class="badge alt"><b>V</b><span>Geweih</span></div><div>Die zwei Geweih-Gabeln stehen wie ein V auseinander, ungefähr so weit wie Daumen und Zeigefinger.</div></div>
+    </div>`;
+  },
+  steps(c) {
+    return [
+      {t: 'Äste sammeln und trocknen', b: `<p>Beim Spaziergang Zweige sammeln – nur abgefallene, nicht von lebenden Bäumen abbrechen. Ein paar Tage drinnen trocknen lassen.</p>`},
+      {t: 'Äste zuschneiden', b: `<p>Nach der Liste unter „Zuschnitt“ mit der Gartenschere ablängen. Dickere Äste mit der kleinen Säge – Ast dabei festspannen oder festhalten lassen.</p>`},
+      {t: 'Beine anbinden', b: `<ul><li>Körper hinlegen. Vorne zwei Beine von links und rechts anlegen, ein Tropfen Heißkleber.</li><li>Jutegarn mehrmals über Kreuz um Körper und Beine wickeln, Ende festkleben.</li><li>Genauso die Hinterbeine. Hinstellen – wackelt es? Beine etwas nachschneiden.</li></ul>`},
+      {t: 'Hals und Kopf', b: `<p>Hals unten schräg abschneiden und vorne oben auf den Körper kleben, mit Jute umwickeln. Kopf an das obere Halsende kleben, leicht nach unten geneigt.</p>`},
+      {t: 'Geweih einsetzen', b: `<p>Oben in den Kopf zwei kleine Löcher bohren (ca. 1 cm tief, so dick wie die Geweih-Zweige). Einen Tropfen Kleber rein, Geweih einstecken, kurz festhalten.</p>`},
+      {t: 'Gesicht und Schwanz', b: `<p>Zwei Filzohren ausschneiden und ankleben, rote Nase vorn an den Kopf, Augen mit Filzstift. Hinten einen kleinen Zweig als Schwanz.</p>`},
+      {t: 'Aufhänger', b: `<p>Ein Stück Jute in der Mitte um den Körper knoten und eine Schlaufe machen – fertig ist der Baumschmuck. Oder einfach hinstellen!</p>`}
+    ];
+  }
+};
+
+const PROJECTS = {tanne, stern, latte, advent, rentier};
 const TABS = [['ziel', 'Was möchte ich?'], ['material', 'Was brauche ich?'], ['zuschnitt', 'Zuschnitt'], ['winkel', 'Winkel'], ['anleitung', 'Schritt für Schritt']];
 
 /* ---------------- Rendering ---------------- */
@@ -653,8 +876,11 @@ function render() {
     back.hidden = true;
     document.getElementById('htitle').textContent = 'Werkstatt';
     document.getElementById('hsub').textContent = 'Holzprojekte Schritt für Schritt';
+    const card = p => `<a class="pcard${p.junior ? ' jun' : ''}" href="#/${p.id}/ziel"><div class="thumb">${p.thumb()}</div><div class="body"><h3>${p.title}</h3><p>${p.teaser}</p><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div></div></a>`;
+    const all = Object.values(PROJECTS);
     app.innerHTML = `<div class="hero"><h2>Was baust du heute?</h2><p>Projekt wählen, Größe einstellen – Materialliste, Zuschnitt, Winkel und Anleitung rechnen sich automatisch.</p></div>
-      <div class="cards">${Object.values(PROJECTS).map(p => `<a class="pcard" href="#/${p.id}/ziel"><div class="thumb">${p.thumb()}</div><div class="body"><h3>${p.title}</h3><p>${p.teaser}</p><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div></div></a>`).join('')}</div>`;
+      <h2 class="sec">Werkstatt</h2><div class="cards">${all.filter(p => !p.junior).map(card).join('')}</div>
+      <h2 class="sec jun">Junior-Werkstatt <span>ab 10 Jahren</span></h2><p class="muted small">Einfache Projekte zum Selbermachen – Sägen, Bohren und Heißkleben zusammen mit einem Erwachsenen.</p><div class="cards">${all.filter(p => p.junior).map(card).join('')}</div>`;
     return;
   }
   const p = PROJECTS[pid], st = state[pid], c = p.calc();
@@ -662,10 +888,10 @@ function render() {
   document.getElementById('htitle').textContent = p.title;
   document.getElementById('hsub').textContent = `Größe: ${fmt(st.H / 10)} cm`;
   const isPreset = p.presets.includes(+st.H);
-  let html = `<div class="sizebar"><div class="lbl">Größe (Gesamthöhe)</div><div class="chips">
-    ${p.presets.map(h => `<button class="chip ${+st.H === h ? 'on' : ''}" data-h="${h}">${h / 10} cm</button>`).join('')}
+  let html = `<div class="sizebar"><div class="lbl">${p.sizeLabel || 'Größe (Gesamthöhe)'}</div><div class="chips">
+    ${p.presets.map(h => `<button class="chip ${+st.H === h ? 'on' : ''}" data-h="${h}">${fmt(h / 10)} cm</button>`).join('')}
     <label class="custom">eigene: <input type="number" inputmode="numeric" min="${p.range[0] / 10}" max="${p.range[1] / 10}" step="1" value="${isPreset ? '' : fmt(st.H / 10)}" placeholder="cm" id="hcustom"> cm</label></div>
-    <div class="row2">${p.sizeExtra(c)}</div></div>`;
+    ${p.sizeExtra(c) ? `<div class="row2">${p.sizeExtra(c)}</div>` : ''}</div>`;
   html += `<nav class="tabs">${TABS.map((t, i) => `<button data-tab="${t[0]}" class="${t[0] === tab ? 'on' : ''}"><span class="n">${i + 1}</span>${t[1]}</button>`).join('')}</nav>`;
   html += `<div id="content">${renderTab(p, tab, c)}</div>`;
   app.innerHTML = html;

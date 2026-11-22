@@ -10,3 +10,8 @@ Für jedes Projekt: Was möchte ich? · Was brauche ich? · Zuschnitt · Winkel 
 Größe frei wählbar, alle Maße rechnen sich automatisch neu.
 
 Online: https://nb-gsn.github.io/werken/
+
+## Junior-Werkstatt (ab 10 Jahren)
+
+- **Advents-Tanne zum Aufhängen** – Holzdreieck in 4 Streifen, versetzt, mit Ablagen für LED-Kerzen
+- **Rentier aus Ästen** – Zweige, Jutegarn, Heißkleber
